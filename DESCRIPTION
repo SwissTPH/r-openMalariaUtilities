@@ -1,0 +1,47 @@
+Package: openMalariaUtilities
+Title: Helper functions to provide easier usage of Open Malaria from R
+Version: 2.0
+Authors@R: 
+    c(person(given = "Roland",
+             family = "Goers",
+             role = c("aut", "cre"),
+             email = "roland.goers@swisstph.ch"),
+      person(given = "Emilie",
+             family = "Pothin",
+             role = c("aut", "cre"),
+             email = "emilie.pothin@swisstph.ch"),
+      person(given = "Munir",
+             family = "Winkel",
+             role = c("aut"),
+             email = "munir.winkel@swisstph.ch"),
+      person(given = "Lucas",
+             family = "Tittmann",
+             role = c("ctb", "csl"),
+             email = "ch.stph@tittmann.ch"))
+Description: Provides functions for creating scenarios and
+    running experiments.
+Depends: R (>= 3.5.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+    xml2 (>= 1.3.2),
+    checkmate (>= 2.1.0),
+    hash (>= 2.2.6.1),
+    stats,
+    dplyr,
+    iterators,
+    lubridate,
+    magrittr,
+    tidyr,
+    tidyselect
+VignetteBuilder: knitr
+Suggests:
+    covr,
+    knitr,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Remotes: 
+    mllg/checkmate@9c2e44b

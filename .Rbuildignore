@@ -1,0 +1,14 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^scripts$
+^README\.Rmd$
+^\.gitlab-ci\.yml$
+^ci
+^LICENSE\.md$
+^CONTRIBUTING\.md$
+^\.gitlab$
+^\.dir-locals\.el$
+^\.lintr$
+^data-raw$
+^legacy$
+^todo\.org$

@@ -1,0 +1,10 @@
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+~*
+.Rproj.user
+inst/doc
+scripts/*.csv
+scripts/*.xlsx
+scripts/*.png

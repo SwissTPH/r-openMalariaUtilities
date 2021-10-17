@@ -1,0 +1,14 @@
+* Inbox
+:PROPERTIES:
+:CATEGORY: openMalariaUtilities
+:END:
+** TODO Add stylr and lintr defaults
+
+So the settings used in this project are easily available
+** TODO Make cache portable
+
+Currently, the cache is (most likely) not portable between UNIX and Windows
+systems as the paths are stored as an absolute value and thus the seperators
+etc. become hardcoded.
+Possible circumvention: Only store the path segments from the root directory and
+use them in conjunction with ~file.path~.
