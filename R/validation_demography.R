@@ -1,6 +1,3 @@
-## Hash table storing the validation functions
-.omuValidation <- hash::hash()
-
 ##
 ### Demography
 

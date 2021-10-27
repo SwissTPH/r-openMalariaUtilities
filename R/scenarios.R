@@ -1,3 +1,14 @@
+## The necessary funcitonality to generate scenarios based on a so called base
+## xml file. The base xml file (and the list from which it was generated)
+## contains @placeholders@ which should be replaced with new values according to
+## the scenario. The scenarios object is a data frame where each row is one
+## scenario. Each column is one parameter. Important note: The column names MUST
+## match the placeholder name without the @ symbols. Otherwise they will not get
+## recognized.
+##
+## The object full is a starting point from the experiments (full factorial).
+## REVIEW Is keeping full really necessary? Can it be factored out?
+
 ##' @title Generate scenarios from a base xml file and a scenarios data frame
 ##' @param baseFile Compatible base xml file.
 ##' @param prefix Prefix for the scenario files.

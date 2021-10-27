@@ -1,4 +1,10 @@
-## Directory structure is created as a side effect
+## Creation of the directory structure. If not defined otherwise, the current
+## working directory is taken as the root of the structure. A subfolder named
+## after the experiment name (if given) or with the current date and time is
+## created in the root folder and contains distinct folders for the cache, the
+## logs, the scenarions and the results.
+
+## NOTE Directory structure is created as a side effect
 
 ##' Generate the folder structure for an experiment. Caches the paths in the
 ##' `.openMalariaUtilites` environment.

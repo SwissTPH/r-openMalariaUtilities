@@ -1,6 +1,13 @@
-## TODO Extend information
-## data should be a list containing all settings and interventions which should
-## be merged into the xml
+### Generate the base xml file
+
+## The base xml file is an openMalaria xml file but it can contain
+## @placeholders@ which are used to generate the various scenarios. If no
+## placeholders are used, the base xml file is the actual scenario file. The
+## input data is a list having a distinct structure resembling the openMalaria
+## xml files. Attribute and element names should be the same as in openMalaria.
+
+## TODO Document the list structure used, esp. the options NOT part of the
+## openMalaria spec
 
 ##' Processes a list as containing all information to generate all required
 ##' folders and files for openMalaria. Spaces in the name of the experiment are

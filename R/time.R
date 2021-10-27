@@ -1,4 +1,3 @@
-##
 ### Time series generation
 
 ## Setting this to 1st January of some year might simplify usage of dates, and

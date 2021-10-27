@@ -1,5 +1,18 @@
-##
-### Create monitoring continous entries
+### Create monitoring/continous entries
+
+## These functions generate entries for the monitoring/continous part which are
+## tedious to define by hand.
+## This includes:
+##   - the options (for continous and surveys), which can be passed as a list or
+##     data frame
+##   - the timepoints for monitoring
+## The time points generation is more involved as it tries to take care that all
+## generated dates are multiples of 5 days. This is done because openMalaria
+## operates on 5 days intervals. openMalaria does accept dates as input but they
+## are rounded internally to match the beforementioned 5 day steps (fine).
+## However, openMalaria does not tell what the new date is and thus we lose this
+## information (not fine). Thus, we generate here the dates and store them for
+## later (postprocessing).
 
 ##' @title Generate list for 'monitoring/continous/options'
 ##' @param period TODO
@@ -50,8 +63,9 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ## Adapted from https://stackoverflow.com/a/52067205
 .leapYear <- function(year) {
   leap <- ifelse(test = (year %% 4 == 0 & year %% 100 != 0) | year %% 400 == 0,
-                 yes = TRUE,
-                 no = FALSE)
+    yes = TRUE,
+    no = FALSE
+  )
   return(leap)
 }
 
@@ -118,7 +132,7 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     ##        smarter than me comes up with a solution to the leap year issue
     ##        etc. feel free to put it here.
 
-    ## Check if given interval is a multiple of 5 and adjust if necessary
+    ## Check if given interval is a multiple of 5 days and adjust if necessary
     split <- strsplit(interval, split = " ")
     every <- as.numeric(split[[1]][1])
     unit <- split[[1]][2]
@@ -127,9 +141,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       numDays <- every
       if (numDays %% 5 != 0) {
         numDays <- round(numDays / 5) * 5
-        warning(paste0("Interval must be a multiple of 5 and was adjusted to ",
-                       numDays,
-                       " days."))
+        warning(paste0(
+          "Interval must be a multiple of 5 and was adjusted to ",
+          numDays,
+          " days."
+        ))
       }
       every <- numDays
     } else if (unit == "week" | unit == "weeks") {
@@ -137,9 +153,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       numDays <- every * 7
       if (numDays %% 5 != 0) {
         numDays <- round(numDays / 5) * 5
-        warning(paste0("Interval must be a multiple of 5 and was adjusted to ",
-                       numDays,
-                       " days."))
+        warning(paste0(
+          "Interval must be a multiple of 5 and was adjusted to ",
+          numDays,
+          " days."
+        ))
       }
       every <- numDays
     } else if (unit == "month" | unit == "months") {
@@ -147,9 +165,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       numDays <- every * 30
       if (numDays %% 5 != 0) {
         numDays <- round(numDays / 5) * 5
-        warning(paste0("Interval must be a multiple of 5 and was adjusted to ",
-                       numDays,
-                       " days."))
+        warning(paste0(
+          "Interval must be a multiple of 5 and was adjusted to ",
+          numDays,
+          " days."
+        ))
       }
       every <- numDays
     } else if (unit == "quarter" | unit == "quarters") {
@@ -157,9 +177,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       numDays <- every * 90
       if (numDays %% 5 != 0) {
         numDays <- round(numDays / 5) * 5
-        warning(paste0("Interval must be a multiple of 5 and was adjusted to ",
-                       numDays,
-                       " days."))
+        warning(paste0(
+          "Interval must be a multiple of 5 and was adjusted to ",
+          numDays,
+          " days."
+        ))
       }
       every <- numDays
     } else {
@@ -170,11 +192,12 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     ## seq.Date because this would correctly take leap years into account when
     ## we are calculating the number of days between time points. Instead, we
     ## need to generate our own 365 days long years and extract the dates we
-    ## need. Furthermore, we generate this from the beginning of the simulation
-    ## (monitoring/startDate) and then select the closest date to startDate.
-    dates <- .xmlMonitoringTimeRegularSeq(startDate = startDate,
-                                          endDate = endDate,
-                                          daysFilter = every)
+    ## need.
+    dates <- .xmlMonitoringTimeRegularSeq(
+      startDate = startDate,
+      endDate = endDate,
+      daysFilter = every
+    )
 
     ## Store the information in the cache
     omuCache$surveyTimes <- dates
@@ -187,9 +210,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     interval[["years"]] <- c(min(interval[["years"]]):(max(interval[["years"]]) + 1))
     dates <- .xmlTimeBlockSeq(interval)
     ## As above, adjust dates so they are multiples of 5 day timesteps
-    validDates <- .xmlMonitoringTimeRegularSeq(startDate = dates[1],
-                                               endDate = dates[length(dates)],
-                                               daysFilter = 5)
+    validDates <- .xmlMonitoringTimeRegularSeq(
+      startDate = dates[1],
+      endDate = dates[length(dates)],
+      daysFilter = 5
+    )
     ## Adjust dates according to valid dates
     ## Adapted from https://stackoverflow.com/a/45082198
     dates <- unique(unlist(lapply(as.Date(dates), function(x) {
@@ -227,12 +252,14 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       "1y"
     }
     entry[["repeatEnd"]] <- y
-    entry <- append(entry,
-                    if (useDays == TRUE) {
-                      as.character(paste0(0, "d"))
-                    } else {
-                      paste0(x, "d")
-                    })
+    entry <- append(
+      entry,
+      if (useDays == TRUE) {
+        as.character(paste0(0, "d"))
+      } else {
+        paste0(x, "d")
+      }
+    )
     outlist <<- append(outlist, list(surveyTime = entry))
   }, x = days, y = endDates)
   ## Return output list
