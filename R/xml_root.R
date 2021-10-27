@@ -1,18 +1,18 @@
-##
 ### Create document root
 
-.makeXmlRoot <- function(schemaVersion, name, analysisNo, validate = TRUE) {
+## Generate the xml root according to openMalara specs.
+
+.makeXmlRoot <- function(schemaVersion, name, analysisNo) {
   ## Input verification
-  if (validate == TRUE) {
-    assertCol <- checkmate::makeAssertCollection()
-    checkmate::assertInteger(schemaVersion, add = assertCol)
-    checkmate::assertCharacter(name, add = assertCol)
-    checkmate::assertInteger(
-      analysisNo,
-      lower = 1L, upper = 100000000L, null.ok = TRUE, add = assertCol
-    )
-    checkmate::reportAssertions(collection = assertCol)
-  }
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertInteger(schemaVersion, add = assertCol)
+  checkmate::assertCharacter(name, add = assertCol)
+  checkmate::assertInteger(
+    analysisNo,
+    lower = 1L, upper = 100000000L, null.ok = TRUE, add = assertCol
+  )
+  checkmate::reportAssertions(collection = assertCol)
+
   ## Create root
   scenario <- xml2::xml_new_root(
     "om:scenario",

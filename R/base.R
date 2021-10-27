@@ -15,10 +15,9 @@
 ##'
 ##' @title Create an openMalaria experiment
 ##' @param data List containing all information
-##' @param validate Boolean, if data should be validated
 ##' @return
 ##' @export
-createBaseXml <- function(data = NULL, validate = TRUE) {
+createBaseXml <- function(data = NULL) {
   ## Replace spaces with underscores in experiment name and cache it
   data[["expName"]] <- gsub(" ", "_", data[["expName"]])
   omuCache$experimentName <- data[["expName"]]
@@ -32,11 +31,10 @@ createBaseXml <- function(data = NULL, validate = TRUE) {
   baseXml <- .makeXmlRoot(
     schemaVersion = data[["OMVersion"]],
     name = omuCache$experimentName,
-    analysisNo = data[["analysisNo"]],
-    validate = validate
+    analysisNo = data[["analysisNo"]]
   )
   ## Construct xml document
-  .xmlMakeDocRec(baseXML = baseXml, data = data, validate = validate)
+  .xmlMakeDocRec(baseXML = baseXml, data = data)
   ## Create folders
   .createFolders(
     experimentName = omuCache$experimentName,

@@ -59,9 +59,8 @@
 ##' @param data List with experiment information
 ##' @param errCol TODO
 ##' @param recLevel TODO
-##' @param validate Boolean, if data should be validated
 ##' @return
-recXML <- function(x, data, errCol, recLevel = list(), validate = TRUE) {
+recXML <- function(x, data, errCol, recLevel = list()) {
   ## Name of the current entry
   top <- names(data)
   ## Store entry for debugging
@@ -80,15 +79,21 @@ recXML <- function(x, data, errCol, recLevel = list(), validate = TRUE) {
         .placeholderCollect(rest[[i]])
         xml2::xml_set_text(chunk, as.character(rest[[i]]))
       } else {
-        ## If it has a validation entry, run its function.
-        ## Funky way to construct the entry!
-        func <- Reduce(`[[`, append(.omuValidation, append(recLevel, names(rest)[[i]])))
-        if (validate == TRUE & !is.null(func)) {
-          do.call(
-            what = func,
-            args = list(rest[[i]], paste0(paste0(recLevel, collapse = ":"), ":", names(rest)[[i]]), errCol)
-          )
-        }
+        ## REVIEW The way the validation was implemented was by far to tedious.
+        ##        Thus, this is deprecated and removed for now until we have a
+        ##        way to parse the openMalaria xsd file and extract the valid
+        ##        types. Or we decide to not validate all entries and be done
+        ##        with it.
+
+        ## If it has a validation entry, run its function. Funky way to
+        ## construct the entry!
+        ## func <- Reduce(`[[`, append(.omuValidation, append(recLevel, names(rest)[[i]])))
+        ## if (validate == TRUE & !is.null(func)) {
+        ##   do.call(
+        ##     what = func,
+        ##     args = list(rest[[i]], paste0(paste0(recLevel, collapse = ":"), ":", names(rest)[[i]]), errCol)
+        ##   )
+        ## }
         ## Check if it is a placeholder and if yes, store it in the cache
         .placeholderCollect(rest[[i]])
         ## Set the attribute for the current named entry (e.g. '<a
@@ -103,7 +108,7 @@ recXML <- function(x, data, errCol, recLevel = list(), validate = TRUE) {
       }
     } else {
       ## Recurse
-      recXML(chunk, rest[i], errCol, recLevel, validate)
+      recXML(chunk, rest[i], errCol, recLevel)
     }
   }
   ## Return merged xml2 document
@@ -113,9 +118,8 @@ recXML <- function(x, data, errCol, recLevel = list(), validate = TRUE) {
 ##' @title Create xml entries recursively
 ##' @param baseXML The root xml object
 ##' @param data List with experiment information
-##' @param validate Boolean, if data should be validated
 ##' @return xml document
-.xmlMakeDocRec <- function(baseXML, data, validate = TRUE) {
+.xmlMakeDocRec <- function(baseXML, data) {
   ## Entries which should be generated
   xmlEntries <- c(
     "demography",
@@ -139,7 +143,7 @@ recXML <- function(x, data, errCol, recLevel = list(), validate = TRUE) {
   ## Run the recursion
   for (i in seq_len(length(data))) {
     if (names(data[i]) %in% xmlEntries & is.list(data[i])) {
-      recXML(x = baseXML, data = data[i], errCol = assertCol, recLevel = list(), validate = validate)
+      recXML(x = baseXML, data = data[i], errCol = assertCol, recLevel = list())
     }
   }
   ## Report errors
