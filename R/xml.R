@@ -1,5 +1,4 @@
-##
-### Generators
+### Generate a xml document for openMalaria
 
 ## Adds multiple elements names "element" to xml object "x", each with the
 ## attributes set provided by "attributeList". This list is composed of multiple

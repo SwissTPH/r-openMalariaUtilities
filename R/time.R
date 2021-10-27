@@ -1,5 +1,8 @@
 ### Time series generation
 
+## These functions generate date sequences which should be compatible with
+## openMalaria's handling of time.
+
 ## Setting this to 1st January of some year might simplify usage of dates, and
 ## putting the start a couple of years before the start of intervention
 ## deployment (along with some extra surveys) may be useful to check

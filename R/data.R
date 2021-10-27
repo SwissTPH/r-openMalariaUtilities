@@ -1,3 +1,10 @@
+### Included data sets
+
+## At the time of wrtiting, this is exclusively demograpic data. Can be extended
+## in the future.
+
+## TODO Add description and sources
+
 #' Demographic data from Benin
 #'
 #' A dataset with demographic data from Benin. The variables are as follows:

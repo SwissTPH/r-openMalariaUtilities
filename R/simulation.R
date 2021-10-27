@@ -1,4 +1,4 @@
-## Launch openMalaria and run the scenarios.
+### Launch openMalaria and run the scenarios.
 
 ## TODO Make compatible with SLURM scheduler
 

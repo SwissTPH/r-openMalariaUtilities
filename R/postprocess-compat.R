@@ -1,3 +1,7 @@
+### Compatibility with Munirflow, postprocessing
+
+## This should be refactored and merged with the main code.
+
 .get_om_event_measure <- function() {
   #' Function to get event measures names and corresponding numbers ' @note used
   # often internally, never seen by user, easy to write, never breaks

@@ -1,4 +1,6 @@
-## Reading and processing of the raw openMalaria files
+### Reading and processing of the raw openMalaria files
+
+## FIXME This is a fucking mess right now and probably error prone.
 
 ##' Function to manage postprocessing The output file is named
 ##' paste0(setting_number,"_",loop_id,"_CombinedDat_Aggr.RData") and is generated

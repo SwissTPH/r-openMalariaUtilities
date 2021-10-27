@@ -1,4 +1,4 @@
-### Create monitoring/continous entries
+### Little helpers for the the monitoring section
 
 ## These functions generate entries for the monitoring/continous part which are
 ## tedious to define by hand.

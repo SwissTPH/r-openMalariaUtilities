@@ -1,3 +1,5 @@
+### Little helpers for the the demography section
+
 ##' @title Generate list for 'demography/ageGroup'
 ##' @param lowerbound Double, lower bound of age group
 ##' @param ageGroups Data frame containing demograpghy

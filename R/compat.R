@@ -1,3 +1,5 @@
+### Compatibility functions from Munirflow
+
 ## These functions are for compatibility with Munirflow only. The included
 ## functionality should be refactored into the new structure.
 

@@ -1,3 +1,5 @@
+### Little helpers for the the interventions/changeHS section
+
 ##' @title TODO
 ##' @param interpolation TODO
 ##' @param ageGroups TODO

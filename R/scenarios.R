@@ -1,3 +1,5 @@
+### Generate scenarios from a base xml
+
 ## The necessary funcitonality to generate scenarios based on a so called base
 ## xml file. The base xml file (and the list from which it was generated)
 ## contains @placeholders@ which should be replaced with new values according to
@@ -7,6 +9,7 @@
 ## recognized.
 ##
 ## The object full is a starting point from the experiments (full factorial).
+
 ## REVIEW Is keeping full really necessary? Can it be factored out?
 
 ##' @title Generate scenarios from a base xml file and a scenarios data frame
