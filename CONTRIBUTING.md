@@ -27,6 +27,7 @@ Differences or highlights:
   ```
 
 - Use `##` for comments
+- Non-exported functions should be prefixed with a `.`
 
 It is recommended to use tools like [lintr](https://github.com/jimhester/lintr)
 and [styler](https://github.com/r-lib/styler) for automatic syntax checks and
