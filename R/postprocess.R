@@ -2,6 +2,103 @@
 
 ## FIXME This is a fucking mess right now and probably error prone.
 
+##' @title Returns hash table mapping measure numbers and names
+.surveyMeasuresDict <- function() {
+  ## Measures from
+  ## https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions#survey-measures
+  dict <- hash::hash()
+  dict[["nHost"]] <- c(0)
+  dict[["nInfect"]] <- c(1)
+  dict[["nExpectd"]] <- c(2)
+  dict[["nPatent"]] <- c(3)
+  dict[["sumLogPyrogenThres"]] <- c(4)
+  dict[["sumlogDens"]] <- c(5)
+  dict[["totalInfs"]] <- c(6)
+  dict[["nTransmit"]] <- c(7)
+  dict[["totalPatentInf"]] <- c(8)
+
+  dict[["sumPyrogenThresh"]] <- c(10)
+  dict[["nTreatments1"]] <- c(11)
+  dict[["nTreatments2"]] <- c(12)
+  dict[["nTreatments3"]] <- c(13)
+  dict[["nUncomp"]] <- c(14)
+  dict[["nSevere"]] <- c(15)
+  dict[["nSeq"]] <- c(16)
+  dict[["nHospitalDeaths"]] <- c(17)
+  dict[["nIndDeaths"]] <- c(18)
+  dict[["nDirDeaths"]] <- c(19)
+
+  dict[["nEPIVaccinations"]] <- c(20)
+  dict[["allCauseIMR"]] <- c(21)
+  dict[["nMassVaccinations"]] <- c(22)
+  dict[["nHospitalRecovs"]] <- c(23)
+  dict[["nHospitalSeqs"]] <- c(24)
+  dict[["nIPTDoses"]] <- c(25)
+  dict[["annAvgK"]] <- c(26)
+  dict[["nNMFever"]] <- c(27)
+
+  dict[["innoculationsPerAgeGroup"]] <- c(30)
+  dict[["Vector_Nv0"]] <- c(31)
+  dict[["Vector_Nv"]] <- c(32)
+  dict[["Vector_Ov"]] <- c(33)
+  dict[["Vector_Sv"]] <- c(34)
+  dict[["inputEIR"]] <- c(35)
+  dict[["simulatedEIR"]] <- c(36)
+  dict[["Clinical_RDTs"]] <- c(39)
+
+  dict[["Clinical_DrugUsage"]] <- c(40)
+  dict[["Clinical_FirstDayDeaths"]] <- c(41)
+  dict[["Clinical_HospitalFirstDayDeaths"]] <- c(42)
+  dict[["nNewInfections"]] <- c(43)
+  dict[["nMassITNs"]] <- c(44)
+  dict[["nEPI_ITNs"]] <- c(45)
+  dict[["nMassIRS"]] <- c(46)
+  dict[["nMassVA"]] <- c(47)
+  dict[["Clinical_Microscopy"]] <- c(48)
+  dict[["Clinical_DrugUsageIV"]] <- c(49)
+
+  dict[["nAddedToCohort"]] <- c(50)
+  dict[["nRemovedFromCohort"]] <- c(51)
+  dict[["nMDAs"]] <- c(52)
+  dict[["nNmfDeaths"]] <- c(53)
+  dict[["nAntibioticTreatments"]] <- c(54)
+  dict[["nMassScreenings"]] <- c(55)
+  dict[["nMassGVI"]] <- c(56)
+  dict[["nCtsIRS"]] <- c(57)
+  dict[["nCtsGVI"]] <- c(58)
+  dict[["nCtsMDA"]] <- c(59)
+
+  dict[["nCtsScreenings"]] <- c(60)
+  dict[["nSubPopRemovalTooOld"]] <- c(61)
+  dict[["nSubPopRemovalFirstEvent"]] <- c(62)
+  dict[["nLiverStageTreatments"]] <- c(63)
+  dict[["nTreatDiagnostics"]] <- c(64)
+  dict[["nMassRecruitOnly"]] <- c(65)
+  dict[["nCtsRecruitOnly"]] <- c(66)
+  dict[["nTreatDeployments"]] <- c(67)
+  dict[["sumAge"]] <- c(68)
+  dict[["nInfectByGenotype"]] <- c(69)
+
+  dict[["nPatentByGenotype"]] <- c(70)
+  dict[["logDensByGenotype"]] <- c(71)
+  dict[["nHostDrugConcNonZero"]] <- c(72)
+  dict[["sumLogDrugConcNonZero"]] <- c(73)
+  dict[["expectedDirectDeaths"]] <- c(74)
+  dict[["expectedHospitalDeaths"]] <- c(75)
+  dict[["expectedIndirectDeaths"]] <- c(76)
+  dict[["expectedSequelae"]] <- c(77)
+  dict[["expectedSevere"]] <- c(78)
+  dict[["innoculationsPerVector"]] <- c(79)
+
+  ## Custom measure summaries
+  dict[["allDeaths"]] <- c(18, 19, 19)
+  dict[["sumUncompSev"]] <- c(14, 15, 15)
+  dict[["allHospitalisations"]] <- c(17, 23, 24)
+
+  return(dict)
+}
+
+
 ##' Function to manage postprocessing The output file is named
 ##' paste0(setting_number,"_",loop_id,"_CombinedDat_Aggr.RData") and is generated
 ##' for each scenario and setting separately
@@ -68,7 +165,7 @@ do_post_processing <- function(nameExperiment,
   load(file.path(omuCache$cacheDir, "scens.RData"))
 
   # Lookup data
-  eventMeasureNum <- .get_om_event_measure()
+  eventMeasureNum <- .surveyMeasuresDict()
   match_measure_to_number <- as.data.frame(do.call("rbind", eventMeasureNum))
 
   #-- get better name for scens file

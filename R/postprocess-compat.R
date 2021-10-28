@@ -2,106 +2,6 @@
 
 ## This should be refactored and merged with the main code.
 
-.get_om_event_measure <- function() {
-  #' Function to get event measures names and corresponding numbers ' @note used
-  # often internally, never seen by user, easy to write, never breaks
-
-  ### measurement list
-  # https://github.com/SwissTPH/openmalaria/wiki/XmlMonitoring
-  eventMeasureNum <- list()
-  eventMeasureNum[["nHost"]] <- (0)
-  eventMeasureNum[["nInfect"]] <- c(1)
-  eventMeasureNum[["nExpectd"]] <- c(2)
-  eventMeasureNum[["nPatent"]] <- c(3)
-  eventMeasureNum[["sumlogDens"]] <- c(5)
-  eventMeasureNum[["totalInfs"]] <- c(6)
-  eventMeasureNum[["nTransmit"]] <- c(7)
-  eventMeasureNum[["totalPatentInf"]] <- c(8)
-  eventMeasureNum[["removed"]] <- c(9)
-  #
-  eventMeasureNum[["sumPyrogenThresh"]] <- c(10)
-  eventMeasureNum[["nTreatments1"]] <- c(11)
-  eventMeasureNum[["nTreatments2"]] <- c(12)
-  eventMeasureNum[["nTreatments3"]] <- c(13)
-  eventMeasureNum[["nUncomp"]] <- c(14)
-  eventMeasureNum[["nSevere"]] <- c(15)
-  eventMeasureNum[["nSeq"]] <- c(16)
-  eventMeasureNum[["nHospitalDeaths"]] <- c(17)
-  eventMeasureNum[["nIndDeaths"]] <- c(18)
-  eventMeasureNum[["nDirDeaths"]] <- c(19)
-  #
-  eventMeasureNum[["nEPIVaccinations"]] <- c(20)
-  eventMeasureNum[["allCauseIMR"]] <- c(21)
-  eventMeasureNum[["nMassVaccinations"]] <- c(22)
-  eventMeasureNum[["nHospitalRecovs"]] <- c(23)
-  eventMeasureNum[["nHospitalSeqs"]] <- c(24)
-  eventMeasureNum[["nIPTDoses"]] <- c(25)
-  eventMeasureNum[["annAvgK"]] <- c(26)
-  eventMeasureNum[["nNMFever"]] <- c(27)
-  eventMeasureNum[["removed"]] <- c(28)
-  eventMeasureNum[["removed"]] <- c(29)
-  #
-  eventMeasureNum[["innoculationsPerAgeGroup"]] <- c(30)
-  eventMeasureNum[["Vector_Nv0"]] <- c(31)
-  eventMeasureNum[["Vector_Nv"]] <- c(32)
-  eventMeasureNum[["Vector_Ov"]] <- c(33)
-  eventMeasureNum[["Vector_Sv"]] <- c(34)
-  eventMeasureNum[["inputEIR"]] <- c(35)
-  eventMeasureNum[["simulatedEIR"]] <- c(36)
-  eventMeasureNum[["removed"]] <- c(37)
-  eventMeasureNum[["removed"]] <- c(38)
-  eventMeasureNum[["Clinical_RDTs"]] <- c(39)
-  #
-  eventMeasureNum[["Clinical_DrugUsage"]] <- c(40)
-  eventMeasureNum[["Clinical_FirstDayDeaths"]] <- c(41)
-  eventMeasureNum[["Clinical_HospitalFirstDayDeaths"]] <- c(42)
-  eventMeasureNum[["nNewInfections"]] <- c(43)
-  eventMeasureNum[["nMassITNs"]] <- c(44)
-  eventMeasureNum[["nEPI_ITNs"]] <- c(45)
-  eventMeasureNum[["nMassIRS"]] <- c(46)
-  eventMeasureNum[["nMassVA"]] <- c(47)
-  eventMeasureNum[["Clinical_Microscopy"]] <- c(48)
-  eventMeasureNum[["Clinical_DrugUsageIV"]] <- c(49)
-  #
-  eventMeasureNum[["nAddedToCohort"]] <- c(50)
-  eventMeasureNum[["nRemovedFromCohort"]] <- c(51)
-  eventMeasureNum[["nMDAs"]] <- c(52)
-  eventMeasureNum[["nNmfDeaths"]] <- c(53)
-  eventMeasureNum[["nAntibioticTreatments"]] <- c(54)
-  eventMeasureNum[["nMassScreenings"]] <- c(55)
-  eventMeasureNum[["nMassGVI"]] <- c(56)
-  eventMeasureNum[["nCtsIRS"]] <- c(57)
-  eventMeasureNum[["nCtsGVI"]] <- c(58)
-  eventMeasureNum[["nCtsMDA"]] <- c(59)
-  #
-  eventMeasureNum[["nCtsScreenings"]] <- c(60)
-  eventMeasureNum[["nSubPopRemovalTooOld"]] <- c(61)
-  eventMeasureNum[["nSubPopRemovalFirstEvent"]] <- c(62)
-  eventMeasureNum[["nLiverStageTreatments"]] <- c(63)
-  eventMeasureNum[["nTreatDiagnostics"]] <- c(64)
-  eventMeasureNum[["nMassRecruitOnly"]] <- c(65)
-  eventMeasureNum[["nCtsRecruitOnly"]] <- c(66)
-  eventMeasureNum[["nTreatDeployments"]] <- c(67)
-  eventMeasureNum[["sumAge"]] <- c(68)
-  eventMeasureNum[["nInfectByGenotype"]] <- c(69)
-  #
-  eventMeasureNum[["nPatentByGenotype"]] <- c(70)
-  eventMeasureNum[["logDensByGenotype"]] <- c(71)
-  eventMeasureNum[["nHostDrugConcNonZero"]] <- c(72)
-  eventMeasureNum[["sumLogDrugConcNonZero"]] <- c(73)
-  eventMeasureNum[["expectedDirectDeaths"]] <- c(74)
-  eventMeasureNum[["expectedHospitalDeaths"]] <- c(75)
-  eventMeasureNum[["expectedIndirectDeaths"]] <- c(76)
-  eventMeasureNum[["expectedSequelae"]] <- c(77)
-  eventMeasureNum[["expectedSevere"]] <- c(78)
-  ## REVIEW This is not defined in the openMalaria spec
-  eventMeasureNum[["allDeaths"]] <- c(18, 19, 19)
-  eventMeasureNum[["sumUncompSev"]] <- c(14, 15, 15)
-  eventMeasureNum[["allHospitalisations"]] <- c(17, 23, 24)
-
-  return(eventMeasureNum)
-}
-
 #' returns a list of files
 #' @param scens scens object
 #' @param setting variable name that specifies the setting to run (default 'setting')
@@ -357,7 +257,7 @@
   #' creates a wide dataset in post-processing
   #' @param alle dataset
   #' @importFrom magrittr %>%
-  #' @param match_measure_to_number output obtained from .get_om_event_measure()
+  #' @param match_measure_to_number output obtained from .surveyMeasuresDict()
   #' @note used often internally, never seen by user, easy to write, never breaks
   #' @importFrom tidyr spread
   #' @importFrom dplyr group_by
