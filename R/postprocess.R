@@ -102,10 +102,11 @@
 ##' Creates a wide dataset in post-processing
 ##' @param data Dataset
 ##' @param matchMeasureToNumber Output obtained from .surveyMeasuresDict()
+##' @importFrom data.table ':='
 .widenProcessedDataset <- function(data, matchMeasureToNumber) {
   ## Convert to data.table and reshape into wide format
   wideData <- data.table::dcast(
-    data = data.table::data.table(alle),
+    data = data.table::data.table(data),
     formula = survey + age_group + scenario ~ measure
   )
 
@@ -368,7 +369,7 @@ do_post_processing <- function(nameExperiment,
   CombinedDat$ year.month <- paste0(
     CombinedDat$ year,
     ".",
-    .two_digit_month(CombinedDat)
+    .twoDigitMonth(CombinedDat)
   )
 
   time_variables <- ifelse(aggregate_to_year, "year", "year.month")

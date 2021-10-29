@@ -669,23 +669,13 @@
   ))
 } # end aggregate code
 
-.two_digit_month <- function(CombinedDat) {
-  #' uses the month of a date to create a two digit month (character)
-  #' @param CombinedDat CombinedDat dataset
-  #' @note used internally, never breaks, never seen by user
-  #' @importFrom lubridate ymd month
-
-  # CombinedDat = data.frame( Date = c("1918-01-01","1918-02-01"))
-
-  months <- lubridate::month(lubridate::ymd(as.Date(CombinedDat$ Date)))
-  months <- stats::na.omit(months)
-  stopifnot(max(months, na.rm = TRUE) <= 12)
-  single_digit <- (months <= 9)
-  months[single_digit] <- paste0("0", months[single_digit])
-  months[!single_digit] <- as.character(months[!single_digit])
-
+##' Uses the month of a date to create a two digit month (character)
+##' @param CombinedDat CombinedDat dataset
+.twoDigitMonth <- function(CombinedDat) {
+  months <- stats::na.omit(format(as.Date(CombinedDat$Date), "%m"))
+  stopifnot(length(months) == length(CombinedDat$Date))
   return(months)
-} # end function
+}
 
 .transform_wide_to_long <- function(dataframe,
                                     timevar,
