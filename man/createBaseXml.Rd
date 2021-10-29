@@ -4,12 +4,10 @@
 \alias{createBaseXml}
 \title{Create an openMalaria experiment}
 \usage{
-createBaseXml(data = NULL, validate = TRUE)
+createBaseXml(data = NULL)
 }
 \arguments{
 \item{data}{List containing all information}
-
-\item{validate}{Boolean, if data should be validated}
 }
 \value{
 

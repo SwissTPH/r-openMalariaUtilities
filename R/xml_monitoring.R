@@ -279,7 +279,11 @@ monitoringCohortsGen <- function(ids) {
   checkmate::assertVector(ids, max.len = 22, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
   maxNum <- length(ids) - 1
-  subPops <- data.frame(id = ids, number = 2^(0:maxNum))
+  subPops <- data.frame(
+    id = ids,
+    number = 2^(0:maxNum),
+    stringsAsFactors = FALSE
+  )
   outlist <- list()
   ## Loop over row, generating an entry eacht time and appending it to outlist
   outlist <- .xmlAddChunks(outlist = outlist, element = "subPop", attributeList = subPops)

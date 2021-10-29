@@ -12,3 +12,4 @@
 ^data-raw$
 ^legacy$
 ^todo\.org$
+^\.editorconfig$

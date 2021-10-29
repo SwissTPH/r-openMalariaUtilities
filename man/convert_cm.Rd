@@ -24,7 +24,7 @@ Convert access to effective treatment coverage
 }
 \examples{
 # Converting 80\% access to care to a 5-day OpenMalaria timestep
-convert_cm(orig = .80, scale = 1)
+\dontrun{
 
 # Converting 80\% access to care to a 5-day OpenMalaria timestep
 # in Ghana, where it is assumed that 63.7\% are effectively treated
@@ -35,4 +35,5 @@ convert_cm(orig = .80 * .637, scale = 1)
 
 # Going from OpenMalaria timesteps to access to care is also possible
 convert_cm(orig = .249, reverse = TRUE, country = "GHA")
+}
 }

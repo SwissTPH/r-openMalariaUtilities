@@ -4,7 +4,7 @@
 \alias{recXML}
 \title{TODO}
 \usage{
-recXML(x, data, errCol, recLevel = list(), validate = TRUE)
+recXML(x, data, errCol, recLevel = list())
 }
 \arguments{
 \item{x}{TODO}
@@ -14,8 +14,6 @@ recXML(x, data, errCol, recLevel = list(), validate = TRUE)
 \item{errCol}{TODO}
 
 \item{recLevel}{TODO}
-
-\item{validate}{Boolean, if data should be validated}
 }
 \value{
 

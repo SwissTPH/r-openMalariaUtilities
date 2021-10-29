@@ -4,14 +4,12 @@
 \alias{.xmlMakeDocRec}
 \title{Create xml entries recursively}
 \usage{
-.xmlMakeDocRec(baseXML, data, validate = TRUE)
+.xmlMakeDocRec(baseXML, data)
 }
 \arguments{
 \item{baseXML}{The root xml object}
 
 \item{data}{List with experiment information}
-
-\item{validate}{Boolean, if data should be validated}
 }
 \value{
 xml document

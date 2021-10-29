@@ -32,10 +32,12 @@ Function to scale from care seeking to effective treatment coverage per 14
 days to 5 days
 }
 \examples{
+\dontrun{
 # Input dataset
 dat <- data.frame(setting = "alpha", access2005 = .5, access2006 = .1, access2010 = .9)
 # Converting access values
 dat <- convert_access(dat = dat, pattern = "access", country = "MOZ")
 # Visualizing the dataset
 # view_past(dat = dat, pattern = "access")
+}
 }

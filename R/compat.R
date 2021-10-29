@@ -96,7 +96,8 @@ import_countrydat <- function(filename = "MOZ_CountryDat.csv",
 ##'   treatment coverage), (boolean)
 ##' @export
 ##' @examples # Converting 80% access to care to a 5-day OpenMalaria timestep
-##' convert_cm(orig = .80, scale = 1)
+##' \dontrun{
+## ' convert_cm(orig = .80, scale = 1)
 ##'
 ##' # Converting 80% access to care to a 5-day OpenMalaria timestep
 ##' # in Ghana, where it is assumed that 63.7% are effectively treated
@@ -107,6 +108,7 @@ import_countrydat <- function(filename = "MOZ_CountryDat.csv",
 ##'
 ##' # Going from OpenMalaria timesteps to access to care is also possible
 ##' convert_cm(orig = .249, reverse = TRUE, country = "GHA")
+##' }
 convert_cm <- function(orig, katya = FALSE, country = NULL, scale = NULL, reverse = F) {
   if (max(orig) > 1) {
     stop("Input for access to care is larger than 1. Make sure all numbers are between 0 and 1.")
@@ -184,12 +186,14 @@ convert_cm <- function(orig, katya = FALSE, country = NULL, scale = NULL, revers
 ##' @export
 ##' @rdname view_past
 ##' @examples
+##' \dontrun{
 ##' # Input dataset
 ##' dat <- data.frame(setting = "alpha", access2005 = .5, access2006 = .1, access2010 = .9)
 ##' # Converting access values
 ##' dat <- convert_access(dat = dat, pattern = "access", country = "MOZ")
 ##' # Visualizing the dataset
 ##' # view_past(dat = dat, pattern = "access")
+##' }
 convert_access <- function(dat, pattern = "Access", katya = T,
                            country = NULL, scale = NULL) {
 
