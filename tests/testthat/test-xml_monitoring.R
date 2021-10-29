@@ -1,3 +1,6 @@
+## The cache is needed here
+omuCache <- hash::hash()
+
 test <- monitoringContinousGen(1, list("bar" = "true", "baz" = "false"))
 expected <- list(
   period = 1, option = list("bar" = "true", "baz" = "false")
@@ -27,25 +30,25 @@ test_that("monitoringCohortsGen works", {
   expect_equal(test, expected)
 })
 
-## actual <- monitoringSurveyTimesGen("2001-01-01", "2002-01-01", "1 quarter")
-## expected <- list(surveyTime = list(repeatStep = "90d",
-##                                    repeatEnd = "2002-12-31",
-##                                    "0d"))
+actual <- monitoringSurveyTimesGen("2001-01-01", "2002-01-01", "1 quarter")
+expected <- list(surveyTime = list(repeatStep = "90d",
+                                   repeatEnd = as.Date("2002-12-21"),
+                                   "0d"))
 
-## test_that("monitoringSurveyTimesGen works (regular interval)", {
-##   expect_equal(actual, expected)
-## })
+test_that("monitoringSurveyTimesGen works (regular interval)", {
+  expect_equal(actual, expected)
+})
 
-## actual <- monitoringSurveyTimesGen(interval = list(days = c(1, 10),
-##                                          months = c(3),
-##                                          years = c(2002)))
-## expected <- list(surveyTime = list(repeatStep = "1y",
-##                                    repeatEnd = "2003-03-01",
-##                                    "0d"),
-##                  surveyTime = list(repeatStep = "1y",
-##                                    repeatEnd = "2003-03-10",
-##                                    "9d"))
+actual <- monitoringSurveyTimesGen(interval = list(days = c(1, 10),
+                                         months = c(3),
+                                         years = c(2002)))
+expected <- list(surveyTime = list(repeatStep = "1y",
+                                   repeatEnd = as.Date("2003-02-28"),
+                                   "0d"),
+                 surveyTime = list(repeatStep = "1y",
+                                   repeatEnd = as.Date("2003-03-10"),
+                                   "10d"))
 
-## test_that("monitoringSurveyTimesGen works (block interval)", {
-##   expect_equal(actual, expected)
-## })
+test_that("monitoringSurveyTimesGen works (block interval)", {
+  expect_equal(actual, expected)
+})
