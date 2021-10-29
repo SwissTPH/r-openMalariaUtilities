@@ -253,43 +253,6 @@
   return(alle)
 }
 
-.widen_processed_dataset <- function(alle, match_measure_to_number) {
-  #' creates a wide dataset in post-processing
-  #' @param alle dataset
-  #' @importFrom magrittr %>%
-  #' @param match_measure_to_number output obtained from .surveyMeasuresDict()
-  #' @note used often internally, never seen by user, easy to write, never breaks
-  #' @importFrom tidyr spread
-  #' @importFrom dplyr group_by
-
-
-  walle <- data.frame(alle) %>%
-    tidyr::spread(measure, value) %>%
-    dplyr::group_by(scenario)
-
-  walle[, "rownum"] <- seq_len(nrow(walle))
-
-  ## the columns are "survey","age_group","scenario","0","1","3", etc
-  ## and this code will loop only through the columns that aren't numbers
-  print("begin loop through columns")
-  jj <- which(!is.na(as.numeric(colnames(walle))))
-  for (i in jj) {
-    t_measureNum <- as.numeric(colnames(walle)[i])
-    t_measureName <- rownames(match_measure_to_number)[
-      which(
-        match_measure_to_number[, 1] == t_measureNum
-      )
-    ]
-
-    colnames(walle)[i] <- paste0(t_measureName, "_", t_measureNum)
-    print(colnames(walle)[i])
-
-    rm(t_measureNum, t_measureName)
-  } # end column loop
-
-  return(walle)
-}
-
 .merge_scens_with_outputs <- function(walle, short_filename, scens,
                                       ignore = c(
                                         "propOut", "jan", "feb", "mar", "apr", "may",

@@ -99,6 +99,37 @@
 }
 
 
+##' Creates a wide dataset in post-processing
+##' @param data Dataset
+##' @param matchMeasureToNumber Output obtained from .surveyMeasuresDict()
+.widenProcessedDataset <- function(data, matchMeasureToNumber) {
+  ## Convert to data.table and reshape into wide format
+  wideData <- data.table::dcast(
+    data = data.table::data.table(alle),
+    formula = survey + age_group + scenario ~ measure
+  )
+
+  ## Add rownumber column
+  wideData <- wideData[, rownum := seq_len(nrow(wideData))]
+
+  ## Rename numercial measures column to humand readable name
+  colnames(wideData) <- sapply(colnames(wideData), function(x) {
+    ## Replace only if column name is numeric. Do the check silently.
+    num <- suppressWarnings(as.numeric(x))
+    if (!is.na(num)) {
+      colName <- paste0(
+        rownames(matchMeasureToNumber)[matchMeasureToNumber[, 1] == num],
+        "_",
+        num)
+    } else {
+      colName <- x
+    }
+  })
+
+  return(wideData)
+}
+
+
 ##' Function to manage postprocessing The output file is named
 ##' paste0(setting_number,"_",loop_id,"_CombinedDat_Aggr.RData") and is generated
 ##' for each scenario and setting separately
@@ -217,7 +248,7 @@ do_post_processing <- function(nameExperiment,
   )
 
   ### transforming to a wide dataset, with each outcome as a column
-  walle <- .widen_processed_dataset(alle, match_measure_to_number)
+  walle <- .widenProcessedDataset(alle, match_measure_to_number)
 
   ### --- merging with relevant scenarios.csv column names
   walle <- .merge_scens_with_outputs(walle, short_filename, scens,
