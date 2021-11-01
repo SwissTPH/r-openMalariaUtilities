@@ -39,9 +39,15 @@ jobs:
           else
             COLOR=orange
           fi
-          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > badge.svg
+          echo "TOTAL=$(echo "$total"%25)" >> $GITHUB_ENV
+          echo "COLOR=$(echo "$COLOR")" >> $GITHUB_ENV
 
-      - uses: actions/upload-artifact@v2
+      - name: Create badge
+        uses: schneegans/dynamic-badges-action@v1.1.0
         with:
-          name: my-artifact
-          path: badge.svg
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: db82500941e9bea7d7a5c0bfd5e6db8d
+          filename: cover.json
+          label: coverage
+          message: ${{ env.TOTAL }}
+          color: ${{ env.COLOR }}
