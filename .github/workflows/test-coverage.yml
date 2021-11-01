@@ -26,3 +26,22 @@ jobs:
       - name: Test coverage
         run: covr::package_coverage()
         shell: Rscript {0}
+
+      - name: Publish code coverage badge
+        run: |
+          set -x
+          R -e 'covr::package_coverage()' &> out.txt
+          total=$(grep "Coverage: " out.txt | grep -oP "(\d+\.\d+)")
+          if (( $(echo "$total <= 50" | bc -l) )) ; then
+            COLOR=red
+          elif (( $(echo "$total > 80" | bc -l) )); then
+            COLOR=green
+          else
+            COLOR=orange
+          fi
+          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > badge.svg
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: badge.svg
