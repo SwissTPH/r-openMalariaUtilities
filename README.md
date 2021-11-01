@@ -1,4 +1,5 @@
-[![R-CMD-check](https://github.com/SwissTPH/r-openMalariaUtilities/actions/workflows/check.yml/badge.svg)](https://github.com/SwissTPH/r-openMalariaUtilities/actions/workflows/check.yml)
+[![R-CMD-check](https://github.com/SwissTPH/r-openMalariaUtilities/actions/workflows/check.yml/badge.svg)](https://github.com/SwissTPH/r-openMalariaUtilities/actions/workflows/check.yml)![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rogoersTPH/db82500941e9bea7d7a5c0bfd5e6db8d/raw/cover.json)
+
 
 # openMalariaUtilities
 
