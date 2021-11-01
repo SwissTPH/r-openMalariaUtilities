@@ -39,7 +39,7 @@ jobs:
           else
             COLOR=orange
           fi
-          echo "TOTAL=$(echo "$total"%25)" >> $GITHUB_ENV
+          echo "TOTAL=$(echo "$total"%)" >> $GITHUB_ENV
           echo "COLOR=$(echo "$COLOR")" >> $GITHUB_ENV
 
       - name: Create badge
