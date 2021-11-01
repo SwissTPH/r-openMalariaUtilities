@@ -1,3 +1,5 @@
+[![R-CMD-check](https://github.com/SwissTPH/r-openMalariaUtilities/actions/workflows/check.yml/badge.svg)](https://github.com/SwissTPH/r-openMalariaUtilities/actions/workflows/check.yml)
+
 # openMalariaUtilities
 
 Helper functions to provide easier usage of Open Malaria from R
