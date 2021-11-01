@@ -27,7 +27,7 @@ jobs:
         run: covr::package_coverage()
         shell: Rscript {0}
 
-      - name: Publish code coverage badge
+      - name: Generate code coverage
         run: |
           set -x
           R -e 'covr::package_coverage()' &> out.txt
@@ -42,7 +42,7 @@ jobs:
           echo "TOTAL=$(echo "$total"%)" >> $GITHUB_ENV
           echo "COLOR=$(echo "$COLOR")" >> $GITHUB_ENV
 
-      - name: Create badge
+      - name: Create code coverage badge
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
