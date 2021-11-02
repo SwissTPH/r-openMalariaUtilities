@@ -2,13 +2,29 @@
 ##       during Github actions.
 
 test_that(".storeCache works", {
-  skip("Skipping .storeCache")
+  omuCache <- hash::hash()
+  omuCache$placeholders <- c("foo")
+  omuCache$cacheDir <- file.path(tempdir(), "cache")
+  .storeCache()
+
+  actual <- file.exists(file.path(omuCache$cacheDir, "cache.RData"))
+  expected <- TRUE
+  
+  expect_equal(actual, expected)
 })
 
 test_that(".readCache works", {
-  skip("Skipping .readCache")
+  .readCache(tempdir())
+  actual <- exists("omuCache")
+  expected <- TRUE
+
+  expect_equal(actual, expected)
 })
 
 test_that("loadExperiment works", {
-  skip("Skipping loadExperiment")
+  loadExperiment(tempdir())
+  actual <- exists("omuCache")
+  expected <- TRUE
+
+  expect_equal(actual, expected)
 })

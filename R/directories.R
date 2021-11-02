@@ -24,7 +24,8 @@
                            rootDir = NULL,
                            scenariosDir = NULL,
                            logsDir = NULL,
-                           replace = "ask") {
+                           replace = "ask",
+                           env = parent.frame()) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(experimentName, add = assertCol)
@@ -45,6 +46,8 @@
     add = assertCol
   )
   checkmate::reportAssertions(collection = assertCol)
+
+  omuCache <- (get("omuCache", envir = env))
 
   ## Generate paths and cache them
   ## Unless rootDir is given, use current working directory
@@ -100,10 +103,10 @@
       answer <- utils::askYesNo("Directory with experiment name already present. Replace?")
       if (!answer == TRUE | is.na(answer)) {
         stop("Aborting.")
-      } else {
-        createDir <- TRUE
-        unlink(omuCache$experimentDir, recursive = TRUE)
       }
+    } else {
+      createDir <- TRUE
+      unlink(omuCache$experimentDir, recursive = TRUE)
     }
   } else {
     createDir <- TRUE

@@ -8,7 +8,11 @@
 
 omuCache <- hash::hash()
 
-.storeCache <- function() {
+.storeCache <- function(env = parent.frame()) {
+  omuCache <- (get("omuCache", envir = env))
+  if (!file.exists(file.path(omuCache$cacheDir))) {
+    dir.create(file.path(omuCache$cacheDir))
+  }
   save(omuCache,
     file = file.path(omuCache$cacheDir, "cache.RData")
   )
