@@ -51,3 +51,4 @@ jobs:
           label: coverage
           message: ${{ env.TOTAL }}
           color: ${{ env.COLOR }}
+          style: flat-square
