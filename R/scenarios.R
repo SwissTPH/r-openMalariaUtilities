@@ -26,7 +26,6 @@ generateScenarios <- function(baseFile = omuCache$baseXml,
                               prefix = omuCache$experimentName,
                               scenarios = NULL, full = NULL, rowStart = NULL, rowEnd = NULL) {
   ## Input validation
-  print(omuCache$baseXml)
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertFileExists(baseFile, add = assertCol)
   checkmate::assertDataFrame(scenarios, add = assertCol)
