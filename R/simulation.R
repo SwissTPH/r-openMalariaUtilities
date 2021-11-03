@@ -6,25 +6,59 @@
 ##' @param scenariosDir Directory containing the scenario xml files. Defaults to
 ##'   the cached scenario directory.
 ##' @export
-runScenarios <- function(scenariosDir = omuCache$scenariosDir) {
-  scenarios <- list.files(path = scenariosDir, pattern = ".xml", full.names = TRUE)
+runScenarios <- function(scenariosDir = omuCache$scenariosDir,
+                         cmd = "openMalaria") {
+  cmd <- Sys.which(cmd)
+  scenarios <- list.files(
+    path = scenariosDir, pattern = "*.xml$", full.names = TRUE
+  )
+
+  ## Check if openMalaria is installed and that scenarios exist in directory.
+  errors <- NULL
+  msgs <- c()
+  if (is.null(cmd) | cmd == "") {
+    errors <- TRUE
+    msgs <- append("openMalaria could not be found.", msgs, after = 0)
+  }
+  if (dir.exists(scenariosDir) == FALSE | length(scenarios) == 0) {
+    errors <- TRUE
+    msgs <- append("Scenarios directory does not exist or is empty.", msgs, after = 0)
+  }
+  if (errors == TRUE) {
+    stop(paste(paste(msgs, collapse = "\n"), "Aborting.", sep = "\n"))
+  }
+
   for (scen in scenarios) {
-    print(scen)
-    cmd <- "openMalaria"
     resources <- file.path(omuCache$baseDir)
     scenario <- scen
-    output <- file.path(omuCache$outputsDir,
-                        paste0(sub(pattern = "(.*)\\..*$",
-                                  replacement = "\\1",
-                                  basename(scen)),
-                              "_out.txt"))
-    ctsout <- file.path(omuCache$outputsDir,
-                        paste0(sub(pattern = "(.*)\\..*$",
-                                  replacement = "\\1",
-                                  basename(scen)),
-                              "_cts.txt"))
-    system(command = paste0(cmd, " --resource-path ", resources, " --scenario ",
-                            scenario, " --output ", output, " --ctsout ", ctsout),
-           intern = TRUE)
+    output <- file.path(
+      omuCache$outputsDir,
+      paste0(
+        sub(
+          pattern = "(.*)\\..*$",
+          replacement = "\\1",
+          basename(scen)
+        ),
+        "_out.txt"
+      )
+    )
+    ctsout <- file.path(
+      omuCache$outputsDir,
+      paste0(
+        sub(
+          pattern = "(.*)\\..*$",
+          replacement = "\\1",
+          basename(scen)
+        ),
+        "_cts.txt"
+      )
+    )
+    system(
+      command = paste0(
+        cmd, " --resource-path ", resources, " --scenario ",
+        scenario, " --output ", output, " --ctsout ", ctsout
+      ),
+      intern = TRUE
+    )
   }
 }

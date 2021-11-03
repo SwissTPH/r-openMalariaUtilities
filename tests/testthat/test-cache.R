@@ -1,6 +1,3 @@
-## FIXME We should have tests for that; Need to figure out how files are stored
-##       during Github actions.
-
 test_that(".storeCache works", {
   omuCache <- hash::hash()
   omuCache$placeholders <- c("foo")
