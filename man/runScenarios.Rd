@@ -4,7 +4,7 @@
 \alias{runScenarios}
 \title{Run openMalaria scenarios}
 \usage{
-runScenarios(scenariosDir = omuCache$scenariosDir)
+runScenarios(scenariosDir = omuCache$scenariosDir, cmd = "openMalaria")
 }
 \arguments{
 \item{scenariosDir}{Directory containing the scenario xml files. Defaults to

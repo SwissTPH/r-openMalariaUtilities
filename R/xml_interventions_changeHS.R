@@ -4,6 +4,7 @@
 ##' @param interpolation TODO
 ##' @param ageGroups TODO
 ##' @return TODO
+##' @export
 changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
@@ -19,7 +20,10 @@ changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
   ageGroups[c("lowerbound", "value")] <- sapply(
     ageGroups[c("lowerbound", "value")], as.double
   )
-  outlist <- .xmlAddChunks(outlist = outlist, element = "group", attributeList = ageGroups)
+  outlist <- .xmlAddChunks(
+    outlist = outlist, element = "group",
+    attributeList = ageGroups
+  )
   return(outlist)
 }
 
@@ -27,6 +31,7 @@ changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
 ##' @param interpolation TODO
 ##' @param ageGroups TODO
 ##' @return TODO
+##' @export
 changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
@@ -42,6 +47,9 @@ changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
   ageGroups[c("lowerbound", "value")] <- sapply(
     ageGroups[c("lowerbound", "value")], as.double
   )
-  outlist <- .xmlAddChunks(outlist = outlist, element = "group", attributeList = ageGroups)
+  outlist <- .xmlAddChunks(
+    outlist = outlist, element = "group",
+    attributeList = ageGroups
+  )
   return(outlist)
 }

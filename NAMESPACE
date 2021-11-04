@@ -3,6 +3,8 @@
 export(add_idvars)
 export(ageGroupsGen)
 export(assign_value)
+export(changeHSCFRGen)
+export(changeHSpSeqInGen)
 export(convert_access)
 export(convert_cm)
 export(createBaseXml)

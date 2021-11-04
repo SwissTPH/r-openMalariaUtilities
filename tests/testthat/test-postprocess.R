@@ -1,3 +1,13 @@
+test_that(".surveyMeasuresDict works", {
+  actual <- .surveyMeasuresDict()
+  expect_equal(actual$nHost, 0)
+  expect_equal(actual$nPatent, 3)
+  expect_equal(actual$nUncomp, 14)
+  expect_equal(actual$nSevere, 15)
+  expect_equal(actual$expectedDirectDeaths, 74)
+})
+
+
 test_that(".two_digit_month works", {
   CombinedDat <- data.frame(Date = c("2020-05-03", "2020-08-03", "2020-11-03"))
   actual <- .twoDigitMonth(CombinedDat)
@@ -7,6 +17,7 @@ test_that(".two_digit_month works", {
   CombinedDat <- data.frame(Date = c("2020-05-03", "2020-15-15", "2020-30-03"))
   expect_error(.twoDigitMonth(CombinedDat))
 })
+
 
 alle <- read.delim(text = "survey	age_group	measure	value	scenario
 2	1	0	341	wucase_19

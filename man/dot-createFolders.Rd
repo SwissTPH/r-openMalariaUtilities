@@ -9,7 +9,8 @@
   rootDir = NULL,
   scenariosDir = NULL,
   logsDir = NULL,
-  replace = "ask"
+  replace = "ask",
+  env = parent.frame()
 )
 }
 \arguments{
