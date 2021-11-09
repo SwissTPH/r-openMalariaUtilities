@@ -192,7 +192,7 @@ do_post_processing <- function(nameExperiment,
                                env = parent.frame()) {
   ### creating structure
   ## set_experiment(nameExperiment)
-  omuCache <- (get("omuCache", envir = env))
+  omuCache <- get("omuCache", envir = env)
   ## TODO Make this a function argument
   load(file.path(omuCache$cacheDir, "scens.RData"))
 

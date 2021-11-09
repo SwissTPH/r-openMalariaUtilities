@@ -18,7 +18,7 @@
 ##' @return
 ##' @export
 createBaseXml <- function(data = NULL, env = parent.frame()) {
-  omuCache <- (get("omuCache", envir = env))
+  omuCache <- get("omuCache", envir = env)
   ## Replace spaces with underscores in experiment name and cache it
   data[["expName"]] <- gsub(" ", "_", data[["expName"]])
   omuCache$experimentName <- data[["expName"]]

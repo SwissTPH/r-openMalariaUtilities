@@ -33,7 +33,7 @@
 ##' @title Collect if current value is a placeholder
 ##' @param x A R object.
 .placeholderCollect <- function(x, env = parent.frame()) {
-  omuCache <- (get("omuCache", envir = env))
+  omuCache <- get("omuCache", envir = env)
   ## Check if x is a string
   if (is.character(x)) {
     ## Test if x confirms to @...@ pattern

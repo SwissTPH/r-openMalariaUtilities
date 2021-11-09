@@ -47,7 +47,7 @@
   )
   checkmate::reportAssertions(collection = assertCol)
 
-  omuCache <- (get("omuCache", envir = env))
+  omuCache <- get("omuCache", envir = env)
 
   ## Generate paths and cache them
   ## Unless rootDir is given, use current working directory
