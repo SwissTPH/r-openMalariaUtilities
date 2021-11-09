@@ -2,13 +2,13 @@ test_that("createBaseXml works", {
   omuCache <- hash::hash()
   data <- list(
     expName = "Test",
-    OMVersion = 43,
-    analysisNo = 1,
+    OMVersion = 43L,
+    analysisNo = 1L,
     rootDir = tempdir()
   )
+  createBaseXml(data = data, replace = TRUE)
   actual <- file.exists(file.path(tempdir(), "Test", "Test_base.xml"))
   expected <- TRUE
 
-  ## expect_equal(actual, expected)
-  skip("Skip")
+  expect_equal(actual, expected)
 })

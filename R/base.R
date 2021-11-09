@@ -17,7 +17,7 @@
 ##' @param data List containing all information
 ##' @return
 ##' @export
-createBaseXml <- function(data = NULL, env = parent.frame()) {
+createBaseXml <- function(data = NULL, replace = "ask", env = parent.frame()) {
   omuCache <- get("omuCache", envir = env)
   ## Replace spaces with underscores in experiment name and cache it
   data[["expName"]] <- gsub(" ", "_", data[["expName"]])
@@ -42,7 +42,7 @@ createBaseXml <- function(data = NULL, env = parent.frame()) {
     rootDir = data[["rootDir"]],
     scenariosDir = data[["scenariosDir"]],
     logsDir = data[["logsDir"]],
-    replace = "ask"
+    replace = replace
   )
   omuCache$baseXml <- file.path(
     omuCache$experimentDir,
