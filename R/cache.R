@@ -5,16 +5,14 @@
 ## directories, monitoring time points and the openMalaria input itself.
 
 ## A hash table is used for lookup speed.
-
-omuCache <- hash::hash()
+.omupkgcache <- new.env(hash = TRUE, parent = emptyenv())
 
 .storeCache <- function(env = parent.frame()) {
-  omuCache <- get("omuCache", envir = env)
-  if (!file.exists(file.path(omuCache$cacheDir))) {
-    dir.create(file.path(omuCache$cacheDir))
+  if (!file.exists(file.path(.omupkgcache$cacheDir))) {
+    dir.create(file.path(.omupkgcache$cacheDir))
   }
-  save(omuCache,
-    file = file.path(omuCache$cacheDir, "cache.RData")
+  save(.omupkgcache,
+    file = file.path(.omupkgcache$cacheDir, "cache.RData")
   )
 }
 

@@ -6,8 +6,12 @@
 ##' @param scenariosDir Directory containing the scenario xml files. Defaults to
 ##'   the cached scenario directory.
 ##' @export
-runScenarios <- function(scenariosDir = omuCache$scenariosDir,
-                         cmd = "openMalaria") {
+runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
+  ## Get values from cache if not given
+  if (is.null(scenariosDir)) {
+      scenariosDir <- .omupkgcache$scenariosDir
+  }
+
   cmd <- Sys.which(cmd)
   scenarios <- list.files(
     path = scenariosDir, pattern = "*.xml$", full.names = TRUE
@@ -29,10 +33,10 @@ runScenarios <- function(scenariosDir = omuCache$scenariosDir,
   }
 
   for (scen in scenarios) {
-    resources <- file.path(omuCache$baseDir)
+    resources <- file.path(.omupkgcache$baseDir)
     scenario <- scen
     output <- file.path(
-      omuCache$outputsDir,
+      .omupkgcache$outputsDir,
       paste0(
         sub(
           pattern = "(.*)\\..*$",
@@ -43,7 +47,7 @@ runScenarios <- function(scenariosDir = omuCache$scenariosDir,
       )
     )
     ctsout <- file.path(
-      omuCache$outputsDir,
+      .omupkgcache$outputsDir,
       paste0(
         sub(
           pattern = "(.*)\\..*$",

@@ -17,39 +17,38 @@
 ##' @param data List containing all information
 ##' @return
 ##' @export
-createBaseXml <- function(data = NULL, replace = "ask", env = parent.frame()) {
-  omuCache <- get("omuCache", envir = env)
+createBaseXml <- function(data = NULL, replace = "ask") {
   ## Replace spaces with underscores in experiment name and cache it
   data[["expName"]] <- gsub(" ", "_", data[["expName"]])
-  omuCache$experimentName <- data[["expName"]]
+  .omupkgcache$experimentName <- data[["expName"]]
   ## Variables
   if (is.null(data[["xmlBasename"]])) {
-    xmlBasename <- paste0(omuCache$experimentName, "_base")
+    xmlBasename <- paste0(.omupkgcache$experimentName, "_base")
   } else {
     xmlBasename <- data[["xmlBasename"]]
   }
   ## Generate document root
   baseXml <- .makeXmlRoot(
     schemaVersion = data[["OMVersion"]],
-    name = omuCache$experimentName,
+    name = .omupkgcache$experimentName,
     analysisNo = data[["analysisNo"]]
   )
   ## Construct xml document
   .xmlMakeDocRec(baseXML = baseXml, data = data)
   ## Create folders
   .createFolders(
-    experimentName = omuCache$experimentName,
+    experimentName = .omupkgcache$experimentName,
     rootDir = data[["rootDir"]],
     scenariosDir = data[["scenariosDir"]],
     logsDir = data[["logsDir"]],
     replace = replace
   )
-  omuCache$baseXml <- file.path(
-    omuCache$experimentDir,
+  .omupkgcache$baseXml <- file.path(
+    .omupkgcache$experimentDir,
     paste0(xmlBasename, ".xml")
   )
   ## Write base xml file
-  xml2::write_xml(baseXml, file = omuCache$baseXml)
+  xml2::write_xml(baseXml, file = .omupkgcache$baseXml)
   ## Write cache
   .storeCache()
 }

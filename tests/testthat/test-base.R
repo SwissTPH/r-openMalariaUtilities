@@ -1,5 +1,4 @@
 test_that("createBaseXml works", {
-  omuCache <- hash::hash()
   data <- list(
     expName = "Test",
     OMVersion = 43L,

@@ -32,8 +32,7 @@
 
 ##' @title Collect if current value is a placeholder
 ##' @param x A R object.
-.placeholderCollect <- function(x, env = parent.frame()) {
-  omuCache <- get("omuCache", envir = env)
+.placeholderCollect <- function(x) {
   ## Check if x is a string
   if (is.character(x)) {
     ## Test if x confirms to @...@ pattern
@@ -41,8 +40,8 @@
     ## If true, store it in the cache
     if (matched == TRUE) {
       value <- gsub("@(.*?)@", "\\1", x)
-      omuCache$placeholders <- unique(
-        c(value, omuCache$placeholders)
+      .omupkgcache$placeholders <- unique(
+        c(value, .omupkgcache$placeholders)
       )
     }
   }
@@ -136,9 +135,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
   assertCol <- checkmate::makeAssertCollection()
 
   ## Clear cached placehoders, if any
-  if (hash::has.key("placeholders", omuCache) == TRUE) {
-    omuCache$placeholders <- NULL
-  }
+  .omupkgcache$placeholders <- NULL
 
   ## Run the recursion
   for (i in seq_len(length(data))) {

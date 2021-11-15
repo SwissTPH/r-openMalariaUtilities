@@ -188,13 +188,11 @@ do_post_processing <- function(nameExperiment,
                                monthname = "_CombinedDat_month.RData",
                                monthyears = 2015:2030,
                                placeholder = NULL,
-                               include = NULL,
-                               env = parent.frame()) {
+                               include = NULL) {
   ### creating structure
   ## set_experiment(nameExperiment)
-  omuCache <- get("omuCache", envir = env)
   ## TODO Make this a function argument
-  load(file.path(omuCache$cacheDir, "scens.RData"))
+  load(file.path(.omupkgcache$cacheDir, "scens.RData"))
 
   # Lookup data
   eventMeasureNum <- .surveyMeasuresDict()
@@ -206,7 +204,7 @@ do_post_processing <- function(nameExperiment,
 
   #-- what are the output files ?
   files <- unlist(
-    list.files(path = omuCache$outputsDir, pattern = "_out.txt", full.names = TRUE)
+    list.files(path = .omupkgcache$outputsDir, pattern = "_out.txt", full.names = TRUE)
   )
   ## print(files)
   print(paste(length(files), "_out.txt files in the output dataset"))
@@ -230,7 +228,7 @@ do_post_processing <- function(nameExperiment,
   ## print(full$pop)
   ## print(ORIGIN)
   #-- extract from base file # basename = "base.xml"; ORIGIN = "1918-01-01"
-  tem <- .extract_base_param(omuCache$baseXml, SIMSTART = ORIGIN, pop = full$pop)
+  tem <- .extract_base_param(.omupkgcache$baseXml, SIMSTART = ORIGIN, pop = full$pop)
   age_dataframe <- tem$age_dataframe
   nHost <- tem$nHost
   timestep_dataframe <- tem$timestep_dataframe
@@ -244,7 +242,7 @@ do_post_processing <- function(nameExperiment,
     sets = sets,
     one_setting = one_setting,
     setting_number = setting_number,
-    MalariaDir = omuCache$outputsDir,
+    MalariaDir = .omupkgcache$outputsDir,
     loop_id = loop_id
   )
 
@@ -270,7 +268,7 @@ do_post_processing <- function(nameExperiment,
   )
 
   #### --- saving it the first time, then loading it whenever needed
-  if (!debugg) saveRDS(object = temp, file = file.path(omuCache$experimentDir, "param_names.RDS"))
+  if (!debugg) saveRDS(object = temp, file = file.path(.omupkgcache$experimentDir, "param_names.RDS"))
 
   unique_variables <- temp$ unique_variables
   historical_variables <- temp$ historical_variables
@@ -307,7 +305,7 @@ do_post_processing <- function(nameExperiment,
   if (!debugg) {
     save(rawdat,
       file = file.path(
-        omuCache$combinedDir,
+        .omupkgcache$combinedDir,
         paste0("raw", loop_id, "_", ifelse(sets, one_setting, setting_number), ".RData")
       )
     )
@@ -355,7 +353,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat, file = file.path(
-      omuCache$combinedDir,
+      .omupkgcache$combinedDir,
       paste0(setting_number, "_", loop_id, "_CombinedDat.RData")
     ))
   }
@@ -398,7 +396,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat_Aggr, file = file.path(
-      omuCache$combinedDir,
+      .omupkgcache$combinedDir,
       paste0(setting_number, "_", loop_id, "_CombinedDat_Aggr.RData")
     ))
   }
@@ -416,7 +414,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat_wide,
-      file = file.path(omuCache$combinedDir, paste0(setting_number, "_", loop_id, widename))
+      file = file.path(.omupkgcache$combinedDir, paste0(setting_number, "_", loop_id, widename))
     )
   }
 
@@ -444,7 +442,7 @@ do_post_processing <- function(nameExperiment,
       ## -- new, saving wide dataset by month
       if (!debugg) {
         save(CombinedDat_month,
-          file = file.path(omuCache$combinedDir, paste0(setting_number, "_", loop_id, monthname))
+          file = file.path(.omupkgcache$combinedDir, paste0(setting_number, "_", loop_id, monthname))
         )
       }
     } else {

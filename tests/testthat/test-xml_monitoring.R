@@ -1,6 +1,3 @@
-## The cache is needed here
-omuCache <- hash::hash()
-
 test <- monitoringContinousGen(1, list("bar" = "true", "baz" = "false"))
 expected <- list(
   period = 1, option = list("bar" = "true", "baz" = "false")

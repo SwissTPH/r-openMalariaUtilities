@@ -24,8 +24,7 @@
                            rootDir = NULL,
                            scenariosDir = NULL,
                            logsDir = NULL,
-                           replace = "ask",
-                           env = parent.frame()) {
+                           replace = "ask") {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(experimentName, add = assertCol)
@@ -47,30 +46,28 @@
   )
   checkmate::reportAssertions(collection = assertCol)
 
-  omuCache <- get("omuCache", envir = env)
-
   ## Generate paths and cache them
   ## Unless rootDir is given, use current working directory
   if (is.null(rootDir)) {
     rootDir <- getwd()
   }
-  omuCache$baseDir <- file.path(rootDir)
+  .omupkgcache$baseDir <- file.path(rootDir)
 
   ## Experiment directory
   if (is.null(experimentName)) {
     experimentName <- format(Sys.time(), "%Y%m%d_%H%M%S")
   }
-  omuCache$experimentDir <- file.path(rootDir, experimentName)
+  .omupkgcache$experimentDir <- file.path(rootDir, experimentName)
 
   ## Cache directory
-  omuCache$cacheDir <- file.path(omuCache$experimentDir, "cache")
+  .omupkgcache$cacheDir <- file.path(.omupkgcache$experimentDir, "cache")
 
   ## Scenario directory
   if (is.null(scenariosDir)) {
     scenariosDir <- "scenarios"
   }
 
-  omuCache$scenariosDir <- file.path(
+  .omupkgcache$scenariosDir <- file.path(
     rootDir,
     experimentName,
     scenariosDir
@@ -81,14 +78,14 @@
     logsDir <- "logs"
   }
 
-  omuCache$logsDir <- file.path(
+  .omupkgcache$logsDir <- file.path(
     rootDir,
     experimentName,
     logsDir
   )
 
   ## Output directory
-  omuCache$outputsDir <- file.path(
+  .omupkgcache$outputsDir <- file.path(
     rootDir,
     experimentName,
     "outputs"
@@ -96,18 +93,26 @@
 
   ## Check if directories are already present and crete them if necessary
   createDir <- NULL
-  if (dir.exists(omuCache$experimentDir)) {
+  if (dir.exists(.omupkgcache$experimentDir)) {
+    ## Directory present, no replace
     if (replace == FALSE) {
       stop("Directory with experiment name already present. Aborting.")
+      ## Directory present, ask
     } else if (replace == "ask") {
       answer <- utils::askYesNo("Directory with experiment name already present. Replace?")
+      ## No or no answer
       if (!answer == TRUE | is.na(answer)) {
         stop("Aborting.")
+        ## Yes
+      } else {
+        createDir <- TRUE
+        unlink(.omupkgcache$experimentDir, recursive = TRUE)
       }
+      ## Directory present, replace
     } else {
       createDir <- TRUE
-      unlink(omuCache$experimentDir, recursive = TRUE)
     }
+    ## Directory not present
   } else {
     createDir <- TRUE
   }
@@ -117,12 +122,12 @@
     invisible(
       lapply(
         c(
-          omuCache$baseDir,
-          omuCache$cacheDir,
-          omuCache$experimentDir,
-          omuCache$scenariosDir,
-          omuCache$logsDir,
-          omuCache$outputsDir
+          .omupkgcache$baseDir,
+          .omupkgcache$cacheDir,
+          .omupkgcache$experimentDir,
+          .omupkgcache$scenariosDir,
+          .omupkgcache$logsDir,
+          .omupkgcache$outputsDir
         ),
         function(x) {
           if (!dir.exists(x)) {

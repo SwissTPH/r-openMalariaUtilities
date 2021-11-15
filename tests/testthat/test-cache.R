@@ -1,10 +1,9 @@
 test_that(".storeCache works", {
-  omuCache <- hash::hash()
-  omuCache$placeholders <- c("foo")
-  omuCache$cacheDir <- file.path(tempdir(), "cache")
+  .omupkgcache$placeholders <- c("foo")
+  .omupkgcache$cacheDir <- file.path(tempdir(), "cache")
   .storeCache()
 
-  actual <- file.exists(file.path(omuCache$cacheDir, "cache.RData"))
+  actual <- file.exists(file.path(.omupkgcache$cacheDir, "cache.RData"))
   expected <- TRUE
   
   expect_equal(actual, expected)
@@ -12,7 +11,7 @@ test_that(".storeCache works", {
 
 test_that(".readCache works", {
   .readCache(tempdir())
-  actual <- exists("omuCache")
+  actual <- exists(".omupkgcache")
   expected <- TRUE
 
   expect_equal(actual, expected)
@@ -20,7 +19,7 @@ test_that(".readCache works", {
 
 test_that("loadExperiment works", {
   loadExperiment(tempdir())
-  actual <- exists("omuCache")
+  actual <- exists(".omupkgcache")
   expected <- TRUE
 
   expect_equal(actual, expected)

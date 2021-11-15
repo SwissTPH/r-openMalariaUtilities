@@ -200,7 +200,7 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     )
 
     ## Store the information in the cache
-    omuCache$surveyTimes <- dates
+    .omupkgcache$surveyTimes <- dates
 
     ## Extract days
     days <- every
@@ -223,7 +223,7 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     dates <- validDates[as.character(validDates$date) %in% dates, ]
 
     ## Store the information in the cache
-    omuCache$surveyTimes <- dates
+    .omupkgcache$surveyTimes <- dates
 
     ## Only use dates from the first year.
     days <- subset(

@@ -22,9 +22,16 @@
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
 ##' @export
-generateScenarios <- function(baseFile = omuCache$baseXml,
-                              prefix = omuCache$experimentName,
-                              scenarios = NULL, full = NULL, rowStart = NULL, rowEnd = NULL) {
+generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
+                              full = NULL, rowStart = NULL, rowEnd = NULL) {
+  ## Get values from cache if not given
+  if (is.null(baseFile)) {
+    baseFile <- .omupkgcache$baseXml
+  }
+  if (is.null(prefix)) {
+    prefix <- .omupkgcache$experimentName
+  }
+
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertFileExists(baseFile, add = assertCol)
@@ -45,9 +52,9 @@ generateScenarios <- function(baseFile = omuCache$baseXml,
   ## If scenarios and full are NULL, simply copy the base xml file
   if (is.null(scenarios) & is.null(full)) {
     file.copy(
-      from = omuCache$baseXml,
+      from = .omupkgcache$baseXml,
       to = file.path(
-        omuCache$scenariosDir,
+        .omupkgcache$scenariosDir,
         paste0(xmlBasename, ".xml")
       )
     )
@@ -61,7 +68,7 @@ generateScenarios <- function(baseFile = omuCache$baseXml,
     base <- readLines(baseFile)
     ## Check if placeholders in base file are found in scenarios
     tmp <- NULL
-    sapply(omuCache$placeholders, function(x) {
+    sapply(.omupkgcache$placeholders, function(x) {
       if (!(x %in% placeholders)) {
         tmp <<- c(x, tmp)
       }
@@ -72,7 +79,7 @@ generateScenarios <- function(baseFile = omuCache$baseXml,
     ## Check if scenarios has more placeholders than used in the base file
     tmp <- NULL
     sapply(placeholders, function(x) {
-      if (!(x %in% omuCache$placeholders)) {
+      if (!(x %in% .omupkgcache$placeholders)) {
         tmp <<- c(x, tmp)
       }
     })
@@ -92,7 +99,7 @@ generateScenarios <- function(baseFile = omuCache$baseXml,
           )
         })
         filename <- file.path(
-          omuCache$scenariosDir,
+          .omupkgcache$scenariosDir,
           paste(prefix, "_", row, ".xml", sep = "")
         )
         ## Store filename
@@ -105,7 +112,7 @@ generateScenarios <- function(baseFile = omuCache$baseXml,
     ## Compatibility
     scens <- scenarios
     save(scenarios, full, scens,
-      file = file.path(omuCache$cacheDir, "scens.RData")
+      file = file.path(.omupkgcache$cacheDir, "scens.RData")
     )
   }
 }
