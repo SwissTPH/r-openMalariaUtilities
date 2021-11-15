@@ -30,8 +30,7 @@ do_post_processing(
   monthname = "_CombinedDat_month.RData",
   monthyears = 2015:2030,
   placeholder = NULL,
-  include = NULL,
-  env = parent.frame()
+  include = NULL
 )
 }
 \arguments{

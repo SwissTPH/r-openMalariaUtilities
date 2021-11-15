@@ -4,7 +4,7 @@
 \alias{createBaseXml}
 \title{Create an openMalaria experiment}
 \usage{
-createBaseXml(data = NULL, env = parent.frame())
+createBaseXml(data = NULL, replace = "ask")
 }
 \arguments{
 \item{data}{List containing all information}

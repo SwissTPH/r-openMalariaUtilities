@@ -5,8 +5,8 @@
 \title{Generate scenarios from a base xml file and a scenarios data frame}
 \usage{
 generateScenarios(
-  baseFile = omuCache$baseXml,
-  prefix = omuCache$experimentName,
+  baseFile = NULL,
+  prefix = NULL,
   scenarios = NULL,
   full = NULL,
   rowStart = NULL,

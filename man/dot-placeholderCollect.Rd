@@ -4,7 +4,7 @@
 \alias{.placeholderCollect}
 \title{Collect if current value is a placeholder}
 \usage{
-.placeholderCollect(x, env = parent.frame())
+.placeholderCollect(x)
 }
 \arguments{
 \item{x}{A R object.}
