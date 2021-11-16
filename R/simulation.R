@@ -18,7 +18,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
   )
 
   ## Check if openMalaria is installed and that scenarios exist in directory.
-  errors <- NULL
+  errors <- FALSE
   msgs <- c()
   if (is.null(cmd) | cmd == "") {
     errors <- TRUE
