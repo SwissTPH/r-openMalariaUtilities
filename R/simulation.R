@@ -9,7 +9,7 @@
 runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
-      scenariosDir <- .omupkgcache$scenariosDir
+    scenariosDir <- .omupkgcache$scenariosDir
   }
 
   cmd <- Sys.which(cmd)
@@ -26,15 +26,17 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
   }
   if (dir.exists(scenariosDir) == FALSE | length(scenarios) == 0) {
     errors <- TRUE
-    msgs <- append("Scenarios directory does not exist or is empty.", msgs, after = 0)
+    msgs <- append("Scenarios directory does not exist or is empty.", msgs,
+      after = 0
+    )
   }
   if (errors == TRUE) {
     stop(paste(paste(msgs, collapse = "\n"), "Aborting.", sep = "\n"))
   }
 
-  for (scen in scenarios) {
+  for (i in seq_len(length(scenarios))) {
     resources <- file.path(.omupkgcache$baseDir)
-    scenario <- scen
+    scenario <- scenarios[[i]]
     output <- file.path(
       .omupkgcache$outputsDir,
       paste0(
@@ -57,6 +59,8 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
         "_cts.txt"
       )
     )
+    ## Print current step
+    print(paste0("Running scenario [", i, "/", length(scenarios), "]"))
     system(
       command = paste0(
         cmd, " --resource-path ", resources, " --scenario ",
