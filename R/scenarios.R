@@ -12,6 +12,18 @@
 
 ## REVIEW Is keeping full really necessary? Can it be factored out?
 
+##' @param scenarios Data frame containing the values for the placeholders. One
+##'   row per scenario, placeholders in columns. Column names correspond to the
+##'   placeholder names.
+##' @param full List of experiment variables and values.
+.storeScenarios <- function(scenarios, full) {
+  ## Compatibility
+  scens <- scenarios
+  save(scenarios, full, scens,
+    file = file.path(.omupkgcache$cacheDir, "scens.RData")
+  )
+}
+
 ##' @title Generate scenarios from a base xml file and a scenarios data frame
 ##' @param baseFile Compatible base xml file.
 ##' @param prefix Prefix for the scenario files.
@@ -52,7 +64,7 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
   ## If scenarios and full are NULL, simply copy the base xml file
   if (is.null(scenarios) & is.null(full)) {
     file.copy(
-      from = .omupkgcache$baseXml,
+      from = baseFile,
       to = file.path(
         .omupkgcache$scenariosDir,
         paste0(xmlBasename, ".xml")
@@ -109,10 +121,6 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
       })
     )
     ## Cache scenarios
-    ## Compatibility
-    scens <- scenarios
-    save(scenarios, full, scens,
-      file = file.path(.omupkgcache$cacheDir, "scens.RData")
-    )
+    .storeScenarios(scenarios = scenarios, full = full)
   }
 }

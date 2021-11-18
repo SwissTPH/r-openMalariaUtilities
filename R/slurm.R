@@ -39,9 +39,9 @@
 }
 
 
-writeSlurm <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
-                       error = NULL, array = NULL, time = NULL, qos = NULL,
-                       pre = NULL, cmd = NULL, post = NULL) {
+.writeSlurm <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
+                        error = NULL, array = NULL, time = NULL, qos = NULL,
+                        pre = NULL, cmd = NULL, post = NULL) {
   cat(
     .slurmOptions(jobName, ntasks, memCPU, output, error, array, time, qos),
     if (!is.null(array)) {

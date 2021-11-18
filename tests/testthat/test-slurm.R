@@ -41,9 +41,9 @@ test_that(".slurmOptions works", {
   expect_equal(actual, expected)
 })
 
-test_that("writeSlurm works", {
+test_that(".writeSlurm works", {
   actual <- paste(capture.output(
-    writeSlurm(
+    .writeSlurm(
       jobName = "test", ntasks = "1", memCPU = "512", output = "output",
       error = "error", array = "400", time = "30min", qos = "30min",
       pre = list("module purge", "module load R/foo"),
