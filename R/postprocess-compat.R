@@ -728,7 +728,7 @@
     tidyr::unite_("UniqueScenario", tidyselect::all_of(unique_variables), sep = "xyx") %>%
     dplyr::select_(.dots = selectVars) %>%
     dplyr::group_by(UniqueScenario) %>%
-    .spread_across_columns(group_variables, outcomes_of_interest) %>%
+    .spreadAcrossColumns(group_variables, outcomes_of_interest) %>%
     tidyr::separate(UniqueScenario, tidyselect::all_of(unique_variables), sep = "xyx") %>%
     as.data.frame()
 
@@ -754,22 +754,37 @@
   return(tempdat)
 } # end WidetoLong function
 
-.spread_across_columns <- function(df, key, value) {
-  #' Function to spread for multiple columns
-  #' Obtained from the r studio community: https://community.rstudio.com/t/spread-with-multiple-value-columns/5378
-  #' @param df dataframe
-  #' @param key column with variable
-  #' @param value column of value
-  #' @importFrom tidyr gather unite spread
-  #' @note used often internally, never seen by user, easy to write, never breaks
-  # quote key
 
-  keyq <- rlang::enquo(key)
-  # break value vector into quotes
-  valueq <- rlang::enquo(value)
-  s <- rlang::quos(!!valueq)
-  df %>%
-    tidyr::gather(variable, value, !!!s) %>%
-    tidyr::unite(temp, !!keyq, variable) %>%
-    tidyr::spread(temp, value)
-} # end .spread_across_columns function
+##' Function to spread for multiple columns
+##' Based on: https://community.rstudio.com/t/spread-with-multiple-value-columns/5378
+##' @param df Dataframe
+##' @param key Variable column
+##' @param value Value columns
+##' @importFrom data.table ':='
+.spreadAcrossColumns <- function(df, key, value) {
+  ## Transform into long format
+  df <- data.table::melt(
+    data = data.table::data.table(df),
+    measure.vars = value
+  )
+  ## Unite the key and the variable column (e.g. X Y -> X_Y) into temp column
+  ## and drop the two seperate columns from the df
+  df <- df[, temp := do.call("paste", c(
+    .SD[, c(key, "variable"), with = FALSE],
+    list(sep = "_")
+  ))][, .SD, .SDcols = -c(key, "variable")]
+  ## Before casting into wide format, construct formula
+  ## lhs are all column names which are not temp and value and thus, should
+  ## stay. If there are none, set it to 1 and remove this superflous column
+  ## later on.
+  lhs <- colnames(df)[!colnames(df) %in% c("temp", "value")]
+  if (identical(lhs, character(0))) {
+    lhs <- 1
+  }
+  form <- as.formula(paste0(paste0(lhs, collapse = "+"), "~", "temp"))
+  df <- data.table::dcast(data = df, formula = form, value.var = "value")
+  if (length(lhs) == 1) {
+    df <- df[, -c(1)]
+  }
+  return(as.data.frame(df))
+}

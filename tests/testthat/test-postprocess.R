@@ -111,3 +111,37 @@ test_that(".widenProcessedDataset works as expected", {
   expect_equal(actual$age_group, expected$age_group)
   expect_equal(actual$survey, expected$survey)
 })
+
+test_that(".spreadAcrossColumns works", {
+  ## One value column and no columns to keep
+  df <- data.frame(
+    outcome = c("PR", "edeath", "incidence"),
+    Mean = c(.5, .3, 100)
+  )
+  actual <- .spreadAcrossColumns(df = df, key = "outcome", value = "Mean")
+  expected <- data.frame(
+    PR_Mean = 0.5,
+    edeath_Mean = 0.3,
+    incidence_Mean = 100
+  )
+  expect_equal(actual, expected)
+
+  ## Multiple value columns and multiple columns to keep
+  df <- data.frame(
+    month = rep(1:3, 2),
+    year = rep(4:6, 2),
+    student = rep(c("Amy", "Bob"), each = 3),
+    A = c(9, 7, 6, 8, 6, 9),
+    B = c(6, 7, 8, 5, 6, 7)
+  )
+  actual <- .spreadAcrossColumns(df, "student", c("A", "B"))
+  expected <- data.frame(
+    month = c(1, 2, 3),
+    year = c(4, 5, 6),
+    Amy_A = c(9, 7, 6),
+    Amy_B = c(6, 7, 8),
+    Bob_A = c(8, 6, 9),
+    Bob_B = c(5, 6, 7)
+  )
+  expect_equal(actual, expected)
+})
