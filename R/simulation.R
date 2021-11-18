@@ -5,6 +5,7 @@
 ##' @title Run openMalaria scenarios
 ##' @param scenariosDir Directory containing the scenario xml files. Defaults to
 ##'   the cached scenario directory.
+##' @param cmd Command to run openMalaria.
 ##' @export
 runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
   ## Get values from cache if not given

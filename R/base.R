@@ -15,6 +15,8 @@
 ##'
 ##' @title Create an openMalaria experiment
 ##' @param data List containing all information
+##' @param replace Overwrite experiment directory if it is already present.
+##'   Possible values are TRUE, FALSE, or "ask".
 ##' @return
 ##' @export
 createBaseXml <- function(data = NULL, replace = "ask") {

@@ -9,6 +9,8 @@ runScenarios(scenariosDir = NULL, cmd = "openMalaria")
 \arguments{
 \item{scenariosDir}{Directory containing the scenario xml files. Defaults to
 the cached scenario directory.}
+
+\item{cmd}{Command to run openMalaria.}
 }
 \description{
 Run openMalaria scenarios

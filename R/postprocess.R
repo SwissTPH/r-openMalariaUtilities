@@ -151,9 +151,13 @@
 ##' @param selectedOutVars variables of interest
 ##' @param debugg if TRUE, function runs in debugging mode (very small dataset)
 ##' @param widename name of dataframe (i.e. "_CombinedDat_wide.RData")
+##' @param setting variable name that specifies the setting (default: "setting")
+##' @param seed_as_hist_param TODO
+##' @param monthvars TODO
 ##' @param monthname name of dataframe (i.e. "_CombinedDat_month.RData")
 ##' @param monthyears which years to keep in the year.month (very wide) dataset
-##' @param setting variable name that specifies the setting (default: "setting")
+##' @param placeholder TODO
+##' @param include TODO
 ##' @inheritParams write_postprocess
 ##' @note used often internally, never seen by user, difficult to write,
 ##'   sometimes breaks

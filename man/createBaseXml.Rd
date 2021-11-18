@@ -8,6 +8,9 @@ createBaseXml(data = NULL, replace = "ask")
 }
 \arguments{
 \item{data}{List containing all information}
+
+\item{replace}{Overwrite experiment directory if it is already present.
+Possible values are TRUE, FALSE, or "ask".}
 }
 \value{
 

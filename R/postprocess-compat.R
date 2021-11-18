@@ -781,7 +781,7 @@
   if (identical(lhs, character(0))) {
     lhs <- 1
   }
-  form <- as.formula(paste0(paste0(lhs, collapse = "+"), "~", "temp"))
+  form <- stats::as.formula(paste0(paste0(lhs, collapse = "+"), "~", "temp"))
   df <- data.table::dcast(data = df, formula = form, value.var = "value")
   if (length(lhs) == 1) {
     df <- df[, -c(1)]

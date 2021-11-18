@@ -68,9 +68,17 @@ c("0to5","6to11","2to10","All")}
 
 \item{setting}{variable name that specifies the setting (default: "setting")}
 
+\item{seed_as_hist_param}{TODO}
+
+\item{monthvars}{TODO}
+
 \item{monthname}{name of dataframe (i.e. "_CombinedDat_month.RData")}
 
 \item{monthyears}{which years to keep in the year.month (very wide) dataset}
+
+\item{placeholder}{TODO}
+
+\item{include}{TODO}
 }
 \description{
 Function to manage postprocessing The output file is named
