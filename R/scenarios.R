@@ -12,55 +12,37 @@
 
 ## REVIEW Is keeping full really necessary? Can it be factored out?
 
+##' @title Store scenarios and full object in cache folder
 ##' @param scenarios Data frame containing the values for the placeholders. One
 ##'   row per scenario, placeholders in columns. Column names correspond to the
 ##'   placeholder names.
 ##' @param full List of experiment variables and values.
-.storeScenarios <- function(scenarios, full) {
+##' @export
+storeScenarios <- function(scenarios, full) {
   ## Compatibility
   scens <- scenarios
   save(scenarios, full, scens,
-    file = file.path(.omupkgcache$cacheDir, "scens.RData")
-  )
+       file = file.path(.omupkgcache$cacheDir, "scens.RData")
+       )
 }
 
-##' @title Generate scenarios from a base xml file and a scenarios data frame
-##' @param baseFile Compatible base xml file.
-##' @param prefix Prefix for the scenario files.
+
 ##' @param scenarios Data frame containing the values for the placeholders. One
 ##'   row per scenario, placeholders in columns. Column names correspond to the
 ##'   placeholder names.
-##' @param full List of experiment variables and values.
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
-##' @export
-generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
-                              full = NULL, rowStart = NULL, rowEnd = NULL) {
-  ## Get values from cache if not given
-  if (is.null(baseFile)) {
-    baseFile <- .omupkgcache$baseXml
-  }
-  if (is.null(prefix)) {
-    prefix <- .omupkgcache$experimentName
-  }
-
-  ## Input validation
-  assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertFileExists(baseFile, add = assertCol)
-  checkmate::assertDataFrame(scenarios, add = assertCol)
-  checkmate::assertNumber(rowStart, null.ok = TRUE, add = assertCol)
-  checkmate::assertNumber(rowEnd, null.ok = TRUE, add = assertCol)
-  checkmate::reportAssertions(assertCol)
-
-  ## Read placeholder names
-  placeholders <- names(scenarios)
-  ## Use all rows of given scenarios unless rowStart and rowEnd are both given
+.scenariosRowSelect <- function(scenarios, rowStart = NULL, rowEnd = NULL) {
   if (is.null(rowStart) | is.null(rowEnd)) {
     range <- seq_len(nrow(scenarios))
   } else {
     range <- rowStart:rowEnd
   }
+  return(range)
+}
 
+
+.scenariosGenFiles <- function(scenarios, full, baseFile, range, placeholders) {
   ## If scenarios and full are NULL, simply copy the base xml file
   if (is.null(scenarios) & is.null(full)) {
     file.copy(
@@ -120,7 +102,46 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
         cat(out, file = filename, sep = "\n")
       })
     )
-    ## Cache scenarios
-    .storeScenarios(scenarios = scenarios, full = full)
   }
+}
+
+
+##' @title Generate scenarios from a base xml file and a scenarios data frame
+##' @param baseFile Compatible base xml file.
+##' @param prefix Prefix for the scenario files.
+##' @param scenarios Data frame containing the values for the placeholders. One
+##'   row per scenario, placeholders in columns. Column names correspond to the
+##'   placeholder names.
+##' @param full List of experiment variables and values.
+##' @param rowStart Starting row. Optional.
+##' @param rowEnd End row. Optional.
+##' @export
+generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
+                              full = NULL, rowStart = NULL, rowEnd = NULL) {
+  ## Get values from cache if not given
+  if (is.null(baseFile)) {
+    baseFile <- .omupkgcache$baseXml
+  }
+  if (is.null(prefix)) {
+    prefix <- .omupkgcache$experimentName
+  }
+
+  ## Input validation
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertFileExists(baseFile, add = assertCol)
+  checkmate::assertDataFrame(scenarios, add = assertCol)
+  checkmate::assertNumber(rowStart, null.ok = TRUE, add = assertCol)
+  checkmate::assertNumber(rowEnd, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
+  ## Read placeholder names
+  placeholders <- names(scenarios)
+  ## Use all rows of given scenarios unless rowStart and rowEnd are both given
+  range <- .scenariosRowSelect(
+    scenarios = scenarios, rowStart = rowStart, rowEnd = rowEnd
+  )
+
+  ## Cache scenarios
+  storeScenarios(scenarios = scenarios, full = full)
+
 }
