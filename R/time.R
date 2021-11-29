@@ -112,7 +112,7 @@
 ##' @param startDate TODO
 ##' @param endDate TODO
 ##' @param interval TODO
-xmlTimeGen <- function(startDate, endDate, interval) {
+xmlTimeGen <- function(startDate = NULL, endDate = NULL, interval) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(

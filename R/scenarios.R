@@ -22,8 +22,8 @@ storeScenarios <- function(scenarios, full) {
   ## Compatibility
   scens <- scenarios
   save(scenarios, full, scens,
-       file = file.path(.omupkgcache$cacheDir, "scens.RData")
-       )
+    file = file.path(.omupkgcache$cacheDir, "scens.RData")
+  )
 }
 
 
@@ -42,7 +42,7 @@ storeScenarios <- function(scenarios, full) {
 }
 
 
-.scenariosGenFiles <- function(scenarios, full, baseFile, range, placeholders) {
+.scenariosGenFiles <- function(scenarios, full, baseFile, range, placeholders, prefix) {
   ## If scenarios and full are NULL, simply copy the base xml file
   if (is.null(scenarios) & is.null(full)) {
     file.copy(
@@ -61,7 +61,7 @@ storeScenarios <- function(scenarios, full) {
     ##        should not write to disk, read again and then write to disk again.
     base <- readLines(baseFile)
     ## Check if placeholders in base file are found in scenarios
-    tmp <- NULL
+    tmp <- c()
     sapply(.omupkgcache$placeholders, function(x) {
       if (!(x %in% placeholders)) {
         tmp <<- c(x, tmp)
@@ -71,7 +71,7 @@ storeScenarios <- function(scenarios, full) {
       stop(paste("The following variables are definded in the base xml file but not in the scenarios:\n", tmp))
     }
     ## Check if scenarios has more placeholders than used in the base file
-    tmp <- NULL
+    tmp <- c()
     sapply(placeholders, function(x) {
       if (!(x %in% .omupkgcache$placeholders)) {
         tmp <<- c(x, tmp)
@@ -141,7 +141,11 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
     scenarios = scenarios, rowStart = rowStart, rowEnd = rowEnd
   )
 
+  .scenariosGenFiles(
+    scenarios = scenarios, full = full, baseFile = baseFile, range = range,
+    placeholders = placeholders, prefix = prefix
+  )
+
   ## Cache scenarios
   storeScenarios(scenarios = scenarios, full = full)
-
 }

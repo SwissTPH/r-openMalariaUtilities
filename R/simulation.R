@@ -7,7 +7,7 @@
 ##'   the cached scenario directory.
 ##' @param cmd Command to run openMalaria.
 ##' @export
-runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
+runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALSE) {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
     scenariosDir <- .omupkgcache$scenariosDir
@@ -44,7 +44,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
         sub(
           pattern = "(.*)\\..*$",
           replacement = "\\1",
-          basename(scen)
+          basename(scenario)
         ),
         "_out.txt"
       )
@@ -55,19 +55,21 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria") {
         sub(
           pattern = "(.*)\\..*$",
           replacement = "\\1",
-          basename(scen)
+          basename(scenario)
         ),
         "_cts.txt"
       )
     )
     ## Print current step
     print(paste0("Running scenario [", i, "/", length(scenarios), "]"))
-    system(
-      command = paste0(
-        cmd, " --resource-path ", resources, " --scenario ",
-        scenario, " --output ", output, " --ctsout ", ctsout
-      ),
-      intern = TRUE
+    fullCmd <- paste0(
+      cmd, " --resource-path ", resources, " --scenario ",
+      scenario, " --output ", output, " --ctsout ", ctsout
     )
+    if (dryRun == TRUE) {
+      print(fullCmd)
+    } else {
+      system(command = fullCmd, intern = TRUE)
+    }
   }
 }
