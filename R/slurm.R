@@ -3,9 +3,9 @@
 .slurmOptions <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
                           error = NULL, array = NULL, time = NULL, qos = NULL) {
   ## Header and job name
-  cat(
-    "#!/bin/bash
-#SBATCH --job-name=", jobName, "\n",
+  paste0(
+    "#!/bin/bash", "\n",
+    "#SBATCH --job-name=", jobName, "\n",
     ## Number of tasks per CPU
     if (!is.null(ntasks)) {
       paste0("#SBATCH --ntasks=", ntasks, "\n")
@@ -41,7 +41,7 @@
 
 .writeSlurm <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
                         error = NULL, array = NULL, time = NULL, qos = NULL,
-                        pre = NULL, cmd = NULL, post = NULL) {
+                        pre = NULL, cmd = NULL, post = NULL, file = NULL) {
   cat(
     .slurmOptions(jobName, ntasks, memCPU, output, error, array, time, qos),
     if (!is.null(array)) {
@@ -59,8 +59,10 @@
     if (!is.null(post)) {
       paste0(unlist(post), "\n")
     },
-    sep = ""
-    ## , file = "./test.sh"
+    sep = "",
+    file = if (!is.null(file)) {
+      file
+    }
   )
 }
 
