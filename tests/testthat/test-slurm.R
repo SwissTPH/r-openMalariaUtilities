@@ -22,12 +22,10 @@ test_that("splitSeq works (with rest)", {
 })
 
 test_that(".slurmOptions works", {
-  actual <- paste(capture.output(
-    .slurmOptions(
-      jobName = "test", ntasks = "1", memCPU = "512", output = "output",
-      error = "error", array = "400", time = "30min", qos = "30min"
-    )
-  ), sep = "", collapse = "\n")
+  actual <- .slurmOptions(
+    jobName = "test", ntasks = "1", memCPU = "512", output = "output",
+    error = "error", array = "400", time = "30min", qos = "30min"
+  )
   expected <- "#!/bin/bash
 #SBATCH --job-name=test
 #SBATCH --ntasks=1
@@ -36,7 +34,8 @@ test_that(".slurmOptions works", {
 #SBATCH --error=error_%A_%a_error.log
 #SBATCH --array=1-400
 #SBATCH --time=30min
-#SBATCH --qos=30min"
+#SBATCH --qos=30min
+"
 
   expect_equal(actual, expected)
 })

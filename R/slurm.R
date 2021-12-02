@@ -62,6 +62,8 @@
     sep = "",
     file = if (!is.null(file)) {
       file
+    } else {
+      ""
     }
   )
 }
