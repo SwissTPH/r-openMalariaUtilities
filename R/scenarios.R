@@ -42,9 +42,9 @@ storeScenarios <- function(scenarios, full) {
 }
 
 
-.scenariosGenFiles <- function(scenarios, full, baseFile, range, placeholders, prefix) {
+.scenariosGenFiles <- function(scenarios, baseFile, range, placeholders, prefix) {
   ## If scenarios and full are NULL, simply copy the base xml file
-  if (is.null(scenarios) & is.null(full)) {
+  if (is.null(scenarios)) {
     file.copy(
       from = baseFile,
       to = file.path(
@@ -97,11 +97,15 @@ storeScenarios <- function(scenarios, full) {
           paste(prefix, "_", row, ".xml", sep = "")
         )
         ## Store filename
-        scenarios[row, ]$file <- filename
+        scenarios[row, ]$file <<- filename
         ## Write file
         cat(out, file = filename, sep = "\n")
       })
     )
+    ## Store scenarios in cache
+    ## REVIEW This can get large (100k+ scenarios), maybe a separate cache is
+    ## necessary
+    .omupkgcache$scenarios <- scenarios
   }
 }
 
@@ -142,10 +146,10 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
   )
 
   .scenariosGenFiles(
-    scenarios = scenarios, full = full, baseFile = baseFile, range = range,
+    scenarios = scenarios, baseFile = baseFile, range = range,
     placeholders = placeholders, prefix = prefix
   )
 
   ## Cache scenarios
-  storeScenarios(scenarios = scenarios, full = full)
+  storeScenarios(scenarios = .omupkgcache$scenarios, full = full)
 }
