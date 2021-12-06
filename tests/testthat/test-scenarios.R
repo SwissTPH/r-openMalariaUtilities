@@ -37,7 +37,7 @@ test_that(".scenariosGenFiles works", {
   unlink(.omupkgcache$scenariosDir, recursive = TRUE)
   dir.create(.omupkgcache$scenariosDir)
 
-  .scenariosGenFiles(scenarios = scenarios, full = full,
+  .scenariosGenFiles(scenarios = scenarios,
                      baseFile = testthat::test_path("ref", "exp_test_base.xml"),
                      range = seq_len(nrow(scenarios)), placeholders = c("pop"),
                      prefix = "exp_test")
@@ -59,7 +59,7 @@ test_that(".scenariosGenFiles emits error", {
   unlink(.omupkgcache$scenariosDir, recursive = TRUE)
   dir.create(.omupkgcache$scenariosDir)
 
-  expect_error(.scenariosGenFiles(scenarios = scenarios, full = full,
+  expect_error(.scenariosGenFiles(scenarios = scenarios,
                                   baseFile = testthat::test_path("ref", "exp_test_base.xml"),
                                   range = seq_len(nrow(scenarios)), placeholders = c("foo"),
                                   prefix = "exp_test"),
@@ -76,7 +76,7 @@ test_that(".scenariosGenFiles emits warning", {
   unlink(.omupkgcache$scenariosDir, recursive = TRUE)
   dir.create(.omupkgcache$scenariosDir)
 
-  expect_warning(.scenariosGenFiles(scenarios = scenarios, full = full,
+  expect_warning(.scenariosGenFiles(scenarios = scenarios,
                                   baseFile = testthat::test_path("ref", "exp_test_base.xml"),
                                   range = c(1:2), placeholders = c("pop", "foo"),
                                   prefix = "exp_test"),
