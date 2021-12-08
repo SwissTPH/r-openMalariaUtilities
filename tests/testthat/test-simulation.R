@@ -1,6 +1,14 @@
 test_that("runScenarios throws an error if cmd not found", {
+  assign("scenariosDir", file.path(tempdir(), "scenarios"),
+    envir = openMalariaUtilities:::.pkgcache
+  )
+  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
+    recursive = TRUE
+  )
+  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
+
   expect_error(
-    runScenarios(scenariosDir = "./"),
+    runScenarios(cmd = "NotOpenMalaria"),
     "openMalaria could not be found"
   )
 })
