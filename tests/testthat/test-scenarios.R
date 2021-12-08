@@ -1,7 +1,7 @@
 test_that("storeScenarios works", {
   scenarios <- data.frame(pop = c(1:10))
   full <- "foo"
-  .omupkgcache$cacheDir <- file.path(tempdir(), "cache")
+  assign("cacheDir", file.path(tempdir(), "cache"), envir = openMalariaUtilities:::.omupkgcache)
   storeScenarios(scenarios = scenarios, full = full)
 
   actual <- file.exists(file.path(.omupkgcache$cacheDir, "scens.RData"))
@@ -28,9 +28,9 @@ test_that(".scenariosRowSelect works (custom range)", {
 testthat::test_path("examples", "image.png")
 
 test_that(".scenariosGenFiles works", {
-  .omupkgcache$cacheDir <- file.path(tempdir(), "cache")
-  .omupkgcache$scenariosDir <- file.path(tempdir(), "scenarios")
-  .omupkgcache$placeholders <- "pop"
+  assign("cacheDir", file.path(tempdir(), "cache"), envir = openMalariaUtilities:::.omupkgcache)
+  assign("scenariosDir", file.path(tempdir(), "scenarios"), envir = openMalariaUtilities:::.omupkgcache)
+  assign("placeholders", "pop", envir = openMalariaUtilities:::.omupkgcache)
   scenarios <- data.frame(pop = c(1:10))
   full <- "foo"
 
@@ -43,16 +43,16 @@ test_that(".scenariosGenFiles works", {
                      prefix = "exp_test")
 
   scen_files <- paste0("exp_test_", c(1:10), ".xml")
-  actual <- file.exists(file.path(.omupkgcache$scenariosDir, scen_files))
+  actual <- file.exists(file.path(get("scenariosDir",  envir = openMalariaUtilities:::.omupkgcache), scen_files))
   expected <- rep(TRUE, 10)
   
   expect_equal(actual, expected)
 })
 
 test_that(".scenariosGenFiles emits error", {
-  .omupkgcache$cacheDir <- file.path(tempdir(), "cache")
-  .omupkgcache$scenariosDir <- file.path(tempdir(), "scenarios")
-  .omupkgcache$placeholders <- "pop"
+  assign("cacheDir", file.path(tempdir(), "cache"), envir = openMalariaUtilities:::.omupkgcache)
+  assign("scenariosDir", file.path(tempdir(), "scenarios"), envir = openMalariaUtilities:::.omupkgcache)
+  assign("placeholders", "pop", envir = openMalariaUtilities:::.omupkgcache)
   scenarios <- data.frame(pop = c(1:10))
   full <- "foo"
 

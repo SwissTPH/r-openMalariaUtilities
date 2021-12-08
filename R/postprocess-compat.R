@@ -783,8 +783,10 @@
   }
   form <- stats::as.formula(paste0(paste0(lhs, collapse = "+"), "~", "temp"))
   df <- data.table::dcast(data = df, formula = form, value.var = "value")
-  if (lhs == 1) {
-    df <- df[, -c(1)]
+  if (length(lhs) == 1) {
+    if (lhs == 1) {
+      df <- df[, -c(1)]
+    }
   }
   return(as.data.frame(df))
 }

@@ -3,7 +3,7 @@ test_that(".storeCache works", {
   .omupkgcache$cacheDir <- file.path(tempdir(), "cache")
   .storeCache()
 
-  actual <- file.exists(file.path(.omupkgcache$cacheDir, "cache.RData"))
+  actual <- file.exists(file.path(.omupkgcache$cacheDir, "cache.rds"))
   expected <- TRUE
   
   expect_equal(actual, expected)

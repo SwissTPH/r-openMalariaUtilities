@@ -22,9 +22,9 @@ test_that(".xmlAddChunks throws wrong length error", {
 
 
 test_that(".placeholderCollect works", {
-  .omupkgcache$placeholders <- c("foo")
+  assign("placeholders", c("foo"), envir = openMalariaUtilities:::.omupkgcache)
   .placeholderCollect("@bar@")
-  actual <- .omupkgcache$placeholders
+  actual <- get("placeholders", envir = openMalariaUtilities:::.omupkgcache)
   expectedHash <- hash::hash()
   expectedHash$placeholders <- c("bar", "foo", expectedHash$placeholders)
   expected <- expectedHash$placeholders
@@ -33,9 +33,9 @@ test_that(".placeholderCollect works", {
 })
 
 test_that(".placeholderCollect handles duplicates", {
-  .omupkgcache$placeholders <- c("bar", "foo", "bar", "foo", "foo")
+  assign("placeholders", c("bar", "foo", "bar", "foo", "foo"), envir = openMalariaUtilities:::.omupkgcache)
   .placeholderCollect("@bar@")
-  actual <- .omupkgcache$placeholders
+  actual <- get("placeholders", envir = openMalariaUtilities:::.omupkgcache)
   expectedHash <- hash::hash()
   expectedHash$placeholders <- c("bar", "foo", expectedHash$placeholders)
   expected <- expectedHash$placeholders
