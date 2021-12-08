@@ -7,7 +7,7 @@
 ##'   the cached scenario directory.
 ##' @param cmd Command to run openMalaria.
 ##' @export
-runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", async = TRUE, dryRun = FALSE) {
+runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALSE) {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
     scenariosDir <- get(x = "scenariosDir", envir = .pkgcache)
@@ -69,7 +69,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", async = TRUE,
     if (dryRun == TRUE) {
       print(fullCmd)
     } else {
-      system(command = fullCmd, intern = !async, wait = !async)
+      system(command = fullCmd, intern = TRUE)
     }
   }
 }
