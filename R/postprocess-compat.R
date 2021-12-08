@@ -246,8 +246,8 @@
   file.remove(tempname)
 
   # }# end loop
-
   colnames(alle) <- c("survey", "age_group", "measure", "value", "scenario")
+
   if (dim(alle)[1] < 2) stop("alle needs to be a matrix - for some reason, it is not.")
 
   return(alle)
@@ -286,7 +286,6 @@
 
   ## keeping only the scenarios stored in the "ids" list
   scen_merge <- merge(ids, scens, by = "file", all.x = T)
-
   ## merging the scenario information with the OM output (all_out.txt)
   colnames(scen_merge)[which(colnames(scen_merge) == "file")] <- "scenario"
 
@@ -301,6 +300,7 @@
                                       model_variables = c("models", "seed", "scenario"),
                                       time_variables = c("survey", "Timestep", "Date", "year"),
                                       outVars = selectedOutVars) {
+
 
   #' Define outcome variables
   #' @param rawdat dataframe of raw simulation outputs
@@ -321,6 +321,7 @@
 
   ## defines incidence; edeath & ddeath (mortality)
   ## units_of is cases per 1'000; units_of = 1000
+  rawdat <- as.data.frame(rawdat)
   rawdat[, "pop"] <- as.numeric(rawdat[, "pop"])
 
   ### defining incidence
@@ -716,7 +717,6 @@
   selectVars <- unique(c(
     group_variables, time_variables, outcomes_of_interest, "UniqueScenario"
   ))
-
   ## "UniqueScenario" to be created below
   unique_variables <- c(model_variables, setting_variables)[
     !(c(model_variables, setting_variables) %in% "scenario")
@@ -783,7 +783,7 @@
   }
   form <- stats::as.formula(paste0(paste0(lhs, collapse = "+"), "~", "temp"))
   df <- data.table::dcast(data = df, formula = form, value.var = "value")
-  if (length(lhs) == 1) {
+  if (lhs == 1) {
     df <- df[, -c(1)]
   }
   return(as.data.frame(df))

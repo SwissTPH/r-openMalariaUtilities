@@ -91,9 +91,10 @@
   dict[["innoculationsPerVector"]] <- c(79)
 
   ## Custom measure summaries
-  dict[["allDeaths"]] <- c(18, 19, 19)
-  dict[["sumUncompSev"]] <- c(14, 15, 15)
-  dict[["allHospitalisations"]] <- c(17, 23, 24)
+  ## REVIEW This is never used later on. Why the fuck is this even here?
+  ## dict[["allDeaths"]] <- c(18, 19, 19)
+  ## dict[["sumUncompSev"]] <- c(14, 15, 15)
+  ## dict[["allHospitalisations"]] <- c(17, 23, 24)
 
   return(dict)
 }
@@ -114,19 +115,19 @@
   wideData <- wideData[, rownum := seq_len(nrow(wideData))]
 
   ## Rename numercial measures column to humand readable name
-  colnames(wideData) <- sapply(colnames(wideData), function(x) {
+  colnames(wideData) <- unlist(sapply(colnames(wideData), function(x) {
     ## Replace only if column name is numeric. Do the check silently.
     num <- suppressWarnings(as.numeric(x))
     if (!is.na(num)) {
       colName <- paste0(
         rownames(matchMeasureToNumber)[matchMeasureToNumber[, 1] == num],
         "_",
-        num)
+        num
+      )
     } else {
       colName <- x
     }
-  })
-
+  }))
   return(wideData)
 }
 
@@ -196,10 +197,17 @@ do_post_processing <- function(nameExperiment,
   ### creating structure
   ## set_experiment(nameExperiment)
   ## TODO Make this a function argument
-  load(file.path(.omupkgcache$cacheDir, "scens.RData"))
+  if (file.exists(file.path(.omupkgcache$cacheDir, "scens.RData")) == TRUE) {
+    load(file.path(.omupkgcache$cacheDir, "scens.RData"))
+  } else {
+    stop(paste0("File ", file.path(.omupkgcache$cacheDir, "scens.RData"), " not found."))
+  }
 
   # Lookup data
-  eventMeasureNum <- .surveyMeasuresDict()
+  ## REVIEW What the fuck is this shit? Why does this get transformed into a 3
+  ##        column data frame? And the two last columns are never used? And
+  ##        variable names get simply changed?
+  eventMeasureNum <- as.list(.surveyMeasuresDict())
   match_measure_to_number <- as.data.frame(do.call("rbind", eventMeasureNum))
 
   #-- get better name for scens file
@@ -249,7 +257,6 @@ do_post_processing <- function(nameExperiment,
     MalariaDir = .omupkgcache$outputsDir,
     loop_id = loop_id
   )
-
   ### transforming to a wide dataset, with each outcome as a column
   walle <- .widenProcessedDataset(alle, match_measure_to_number)
 
@@ -257,7 +264,6 @@ do_post_processing <- function(nameExperiment,
   walle <- .merge_scens_with_outputs(walle, short_filename, scens,
     ignore = ignores
   )
-
   rm(alle)
 
   ## -- extracting parameter names
