@@ -197,10 +197,10 @@ do_post_processing <- function(nameExperiment,
   ### creating structure
   ## set_experiment(nameExperiment)
   ## TODO Make this a function argument
-  if (file.exists(file.path(.omupkgcache$cacheDir, "scens.RData")) == TRUE) {
-    load(file.path(.omupkgcache$cacheDir, "scens.RData"))
+  if (file.exists(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")) == TRUE) {
+    load(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"))
   } else {
-    stop(paste0("File ", file.path(.omupkgcache$cacheDir, "scens.RData"), " not found."))
+    stop(paste0("File ", file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"), " not found."))
   }
 
   # Lookup data
@@ -216,7 +216,7 @@ do_post_processing <- function(nameExperiment,
 
   #-- what are the output files ?
   files <- unlist(
-    list.files(path = .omupkgcache$outputsDir, pattern = "_out.txt", full.names = TRUE)
+    list.files(path = get(x = "outputsDir", envir = .pkgcache), pattern = "_out.txt", full.names = TRUE)
   )
   ## print(files)
   print(paste(length(files), "_out.txt files in the output dataset"))
@@ -233,14 +233,14 @@ do_post_processing <- function(nameExperiment,
     setting = setting, files,
     setting_number, number_loops
   )
-  subset_of_files <- temp$ subset_of_files
-  short_filename <- temp$ short_filename
-  one_setting <- temp$ one_setting
+  subset_of_files <- temp$subset_of_files
+  short_filename <- temp$short_filename
+  one_setting <- temp$one_setting
   ## print(temp)
   ## print(full$pop)
   ## print(ORIGIN)
   #-- extract from base file # basename = "base.xml"; ORIGIN = "1918-01-01"
-  tem <- .extract_base_param(.omupkgcache$baseXml, SIMSTART = ORIGIN, pop = full$pop)
+  tem <- .extract_base_param(get(x = "baseXml", envir = .pkgcache), SIMSTART = ORIGIN, pop = full$pop)
   age_dataframe <- tem$age_dataframe
   nHost <- tem$nHost
   timestep_dataframe <- tem$timestep_dataframe
@@ -254,7 +254,7 @@ do_post_processing <- function(nameExperiment,
     sets = sets,
     one_setting = one_setting,
     setting_number = setting_number,
-    MalariaDir = .omupkgcache$outputsDir,
+    MalariaDir = get(x = "outputsDir", envir = .pkgcache),
     loop_id = loop_id
   )
   ### transforming to a wide dataset, with each outcome as a column
@@ -278,11 +278,11 @@ do_post_processing <- function(nameExperiment,
   )
 
   #### --- saving it the first time, then loading it whenever needed
-  if (!debugg) saveRDS(object = temp, file = file.path(.omupkgcache$experimentDir, "param_names.RDS"))
+  if (!debugg) saveRDS(object = temp, file = file.path(get(x = "experimentDir", envir = .pkgcache), "param_names.RDS"))
 
-  unique_variables <- temp$ unique_variables
-  historical_variables <- temp$ historical_variables
-  future_variables <- temp$ future_variables
+  unique_variables <- temp$unique_variables
+  historical_variables <- temp$historical_variables
+  future_variables <- temp$future_variables
 
   #-- ignoring age group 0
   rawdat <- subset(walle, age_group != 0)
@@ -315,7 +315,7 @@ do_post_processing <- function(nameExperiment,
   if (!debugg) {
     save(rawdat,
       file = file.path(
-        .omupkgcache$combinedDir,
+        get(x = "combinedDir", envir = .pkgcache),
         paste0("raw", loop_id, "_", ifelse(sets, one_setting, setting_number), ".RData")
       )
     )
@@ -347,12 +347,12 @@ do_post_processing <- function(nameExperiment,
   temp$rawdat[1:5, c("age", "nHost_0", "nPatent_3", "incidence_999", "nSevere_15", "nUncomp_14")] %>% print()
 
   if (debugg) message("after second defining outcomes")
-  CombinedDat <- temp$ rawdat
-  outcome_variables <- temp$ outcome_variables
-  setting_variables <- temp$ setting_variables
-  model_variables <- temp$ model_variables
-  time_variables <- temp$ time_variables
-  group_variables <- temp$ group_variables
+  CombinedDat <- temp$rawdat
+  outcome_variables <- temp$outcome_variables
+  setting_variables <- temp$setting_variables
+  model_variables <- temp$model_variables
+  time_variables <- temp$time_variables
+  group_variables <- temp$group_variables
 
   ## -- adding identifiers to it (if not already done before)
   CombinedDat <- .assign_id_variables(CombinedDat,
@@ -363,7 +363,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat, file = file.path(
-      .omupkgcache$combinedDir,
+      get(x = "combinedDir", envir = .pkgcache),
       paste0(setting_number, "_", loop_id, "_CombinedDat.RData")
     ))
   }
@@ -374,8 +374,8 @@ do_post_processing <- function(nameExperiment,
   ## -- otherwise we could have a dataset with > 12,000 columns
 
   ## -- we can define a 'year.month' variable if doing aggregate_to_year
-  CombinedDat$ year.month <- paste0(
-    CombinedDat$ year,
+  CombinedDat$year.month <- paste0(
+    CombinedDat$year,
     ".",
     .twoDigitMonth(CombinedDat)
   )
@@ -395,8 +395,8 @@ do_post_processing <- function(nameExperiment,
     setting_variables = setting_variables
   )
 
-  CombinedDat_Aggr <- tempp$ CombinedDat_Aggr
-  outcome_variables <- tempp$ outcome_variables
+  CombinedDat_Aggr <- tempp$CombinedDat_Aggr
+  outcome_variables <- tempp$outcome_variables
 
   ## -- other columns to ignore
   bads <- grep(colnames(CombinedDat_Aggr), pattern = "deploy20")
@@ -406,7 +406,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat_Aggr, file = file.path(
-      .omupkgcache$combinedDir,
+      get(x = "combinedDir", envir = .pkgcache),
       paste0(setting_number, "_", loop_id, "_CombinedDat_Aggr.RData")
     ))
   }
@@ -424,7 +424,10 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat_wide,
-      file = file.path(.omupkgcache$combinedDir, paste0(setting_number, "_", loop_id, widename))
+      file = file.path(
+        get(x = "combinedDir", envir = .pkgcache),
+        paste0(setting_number, "_", loop_id, widename)
+      )
     )
   }
 
@@ -452,7 +455,10 @@ do_post_processing <- function(nameExperiment,
       ## -- new, saving wide dataset by month
       if (!debugg) {
         save(CombinedDat_month,
-          file = file.path(.omupkgcache$combinedDir, paste0(setting_number, "_", loop_id, monthname))
+          file = file.path(
+            get(x = "combinedDir", envir = .pkgcache),
+            paste0(setting_number, "_", loop_id, monthname)
+          )
         )
       }
     } else {

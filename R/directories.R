@@ -51,56 +51,64 @@
   if (is.null(rootDir)) {
     rootDir <- getwd()
   }
-  .omupkgcache$baseDir <- file.path(rootDir)
+  assign(x = "baseDir", value = file.path(rootDir), envir = .pkgcache)
+
 
   ## Experiment directory
   if (is.null(experimentName)) {
     experimentName <- format(Sys.time(), "%Y%m%d_%H%M%S")
   }
-  .omupkgcache$experimentDir <- file.path(rootDir, experimentName)
+  assign(
+    x = "experimentDir", value = file.path(rootDir, experimentName),
+    envir = .pkgcache
+  )
 
   ## Cache directory
-  .omupkgcache$cacheDir <- file.path(.omupkgcache$experimentDir, "cache")
+  assign(x = "cacheDir", value = file.path(get(
+    x = "experimentDir",
+    envir = .pkgcache
+  ), "cache"), envir = .pkgcache)
 
   ## Scenario directory
   if (is.null(scenariosDir)) {
     scenariosDir <- "scenarios"
   }
 
-  .omupkgcache$scenariosDir <- file.path(
+  assign(x = "scenariosDir", value = file.path(
     rootDir,
     experimentName,
     scenariosDir
-  )
+  ), envir = .pkgcache)
+
 
   ## Logs directory
   if (is.null(logsDir)) {
     logsDir <- "logs"
   }
 
-  .omupkgcache$logsDir <- file.path(
+  assign(x = "logsDir", value = file.path(
     rootDir,
     experimentName,
     logsDir
-  )
+  ), envir = .pkgcache)
 
   ## Output directory
-  .omupkgcache$outputsDir <- file.path(
+  assign(x = "outputsDir", value = file.path(
     rootDir,
     experimentName,
     "outputs"
-  )
+  ), envir = .pkgcache)
 
   ## Combined outputs directory
-  .omupkgcache$combinedDir <- file.path(
+  assign(x = "combinedDir", value = file.path(
     rootDir,
     experimentName,
     "combined"
-  )
+  ), envir = .pkgcache)
 
   ## Check if directories are already present and crete them if necessary
   createDir <- NULL
-  if (dir.exists(.omupkgcache$experimentDir)) {
+  if (dir.exists(get(x = "experimentDir", envir = .pkgcache))) {
     ## Directory present, no replace
     if (replace == FALSE) {
       stop("Directory with experiment name already present. Aborting.")
@@ -113,7 +121,7 @@
         ## Yes
       } else {
         createDir <- TRUE
-        unlink(.omupkgcache$experimentDir, recursive = TRUE)
+        unlink(get(x = "experimentDir", envir = .pkgcache), recursive = TRUE)
       }
       ## Directory present, replace
     } else {
@@ -129,13 +137,13 @@
     invisible(
       lapply(
         c(
-          .omupkgcache$baseDir,
-          .omupkgcache$cacheDir,
-          .omupkgcache$experimentDir,
-          .omupkgcache$scenariosDir,
-          .omupkgcache$logsDir,
-          .omupkgcache$outputsDir,
-          .omupkgcache$combinedDir
+          get(x = "baseDir", envir = .pkgcache),
+          get(x = "cacheDir", envir = .pkgcache),
+          get(x = "experimentDir", envir = .pkgcache),
+          get(x = "scenariosDir", envir = .pkgcache),
+          get(x = "logsDir", envir = .pkgcache),
+          get(x = "outputsDir", envir = .pkgcache),
+          get(x = "combinedDir", envir = .pkgcache)
         ),
         function(x) {
           if (!dir.exists(x)) {

@@ -5,19 +5,26 @@
 ## directories, monitoring time points and the openMalaria input itself.
 
 ## A hash table is used for lookup speed.
-.omupkgcache <- new.env(hash = TRUE, parent = emptyenv())
+.pkgcache <- new.env(hash = TRUE, parent = emptyenv())
 
-.storeCache <- function(env = parent.frame()) {
-  if (!file.exists(file.path(.omupkgcache$cacheDir))) {
-    dir.create(file.path(.omupkgcache$cacheDir))
+.storeCache <- function() {
+  path <- file.path(get("cacheDir", envir = .pkgcache))
+  if (!file.exists(path)) {
+    dir.create(path)
   }
-  saveRDS(.omupkgcache,
-    file = file.path(.omupkgcache$cacheDir, "cache.rds")
+  saveRDS(.pkgcache,
+    file = file.path(path, "cache.rds")
   )
 }
 
 .readCache <- function(path) {
-  .omupkgcache <<- readRDS(file = file.path(path, "cache/cache.rds"))
+  tempEnv <- readRDS(file = file.path(path, "cache/cache.rds"))
+  invisible(
+    sapply(ls(all.names = TRUE, envir = tempEnv), function(x) {
+      val <- get(x = paste0(x), envir = tempEnv)
+      assign(x = paste0(x), value = val, envir = .pkgcache)
+    })
+  )
 }
 
 ##' @title Load cached data from experiment

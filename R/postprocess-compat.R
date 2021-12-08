@@ -136,12 +136,12 @@
 
   ## get timesteps and number of surveys
   if (is.null(SIMSTART)) {
-    SIMSTART <- .omupkgcache$surveyTimes$date[[1]]
+    SIMSTART <- get(x = "surveyTimes", envir = .pkgcache)$date[[1]]
   }
 
-  timesteps <- .omupkgcache$surveyTimes$timestep # timesteps
-  nsurveys <- length(.omupkgcache$surveyTimes$timestep)
-  timedates <- as.Date(.omupkgcache$surveyTimes$date)
+  timesteps <- get(x = "surveyTimes", envir = .pkgcache)$timestep # timesteps
+  nsurveys <- length(timesteps)
+  timedates <- as.Date(get(x = "surveyTimes", envir = .pkgcache)$date)
   timestep_dataframe <- cbind(as.data.frame(timesteps), as.data.frame(timedates))
 
   timestep_dataframe$monitoringStep <- rownames(timestep_dataframe)

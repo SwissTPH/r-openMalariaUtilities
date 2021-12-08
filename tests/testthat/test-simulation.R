@@ -15,19 +15,30 @@ test_that("runScenarios throws an error if scenarios do not exist", {
 
 test_that("runScenarios works (dry run)", {
   ## Generate scenarios
-  .omupkgcache$cacheDir <- file.path(tempdir(), "cache")
-  .omupkgcache$scenariosDir <- file.path(tempdir(), "scenarios")
-  .omupkgcache$placeholders <- "pop"
+  assign("cacheDir", file.path(tempdir(), "cache"),
+    envir = openMalariaUtilities:::.pkgcache
+  )
+  assign("scenariosDir", file.path(tempdir(), "scenarios"),
+    envir = openMalariaUtilities:::.pkgcache
+  )
+  assign("placeholders", "pop",
+    envir = openMalariaUtilities:::.pkgcache
+  )
+
   scenarios <- data.frame(pop = c(1:10))
   scen <- scenarios
   full <- "foo"
 
-  unlink(.omupkgcache$scenariosDir, recursive = TRUE)
-  dir.create(.omupkgcache$scenariosDir)
+  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
+    recursive = TRUE
+  )
+  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
 
-  generateScenarios(scenarios = scenarios, full = full,
-                    baseFile = testthat::test_path("ref", "exp_test_base.xml"),
-                    prefix = "exp_test")
+  generateScenarios(
+    scenarios = scenarios, full = full,
+    baseFile = testthat::test_path("ref", "exp_test_base.xml"),
+    prefix = "exp_test"
+  )
 
   expect_output(runScenarios(cmd = "R", dryRun = TRUE))
 })

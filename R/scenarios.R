@@ -22,7 +22,7 @@ storeScenarios <- function(scenarios, full) {
   ## Compatibility
   scens <- scenarios
   save(scenarios, full, scens,
-    file = file.path(.omupkgcache$cacheDir, "scens.RData")
+    file = file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")
   )
 }
 
@@ -48,7 +48,7 @@ storeScenarios <- function(scenarios, full) {
     file.copy(
       from = baseFile,
       to = file.path(
-        .omupkgcache$scenariosDir,
+        get(x = "scenariosDir", envir = .pkgcache),
         paste0(xmlBasename, ".xml")
       )
     )
@@ -62,23 +62,33 @@ storeScenarios <- function(scenarios, full) {
     base <- readLines(baseFile)
     ## Check if placeholders in base file are found in scenarios
     tmp <- c()
-    sapply(.omupkgcache$placeholders, function(x) {
+    sapply(get(x = "placeholders", envir = .pkgcache), function(x) {
       if (!(x %in% placeholders)) {
         tmp <<- c(x, tmp)
       }
     })
     if (!is.null(tmp)) {
-      stop(paste("The following variables are definded in the base xml file but not in the scenarios:\n", tmp))
+      stop(
+        paste(
+          "The following variables are definded in the base xml file but not in the scenarios:\n",
+          paste(tmp, collapse = " ")
+        )
+      )
     }
     ## Check if scenarios has more placeholders than used in the base file
     tmp <- c()
     sapply(placeholders, function(x) {
-      if (!(x %in% .omupkgcache$placeholders)) {
+      if (!(x %in% get(x = "placeholders", envir = .pkgcache))) {
         tmp <<- c(x, tmp)
       }
     })
     if (!is.null(tmp)) {
-      warning(paste("The following variables are not used in the base xml file but definded in the scenarios:\n", tmp))
+      warning(
+        paste(
+          "The following variables are not used in the base xml file but definded in the scenarios:\n",
+          paste(tmp, collapse = " ")
+        )
+      )
     }
     ## Prepare column to store filenames
     scenarios$file <- NA
@@ -96,13 +106,13 @@ storeScenarios <- function(scenarios, full) {
         ## Store filename
         scenarios[row, ]$file <<- filename
         ## Write file
-        cat(out, file = file.path(.omupkgcache$scenariosDir, filename))
+        cat(out, file = file.path(get(x = "scenariosDir", envir = .pkgcache), filename))
       })
     )
     ## Store scenarios in cache
     ## REVIEW This can get large (100k+ scenarios), maybe a separate cache is
     ## necessary
-    .omupkgcache$scenarios <- scenarios
+    assign(x = "scenarios", value = scenarios, envir = .pkgcache)
   }
 }
 
@@ -121,10 +131,10 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
                               full = NULL, rowStart = NULL, rowEnd = NULL) {
   ## Get values from cache if not given
   if (is.null(baseFile)) {
-    baseFile <- .omupkgcache$baseXml
+    baseFile <- get(x = "baseXml", envir = .pkgcache)
   }
   if (is.null(prefix)) {
-    prefix <- .omupkgcache$experimentName
+    prefix <- get(x = "experimentName", envir = .pkgcache)
   }
 
   ## Input validation
@@ -148,5 +158,8 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
   )
 
   ## Cache scenarios
-  storeScenarios(scenarios = .omupkgcache$scenarios, full = full)
+  storeScenarios(
+    scenarios = get(x = "scenarios", envir = .pkgcache),
+    full = full
+  )
 }

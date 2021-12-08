@@ -7,10 +7,10 @@
 ##'   the cached scenario directory.
 ##' @param cmd Command to run openMalaria.
 ##' @export
-runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALSE) {
+runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", async = TRUE, dryRun = FALSE) {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
-    scenariosDir <- .omupkgcache$scenariosDir
+    scenariosDir <- get(x = "scenariosDir", envir = .pkgcache)
   }
 
   cmd <- Sys.which(cmd)
@@ -36,10 +36,10 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALS
   }
 
   for (i in seq_len(length(scenarios))) {
-    resources <- file.path(.omupkgcache$baseDir)
+    resources <- file.path(get(x = "baseDir", envir = .pkgcache))
     scenario <- scenarios[[i]]
     output <- file.path(
-      .omupkgcache$outputsDir,
+      get(x = "outputsDir", envir = .pkgcache),
       paste0(
         sub(
           pattern = "(.*)\\..*$",
@@ -50,7 +50,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALS
       )
     )
     ctsout <- file.path(
-      .omupkgcache$outputsDir,
+      get(x = "outputsDir", envir = .pkgcache),
       paste0(
         sub(
           pattern = "(.*)\\..*$",
@@ -69,7 +69,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALS
     if (dryRun == TRUE) {
       print(fullCmd)
     } else {
-      system(command = fullCmd, intern = TRUE)
+      system(command = fullCmd, intern = !async, wait = !async)
     }
   }
 }

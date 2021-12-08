@@ -8,12 +8,12 @@ test_that(".createFolders works", {
   actual <- all.equal(
     c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
     c(
-      file.exists(.omupkgcache$baseDir),
-      file.exists(.omupkgcache$cacheDir),
-      file.exists(.omupkgcache$experimentDir),
-      file.exists(.omupkgcache$scenariosDir),
-      file.exists(.omupkgcache$logsDir),
-      file.exists(.omupkgcache$outputsDir)
+      file.exists(get(x = "baseDir", envir = openMalariaUtilities:::.pkgcache)),
+      file.exists(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache)),
+      file.exists(get(x = "experimentDir", envir = openMalariaUtilities:::.pkgcache)),
+      file.exists(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache)),
+      file.exists(get(x = "logsDir", envir = openMalariaUtilities:::.pkgcache)),
+      file.exists(get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache))
     )
   )
   expected <- TRUE

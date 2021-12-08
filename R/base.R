@@ -22,35 +22,36 @@
 createBaseXml <- function(data = NULL, replace = "ask") {
   ## Replace spaces with underscores in experiment name and cache it
   data[["expName"]] <- gsub(" ", "_", data[["expName"]])
-  .omupkgcache$experimentName <- data[["expName"]]
+  assign(x = "experimentName", value = data[["expName"]], envir = .pkgcache)
   ## Variables
   if (is.null(data[["xmlBasename"]])) {
-    xmlBasename <- paste0(.omupkgcache$experimentName, "_base")
+    xmlBasename <- paste0(get(x = "experimentName", envir = .pkgcache), "_base")
   } else {
     xmlBasename <- data[["xmlBasename"]]
   }
   ## Generate document root
   baseXml <- .makeXmlRoot(
     schemaVersion = data[["OMVersion"]],
-    name = .omupkgcache$experimentName,
+    name = get(x = "experimentName", envir = .pkgcache),
     analysisNo = data[["analysisNo"]]
   )
   ## Construct xml document
   .xmlMakeDocRec(baseXML = baseXml, data = data)
   ## Create folders
   .createFolders(
-    experimentName = .omupkgcache$experimentName,
+    experimentName = get(x = "experimentName", envir = .pkgcache),
     rootDir = data[["rootDir"]],
     scenariosDir = data[["scenariosDir"]],
     logsDir = data[["logsDir"]],
     replace = replace
   )
-  .omupkgcache$baseXml <- file.path(
-    .omupkgcache$experimentDir,
+  assign(x = "baseXml", value = file.path(
+    get(x = "experimentDir", envir = .pkgcache),
     paste0(xmlBasename, ".xml")
-  )
+  ), envir = .pkgcache)
+
   ## Write base xml file
-  xml2::write_xml(baseXml, file = .omupkgcache$baseXml)
+  xml2::write_xml(baseXml, file = get(x = "baseXml", envir = .pkgcache))
   ## Write cache
   .storeCache()
 }

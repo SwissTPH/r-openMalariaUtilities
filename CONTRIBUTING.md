@@ -34,3 +34,13 @@ Differences or highlights:
 It is recommended to use tools like [lintr](https://github.com/jimhester/lintr)
 and [styler](https://github.com/r-lib/styler) for automatic syntax checks and
 formatting.
+
+## Internals
+
+### Cache
+
+- When you want to manipulate the cache `.pkgcache`, use the `assign()` and
+  `get()` functions together with the correct environment. There are plenty of
+  examples in the code. Otherwise you are in for some pain!
+- When you are writing functions for the package, you can use `envir =
+  .pkgcache`. For tests, use `envir = openMalariaUtilities:::.pkgcache`

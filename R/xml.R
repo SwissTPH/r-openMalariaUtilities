@@ -40,9 +40,9 @@
     ## If true, store it in the cache
     if (matched == TRUE) {
       value <- gsub("@(.*?)@", "\\1", x)
-      .omupkgcache$placeholders <- unique(
-        c(value, .omupkgcache$placeholders)
-      )
+      assign(x = "placeholders", unique(
+        c(value, get(x = "placeholders", envir = .pkgcache))
+      ), envir = .pkgcache)
     }
   }
 }
@@ -135,7 +135,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
   assertCol <- checkmate::makeAssertCollection()
 
   ## Clear cached placehoders, if any
-  .omupkgcache$placeholders <- NULL
+  assign(x = "placeholders", value = NULL, envir = .pkgcache)
 
   ## Run the recursion
   for (i in seq_len(length(data))) {
