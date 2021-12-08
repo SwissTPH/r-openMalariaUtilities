@@ -92,14 +92,11 @@ storeScenarios <- function(scenarios, full) {
             x = out
           )
         })
-        filename <- file.path(
-          .omupkgcache$scenariosDir,
-          paste(prefix, "_", row, ".xml", sep = "")
-        )
+        filename <- paste(prefix, "_", row, ".xml", sep = "")
         ## Store filename
         scenarios[row, ]$file <<- filename
         ## Write file
-        cat(out, file = filename, sep = "\n")
+        cat(out, file = file.path(.omupkgcache$scenariosDir, filename))
       })
     )
     ## Store scenarios in cache
