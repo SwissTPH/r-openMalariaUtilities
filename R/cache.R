@@ -11,13 +11,13 @@
   if (!file.exists(file.path(.omupkgcache$cacheDir))) {
     dir.create(file.path(.omupkgcache$cacheDir))
   }
-  save(.omupkgcache,
-    file = file.path(.omupkgcache$cacheDir, "cache.RData")
+  saveRDS(.omupkgcache,
+    file = file.path(.omupkgcache$cacheDir, "cache.rds")
   )
 }
 
 .readCache <- function(path) {
-  load(file = file.path(path, "cache/cache.RData"), envir = globalenv())
+  .omupkgcache <<- readRDS(file = file.path(path, "cache/cache.rds"))
 }
 
 ##' @title Load cached data from experiment
