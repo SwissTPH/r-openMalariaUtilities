@@ -91,6 +91,13 @@
     "outputs"
   )
 
+  ## Combined outputs directory
+  .omupkgcache$combinedDir <- file.path(
+    rootDir,
+    experimentName,
+    "combined"
+  )
+
   ## Check if directories are already present and crete them if necessary
   createDir <- NULL
   if (dir.exists(.omupkgcache$experimentDir)) {
@@ -127,7 +134,8 @@
           .omupkgcache$experimentDir,
           .omupkgcache$scenariosDir,
           .omupkgcache$logsDir,
-          .omupkgcache$outputsDir
+          .omupkgcache$outputsDir,
+          .omupkgcache$combinedDir
         ),
         function(x) {
           if (!dir.exists(x)) {
