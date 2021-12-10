@@ -14,7 +14,10 @@
 ##' @return XML entries
 .xmlAddChunks <- function(outlist, element, attributeList) {
   ## Test if all attribute vectors have the same length and abort if not
-  if (!all(sapply(attributeList, length) == length(attributeList[[1]]))) {
+  if (!all(vapply(
+    attributeList, length,
+    FUN.VALUE = numeric(1), USE.NAMES = FALSE
+  ) == length(attributeList[[1]]))) {
     stop("Value vectors in attributeList need to be of same length.")
   }
   ## Loop over row, generating an entry each time and appending it to outlist

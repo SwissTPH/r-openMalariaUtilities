@@ -217,9 +217,9 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     )
     ## Adjust dates according to valid dates
     ## Adapted from https://stackoverflow.com/a/45082198
-    dates <- unique(unlist(lapply(as.Date(dates), function(x) {
-      as.character(validDates$date[which.min(abs(x - validDates$date))])
-    })))
+    dates <- unique(vapply(as.Date(dates), function(x) {
+      return(as.character(validDates$date[which.min(abs(x - validDates$date))]))
+    }, FUN.VALUE = character(1), USE.NAMES = FALSE))
     dates <- validDates[as.character(validDates$date) %in% dates, ]
 
     ## Store the information in the cache
@@ -244,7 +244,7 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
   if (!is.null(diagnostic)) {
     outlist[["diagnostic"]] <- diagnostic
   }
-  mapply(function(x, y) {
+  outlist <- append(outlist, mapply(function(x, y) {
     entry <- list()
     entry[["repeatStep"]] <- if (useDays == TRUE) {
       as.character(paste0(days[[1]], "d"))
@@ -260,8 +260,9 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
         paste0(x, "d")
       }
     )
-    outlist <<- append(outlist, list(surveyTime = entry))
-  }, x = days, y = endDates)
+    return(list(surveyTime = entry))
+  }, x = days, y = endDates))
+
   ## Return output list
   return(outlist)
 }

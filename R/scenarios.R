@@ -62,11 +62,11 @@ storeScenarios <- function(scenarios, full) {
     base <- readLines(baseFile)
     ## Check if placeholders in base file are found in scenarios
     tmp <- c()
-    sapply(get(x = "placeholders", envir = .pkgcache), function(x) {
+    for (x in get(x = "placeholders", envir = .pkgcache)) {
       if (!(x %in% placeholders)) {
-        tmp <<- c(x, tmp)
+        tmp <- c(x, tmp)
       }
-    })
+    }
     if (!is.null(tmp)) {
       stop(
         paste(
@@ -75,13 +75,14 @@ storeScenarios <- function(scenarios, full) {
         )
       )
     }
+
     ## Check if scenarios has more placeholders than used in the base file
     tmp <- c()
-    sapply(placeholders, function(x) {
+    for (x in placeholders) {
       if (!(x %in% get(x = "placeholders", envir = .pkgcache))) {
-        tmp <<- c(x, tmp)
+        tmp <- c(x, tmp)
       }
-    })
+    }
     if (!is.null(tmp)) {
       warning(
         paste(
@@ -90,25 +91,24 @@ storeScenarios <- function(scenarios, full) {
         )
       )
     }
+
     ## Prepare column to store filenames
-    scenarios$file <- NA
-    invisible(
-      sapply(range, function(row) {
-        out <- base
-        sapply(placeholders, function(var) {
-          out <<- gsub(
-            pattern = paste("@", var, "@", sep = ""),
-            replacement = scenarios[[var]][[row]],
-            x = out
-          )
-        })
-        filename <- paste(prefix, "_", row, ".xml", sep = "")
-        ## Store filename
-        scenarios[row, ]$file <<- filename
-        ## Write file
-        cat(out, file = file.path(get(x = "scenariosDir", envir = .pkgcache), filename))
-      })
-    )
+    scenarios$file <- vapply(range, function(row) {
+      out <- base
+      for (var in placeholders) {
+        out <- gsub(
+          pattern = paste("@", var, "@", sep = ""),
+          replacement = scenarios[[var]][[row]],
+          x = out
+        )
+      }
+      filename <- paste(prefix, "_", row, ".xml", sep = "")
+      ## Write file
+      cat(out, file = file.path(get(x = "scenariosDir", envir = .pkgcache), filename))
+      ## Store filename
+      return(filename)
+    }, FUN.VALUE = character(1), USE.NAMES = FALSE)
+
     ## Store scenarios in cache
     ## REVIEW This can get large (100k+ scenarios), maybe a separate cache is
     ## necessary

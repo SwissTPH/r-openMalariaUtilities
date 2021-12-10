@@ -115,7 +115,7 @@
   wideData <- wideData[, rownum := seq_len(nrow(wideData))]
 
   ## Rename numercial measures column to humand readable name
-  colnames(wideData) <- unlist(sapply(colnames(wideData), function(x) {
+  colnames(wideData) <- vapply(colnames(wideData), function(x) {
     ## Replace only if column name is numeric. Do the check silently.
     num <- suppressWarnings(as.numeric(x))
     if (!is.na(num)) {
@@ -127,7 +127,8 @@
     } else {
       colName <- x
     }
-  }))
+    return(colName)
+  }, FUN.VALUE = character(1), USE.NAMES = FALSE)
   return(wideData)
 }
 

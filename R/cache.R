@@ -18,13 +18,13 @@
 }
 
 .readCache <- function(path) {
+  ## Read into temporary environment
   tempEnv <- readRDS(file = file.path(path, "cache/cache.rds"))
-  invisible(
-    sapply(ls(all.names = TRUE, envir = tempEnv), function(x) {
-      val <- get(x = paste0(x), envir = tempEnv)
-      assign(x = paste0(x), value = val, envir = .pkgcache)
-    })
-  )
+  ## Process each element of tempEnv; assigning it to the original cache.
+  for (x in ls(all.names = TRUE, envir = tempEnv)) {
+    val <- get(x = paste0(x), envir = tempEnv)
+    assign(x = paste0(x), value = val, envir = .pkgcache)
+  }
 }
 
 ##' @title Load cached data from experiment
