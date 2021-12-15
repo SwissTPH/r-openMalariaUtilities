@@ -72,6 +72,7 @@
 ##' @title Divide a sequence x into chunks of size n. Any rest is appended.
 ##' @param x Sequence like 1:10
 ##' @param n Chunk size
+##' @export
 splitSeq <- function(x, n) {
   ## Determine number of chunks
   g <- length(x) %/% n

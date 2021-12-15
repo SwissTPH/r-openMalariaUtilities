@@ -41,6 +41,14 @@ storeScenarios <- function(scenarios, full) {
   return(range)
 }
 
+.scenariosFilenames <- function(scenarios, prefix) {
+  ## Store filenames of each scenario in column
+  scenarios$file <- vapply(seq_len(nrow(scenarios)), function(row) {
+    filename <- paste(prefix, "_", row, ".xml", sep = "")
+    return(filename)
+  }, FUN.VALUE = character(1), USE.NAMES = FALSE)
+  return(scenarios)
+}
 
 .scenariosGenFiles <- function(scenarios, baseFile, range, placeholders, prefix) {
   ## If scenarios and full are NULL, simply copy the base xml file
@@ -92,8 +100,8 @@ storeScenarios <- function(scenarios, full) {
       )
     }
 
-    ## Prepare column to store filenames
-    scenarios$file <- vapply(range, function(row) {
+    ## Generate scenarios
+    lapply(range, function(row) {
       out <- base
       for (var in placeholders) {
         out <- gsub(
@@ -105,14 +113,7 @@ storeScenarios <- function(scenarios, full) {
       filename <- paste(prefix, "_", row, ".xml", sep = "")
       ## Write file
       cat(out, file = file.path(get(x = "scenariosDir", envir = .pkgcache), filename))
-      ## Store filename
-      return(filename)
-    }, FUN.VALUE = character(1), USE.NAMES = FALSE)
-
-    ## Store scenarios in cache
-    ## REVIEW This can get large (100k+ scenarios), maybe a separate cache is
-    ## necessary
-    assign(x = "scenarios", value = scenarios, envir = .pkgcache)
+    })
   }
 }
 
@@ -152,10 +153,18 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
     scenarios = scenarios, rowStart = rowStart, rowEnd = rowEnd
   )
 
+  ## Store filenames of each scenario in column
+  scenarios <- .scenariosFilenames(scenarios = scenarios, prefix = prefix)
+
   .scenariosGenFiles(
     scenarios = scenarios, baseFile = baseFile, range = range,
     placeholders = placeholders, prefix = prefix
   )
+
+  ## Store scenarios in cache
+  ## REVIEW This can get large (100k+ scenarios), maybe a separate cache is
+  ## necessary
+  assign(x = "scenarios", value = scenarios, envir = .pkgcache)
 
   ## Cache scenarios
   storeScenarios(
