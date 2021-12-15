@@ -25,9 +25,7 @@ test_that(".placeholderCollect works", {
   assign("placeholders", c("foo"), envir = openMalariaUtilities:::.pkgcache)
   .placeholderCollect("@bar@")
   actual <- get("placeholders", envir = openMalariaUtilities:::.pkgcache)
-  expectedHash <- hash::hash()
-  expectedHash$placeholders <- c("bar", "foo", expectedHash$placeholders)
-  expected <- expectedHash$placeholders
+  expected <- c("bar", "foo")
 
   expect_equal(actual, expected)
 })
@@ -36,9 +34,7 @@ test_that(".placeholderCollect handles duplicates", {
   assign("placeholders", c("bar", "foo", "bar", "foo", "foo"), envir = openMalariaUtilities:::.pkgcache)
   .placeholderCollect("@bar@")
   actual <- get("placeholders", envir = openMalariaUtilities:::.pkgcache)
-  expectedHash <- hash::hash()
-  expectedHash$placeholders <- c("bar", "foo", expectedHash$placeholders)
-  expected <- expectedHash$placeholders
+  expected <- c("bar", "foo")
 
   expect_equal(actual, expected)
 })

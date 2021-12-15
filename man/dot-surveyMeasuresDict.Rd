@@ -2,10 +2,10 @@
 % Please edit documentation in R/postprocess.R
 \name{.surveyMeasuresDict}
 \alias{.surveyMeasuresDict}
-\title{Returns hash table mapping measure numbers and names}
+\title{Returns a list, mapping measure numbers and names}
 \usage{
 .surveyMeasuresDict()
 }
 \description{
-Returns hash table mapping measure numbers and names
+Returns a list, mapping measure numbers and names
 }

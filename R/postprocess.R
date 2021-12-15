@@ -2,11 +2,11 @@
 
 ## FIXME This is a fucking mess right now and probably error prone.
 
-##' @title Returns hash table mapping measure numbers and names
+##' @title Returns a list, mapping measure numbers and names
 .surveyMeasuresDict <- function() {
   ## Measures from
   ## https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions#survey-measures
-  dict <- hash::hash()
+  dict <- list()
   dict[["nHost"]] <- c(0)
   dict[["nInfect"]] <- c(1)
   dict[["nExpectd"]] <- c(2)
