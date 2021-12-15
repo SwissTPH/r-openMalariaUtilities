@@ -4,7 +4,7 @@
 \alias{xmlTimeGen}
 \title{Generate date sequence based on start and end date}
 \usage{
-xmlTimeGen(startDate, endDate, interval)
+xmlTimeGen(startDate = NULL, endDate = NULL, interval)
 }
 \arguments{
 \item{startDate}{TODO}
