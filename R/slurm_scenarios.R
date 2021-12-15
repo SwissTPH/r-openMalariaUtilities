@@ -121,3 +121,9 @@ storeScenarios(
   )
   .storeCache()
 }
+
+##' @title Submit scenario creation job to SLURM
+##' @export
+slurmCreateScenarios <- function() {
+  system(command = "sbatch slurm_scenarios.sh")
+}

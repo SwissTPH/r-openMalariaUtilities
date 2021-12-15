@@ -121,3 +121,9 @@ system(command = fullCmd)
     sep = ""
   )
 }
+
+##' @title Submit simulation job to SLURM
+##' @export
+slurmRunSimulation <- function() {
+  system(command = "sbatch slurm_simulation.sh")
+}
