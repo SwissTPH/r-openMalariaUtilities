@@ -8,10 +8,11 @@
 ## generation. It can also be a dataframe.
 
 ##' @title Generate XML chunks
-##' @param outlist TODO
-##' @param element TODO
-##' @param attributeList TODO
+##' @param outlist List which will get modified and returned.
+##' @param element Element to add
+##' @param attributeList Attributes to add
 ##' @return XML entries
+##' @keywords internal
 .xmlAddChunks <- function(outlist, element, attributeList) {
   ## Test if all attribute vectors have the same length and abort if not
   if (!all(vapply(
@@ -56,12 +57,12 @@
 
 ## Recursive function which step through the list and generate the xml entries
 ## accordingly
-##' @title TODO
-##' @param x TODO
+##' @title Recursively create XML
+##' @param x XML node
 ##' @param data List with experiment information
-##' @param errCol TODO
-##' @param recLevel TODO
-##' @return
+##' @param errCol Checkmate error collection
+##' @param recLevel List containing current recursion level
+##' @keywords internal
 recXML <- function(x, data, errCol, recLevel = list()) {
   ## Name of the current entry
   top <- names(data)
@@ -120,7 +121,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
 ##' @title Create xml entries recursively
 ##' @param baseXML The root xml object
 ##' @param data List with experiment information
-##' @return xml document
+##' @keywords internal
 .xmlMakeDocRec <- function(baseXML, data) {
   ## Entries which should be generated
   xmlEntries <- c(

@@ -6,7 +6,7 @@
 ##  - Create RScript doing the work
 
 
-## REVIEW Expose the pre, cmd and post options
+## TODO Expose the pre, cmd and post options
 
 ##' @title Run preparations for SLURM submission
 ##' @param expName Name of experiment
@@ -16,7 +16,7 @@
 ##' @param ntasks Number of tasks per CPU
 ##' @param memCPU Memory per CPU
 ##' @param time Maximum time
-##' @param qos TODO
+##' @param qos Quality of service
 ##' @export
 slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
                                   ntasks = 1, memCPU = "150MB",

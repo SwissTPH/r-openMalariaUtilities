@@ -1,5 +1,20 @@
+### Generate SLURM compatible bash scripts
+
+## Right now, we simply paste these files togeter via cat(). This is working,
+## but not flexible.
+
 ## NOTE Limit number of files (if used) to 200 per process
 
+##' @title Generate top section of SLURM script
+##' @param jobName Name of the job
+##' @param ntasks Number of tasks
+##' @param memCPU RAM per CPU
+##' @param output Output file
+##' @param error Error log file
+##' @param array Array range
+##' @param time Maximum time
+##' @param qos Quality of service
+##' @keywords internal
 .slurmOptions <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
                           error = NULL, array = NULL, time = NULL, qos = NULL) {
   ## Header and job name
@@ -38,7 +53,20 @@
   )
 }
 
-
+##' @title Write SLURM script to file
+##' @param jobName Name of the job
+##' @param ntasks Number of tasks
+##' @param memCPU RAM per CPU
+##' @param output Output file
+##' @param error Error log file
+##' @param array Array range
+##' @param time Maximum time
+##' @param qos Quality of service
+##' @param pre List of commands before main command
+##' @param cmd Main command
+##' @param post List of commands after mein command
+##' @param file Filename
+##' @keywords internal
 .writeSlurm <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
                         error = NULL, array = NULL, time = NULL, qos = NULL,
                         pre = NULL, cmd = NULL, post = NULL, file = NULL) {

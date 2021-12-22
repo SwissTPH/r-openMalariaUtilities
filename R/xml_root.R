@@ -2,6 +2,11 @@
 
 ## Generate the xml root according to openMalara specs.
 
+##' @title Generate XML root
+##' @param schemaVersion OM schema version
+##' @param name Experiment name
+##' @param analysisNo Analysis number
+##' @keywords internal
 .makeXmlRoot <- function(schemaVersion, name, analysisNo) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()

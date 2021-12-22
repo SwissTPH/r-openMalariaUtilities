@@ -7,12 +7,9 @@
 monitoringContinousGen(period, options)
 }
 \arguments{
-\item{period}{TODO}
+\item{period}{Value for period}
 
-\item{options}{TODO}
-}
-\value{
-List for xml contruction
+\item{options}{List of options}
 }
 \description{
 Generate list for 'monitoring/continous/options'

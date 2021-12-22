@@ -28,6 +28,7 @@ subfolder of the \code{rootDir}. Defaults to 'scenarios'.}
 TRUE, FALSE or "ask".}
 }
 \description{
-Generate the folder structure for an experiment. Caches the paths in the
-\code{.openMalariaUtilites} environment.
+Generate the folder structure for an experiment. Caches the
+paths in the \code{.openMalariaUtilites} environment.
 }
+\keyword{internal}

@@ -7,10 +7,9 @@
 
 ## NOTE Directory structure is created as a side effect
 
-##' Generate the folder structure for an experiment. Caches the paths in the
-##' `.openMalariaUtilites` environment.
-##'
 ##' @title Create folder structure
+##' @description Generate the folder structure for an experiment. Caches the
+##'   paths in the `.openMalariaUtilites` environment.
 ##' @param experimentName Name of the experiment. Defaults to current timestamp
 ##' @param rootDir Root directory as a string. Defaults to the current working
 ##'   directory.
@@ -20,6 +19,7 @@
 ##'   `rootDir`. Defaults to 'logs'.
 ##' @param replace If the present directory structure should be replaced. Can be
 ##'   TRUE, FALSE or "ask".
+##' @keywords internal
 .createFolders <- function(experimentName = NULL,
                            rootDir = NULL,
                            scenariosDir = NULL,

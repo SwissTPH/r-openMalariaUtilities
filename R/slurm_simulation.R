@@ -4,21 +4,22 @@
 ##  - Create SLURM launch script and RScript submitting each scenarios to SLURM
 
 
-## REVIEW Expose the pre, cmd and post options
+## TODO Expose the pre, cmd and post options
 
 ##' @title Run preparations for SLURM submission
 ##' @param expName Name of experiment
 ##' @param scenarios Scenario data frame
-##' @param full full object
-##' @param bSize Number of parrellel processed files
 ##' @param ntasks Number of tasks per CPU
 ##' @param memCPU Memory per CPU
 ##' @param time Maximum time
-##' @param qos TODO
+##' @param qos Quality of service
 ##' @export
 slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
                                      memCPU = "250MB", time = "06:00:00",
                                      qos = "6hours") {
+  ## Appease NSE notes in R CMD check
+  scens <- NULL
+
   ## Load scenarios from disk if not specified. We did save them in the step
   ## before.
   if (is.null(scenarios)) {

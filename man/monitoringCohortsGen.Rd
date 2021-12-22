@@ -2,13 +2,13 @@
 % Please edit documentation in R/xml_monitoring.R
 \name{monitoringCohortsGen}
 \alias{monitoringCohortsGen}
-\title{TODO}
+\title{Generate list for 'monitoring/Cohorts'}
 \usage{
 monitoringCohortsGen(ids)
 }
 \arguments{
-\item{ids}{TODO}
+\item{ids}{Vector containg cohort names}
 }
 \description{
-TODO
+Generate list for 'monitoring/Cohorts'
 }

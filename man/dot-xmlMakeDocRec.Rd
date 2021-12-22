@@ -11,9 +11,7 @@
 
 \item{data}{List with experiment information}
 }
-\value{
-xml document
-}
 \description{
 Create xml entries recursively
 }
+\keyword{internal}

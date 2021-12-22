@@ -15,9 +15,8 @@
 ## later (postprocessing).
 
 ##' @title Generate list for 'monitoring/continous/options'
-##' @param period TODO
-##' @param options TODO
-##' @return List for xml contruction
+##' @param period Value for period
+##' @param options List of options
 ##' @export
 monitoringContinousGen <- function(period, options) {
   ## Input validation
@@ -31,14 +30,16 @@ monitoringContinousGen <- function(period, options) {
   ## Assign period
   outlist <- list(period = period)
   ## Loop over row, generating an entry eacht time and appending it to outlist
-  outlist <- .xmlAddChunks(outlist = outlist, element = "option", attributeList = options)
+  outlist <- .xmlAddChunks(
+    outlist = outlist, element = "option",
+    attributeList = options
+  )
   return(outlist)
 }
 
 ##' @title Generate list for 'monitoring/continous/options'
-##' @param onlyNewEpisodes TODO
-##' @param options TODO
-##' @return List for xml contruction
+##' @param onlyNewEpisodes Value for onlyNewEpisodes
+##' @param options List of options
 ##' @export
 monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
   ## Input validation
@@ -56,19 +57,18 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     outlist <- list()
   }
   ## Loop over row, generating an entry eacht time and appending it to outlist
-  outlist <- .xmlAddChunks(outlist = outlist, element = "option", attributeList = options)
+  outlist <- .xmlAddChunks(
+    outlist = outlist, element = "option",
+    attributeList = options
+  )
   return(outlist)
 }
 
-## Adapted from https://stackoverflow.com/a/52067205
-.leapYear <- function(year) {
-  leap <- ifelse(test = (year %% 4 == 0 & year %% 100 != 0) | year %% 400 == 0,
-    yes = TRUE,
-    no = FALSE
-  )
-  return(leap)
-}
-
+##' @title Generate a date sequence
+##' @param startDate Start date in 'YYYY-MM-DD'
+##' @param endDate End date in 'YYYY-MM-DD'
+##' @param daysFilter Day differences to keep
+##' @keywords internal
 .xmlMonitoringTimeRegularSeq <- function(startDate, endDate, daysFilter) {
   ## Generate date sequence, 1 day resolution
   sequence <- seq.Date(as.Date(startDate), as.Date(endDate), by = "1 days")
@@ -207,7 +207,9 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     endDates <- dates$date[length(dates$date)]
   } else {
     ## REVIEW As above, increase final year by one
-    interval[["years"]] <- c(min(interval[["years"]]):(max(interval[["years"]]) + 1))
+    interval[["years"]] <- c(
+      min(interval[["years"]]):(max(interval[["years"]]) + 1)
+    )
     dates <- .xmlTimeBlockSeq(interval)
     ## As above, adjust dates so they are multiples of 5 day timesteps
     validDates <- .xmlMonitoringTimeRegularSeq(
@@ -227,12 +229,16 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
 
     ## Only use dates from the first year.
     days <- subset(
-      dates, format(as.Date(dates$date), "%Y") == min(format(as.Date(dates$date), "%Y"))
+      dates, format(as.Date(dates$date), "%Y") == min(
+        format(as.Date(dates$date), "%Y")
+      )
     )
     days <- days$daysDiff
     ## Extract the dates of the final year
     endDates <- subset(
-      dates, format(as.Date(dates$date), "%Y") == max(format(as.Date(dates$date), "%Y"))
+      dates, format(as.Date(dates$date), "%Y") == max(
+        format(as.Date(dates$date), "%Y")
+      )
     )
     endDates <- endDates$date
   }
@@ -267,11 +273,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
   return(outlist)
 }
 
+
 ## Cohorts
-## TODO Add documentation
-##
-##' @title TODO
-##' @param ids TODO
+
+##' @title Generate list for 'monitoring/Cohorts'
+##' @param ids Vector containg cohort names
 ##' @export
 monitoringCohortsGen <- function(ids) {
   ## Input validation
@@ -287,6 +293,9 @@ monitoringCohortsGen <- function(ids) {
   )
   outlist <- list()
   ## Loop over row, generating an entry eacht time and appending it to outlist
-  outlist <- .xmlAddChunks(outlist = outlist, element = "subPop", attributeList = subPops)
+  outlist <- .xmlAddChunks(
+    outlist = outlist, element = "subPop",
+    attributeList = subPops
+  )
   return(outlist)
 }

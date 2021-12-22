@@ -2,7 +2,7 @@
 % Please edit documentation in R/scenarios.R
 \name{generateScenarios}
 \alias{generateScenarios}
-\title{Generate scenarios from a base xml file and a scenarios data frame}
+\title{Generate scenarios from a base xml file}
 \usage{
 generateScenarios(
   baseFile = NULL,
@@ -29,5 +29,7 @@ placeholder names.}
 \item{rowEnd}{End row. Optional.}
 }
 \description{
-Generate scenarios from a base xml file and a scenarios data frame
+Function generates scenarios defined in a data frame. In this
+data frame each row is a scenario, placeholder values are in the columns.
+Column names correspond to the placeholder names.
 }

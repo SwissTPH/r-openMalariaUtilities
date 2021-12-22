@@ -11,7 +11,11 @@ runScenarios(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALSE)
 the cached scenario directory.}
 
 \item{cmd}{Command to run openMalaria.}
+
+\item{dryRun}{If TRUE, only the final command is printed but not executed.}
 }
 \description{
-Run openMalaria scenarios
+Generates a system call to launch OpenMalaria with the correct
+parameters for each scenario found in the directory. It is assumed that
+OpenMalaria is available in the PATH.
 }

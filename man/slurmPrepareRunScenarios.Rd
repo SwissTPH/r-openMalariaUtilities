@@ -24,11 +24,7 @@ slurmPrepareRunScenarios(
 
 \item{time}{Maximum time}
 
-\item{qos}{TODO}
-
-\item{full}{full object}
-
-\item{bSize}{Number of parrellel processed files}
+\item{qos}{Quality of service}
 }
 \description{
 Run preparations for SLURM submission

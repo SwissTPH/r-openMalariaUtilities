@@ -7,12 +7,9 @@
 monitoringSurveyOptionsGen(onlyNewEpisodes = NULL, options)
 }
 \arguments{
-\item{onlyNewEpisodes}{TODO}
+\item{onlyNewEpisodes}{Value for onlyNewEpisodes}
 
-\item{options}{TODO}
-}
-\value{
-List for xml contruction
+\item{options}{List of options}
 }
 \description{
 Generate list for 'monitoring/continous/options'

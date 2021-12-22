@@ -1,9 +1,8 @@
 ### Little helpers for the the interventions/changeHS section
 
-##' @title TODO
-##' @param interpolation TODO
-##' @param ageGroups TODO
-##' @return TODO
+##' @title Generate list for 'changeHS/CFR'
+##' @param interpolation Value for interpolation
+##' @param ageGroups Data frame
 ##' @export
 changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
   ## Input validation
@@ -27,10 +26,9 @@ changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
   return(outlist)
 }
 
-##' @title TODO
-##' @param interpolation TODO
-##' @param ageGroups TODO
-##' @return TODO
+##' @title Generate list for 'changeHS/SpSeq'
+##' @param interpolation Value for interpolation
+##' @param ageGroups Data frame
 ##' @export
 changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
   ## Input validation

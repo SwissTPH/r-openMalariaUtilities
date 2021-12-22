@@ -7,6 +7,10 @@
 ## A hash table is used for lookup speed.
 .pkgcache <- new.env(hash = TRUE, parent = emptyenv())
 
+##' @title Write cache to disk
+##' @description Store the created cache to disk, using the 'cacheDir' variable
+##'   from the cache itself.
+##' @keywords internal
 .storeCache <- function() {
   path <- file.path(get("cacheDir", envir = .pkgcache))
   if (!file.exists(path)) {
@@ -17,6 +21,11 @@
   )
 }
 
+##' @title Read cache from disk
+##' @description Read cache from 'path'. The folder structure 'cache/cache.rds'
+##'   is appended.
+##' @param path Path to experiment.
+##' @keywords internal
 .readCache <- function(path) {
   ## Read into temporary environment
   tempEnv <- readRDS(file = file.path(path, "cache/cache.rds"))
@@ -26,6 +35,7 @@
     assign(x = paste0(x), value = val, envir = .pkgcache)
   }
 }
+
 
 ##' @title Load cached data from experiment
 ##' @param path Path of the experiment's folder

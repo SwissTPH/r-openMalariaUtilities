@@ -26,12 +26,13 @@ storeScenarios <- function(scenarios, full) {
   )
 }
 
-
+##' @title Select rows for scenario creation
 ##' @param scenarios Data frame containing the values for the placeholders. One
 ##'   row per scenario, placeholders in columns. Column names correspond to the
 ##'   placeholder names.
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
+##' @keywords internal
 .scenariosRowSelect <- function(scenarios, rowStart = NULL, rowEnd = NULL) {
   if (is.null(rowStart) | is.null(rowEnd)) {
     range <- seq_len(nrow(scenarios))
@@ -41,6 +42,12 @@ storeScenarios <- function(scenarios, full) {
   return(range)
 }
 
+##' @title Add a filename column to scenarios
+##' @param scenarios Data frame containing the values for the placeholders. One
+##'   row per scenario, placeholders in columns. Column names correspond to the
+##'   placeholder names.
+##' @param prefix Filename prefix
+##' @keywords internal
 .scenariosFilenames <- function(scenarios, prefix) {
   ## Store filenames of each scenario in column
   scenarios$file <- vapply(seq_len(nrow(scenarios)), function(row) {
@@ -50,14 +57,24 @@ storeScenarios <- function(scenarios, full) {
   return(scenarios)
 }
 
-.scenariosGenFiles <- function(scenarios, baseFile, range, placeholders, prefix) {
+##' @title Generate scenario xml files
+##' @param scenarios Data frame containing the values for the placeholders. One
+##'   row per scenario, placeholders in columns. Column names correspond to the
+##'   placeholder names.
+##' @param baseFile Compatible base xml file.
+##' @param range Row range of scenarios
+##' @param placeholders Vector containing the placeholders
+##' @param prefix Filename prefix
+##' @keywords internal
+.scenariosGenFiles <- function(scenarios, baseFile, range, placeholders,
+                               prefix) {
   ## If scenarios and full are NULL, simply copy the base xml file
   if (is.null(scenarios)) {
     file.copy(
       from = baseFile,
       to = file.path(
         get(x = "scenariosDir", envir = .pkgcache),
-        paste0(xmlBasename, ".xml")
+        paste0(get(x = "xmlBasename", envir = .pkgcache), ".xml")
       )
     )
   } else {
@@ -112,13 +129,19 @@ storeScenarios <- function(scenarios, full) {
       }
       filename <- paste(prefix, "_", row, ".xml", sep = "")
       ## Write file
-      cat(out, file = file.path(get(x = "scenariosDir", envir = .pkgcache), filename))
+      cat(out, file = file.path(
+        get(x = "scenariosDir", envir = .pkgcache),
+        filename
+      ))
     })
   }
 }
 
 
-##' @title Generate scenarios from a base xml file and a scenarios data frame
+##' @title Generate scenarios from a base xml file
+##' @description Function generates scenarios defined in a data frame. In this
+##'   data frame each row is a scenario, placeholder values are in the columns.
+##'   Column names correspond to the placeholder names.
 ##' @param baseFile Compatible base xml file.
 ##' @param prefix Prefix for the scenario files.
 ##' @param scenarios Data frame containing the values for the placeholders. One

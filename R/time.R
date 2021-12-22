@@ -13,6 +13,7 @@
 ##' @param endDate Date in YYYY-MM-DD format
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]
 ##' @return A sequence of dates in the YYYY-MM-DD format
+##' @keywords internal
 .xmlTimeRegularSeq <- function(startDate, endDate, interval) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
@@ -109,9 +110,11 @@
 ## Time series until the last valid date (e.g. endDate = 2002-03-29 ->
 ## 2002-03-25)
 ##' @title Generate date sequence based on start and end date
-##' @param startDate TODO
-##' @param endDate TODO
-##' @param interval TODO
+##' @param startDate Date in YYYY-MM-DD format
+##' @param endDate Date in YYYY-MM-DD format
+##' @param interval A string like '1 weeks'. Same as in [seq.Date()]
+##' @return A sequence of dates in the YYYY-MM-DD format
+##' @export
 xmlTimeGen <- function(startDate = NULL, endDate = NULL, interval) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()

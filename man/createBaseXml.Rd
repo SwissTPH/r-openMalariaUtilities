@@ -2,7 +2,7 @@
 % Please edit documentation in R/base.R
 \name{createBaseXml}
 \alias{createBaseXml}
-\title{Create an openMalaria experiment}
+\title{Create a base xml file}
 \usage{
 createBaseXml(data = NULL, replace = "ask")
 }
@@ -12,11 +12,15 @@ createBaseXml(data = NULL, replace = "ask")
 \item{replace}{Overwrite experiment directory if it is already present.
 Possible values are TRUE, FALSE, or "ask".}
 }
-\value{
-
-}
 \description{
-Processes a list as containing all information to generate all required
-folders and files for openMalaria. Spaces in the name of the experiment are
-automatically replaced by underscores.
+Processes a list as containing the required information to
+generate a base xml file for OpenMalaria. This file is used to generate
+the scenarios for simulation.
+}
+\details{
+The 'data' argument is a nested list resembling the input xml of
+OpenMalaria. The attribute names and possible values can be found in
+OpenMalaria's schema documentation. Some attributes are not part of the
+official schema, like 'expName'. More details can be found in the
+vignette.
 }

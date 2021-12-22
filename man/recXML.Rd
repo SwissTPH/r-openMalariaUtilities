@@ -2,22 +2,20 @@
 % Please edit documentation in R/xml.R
 \name{recXML}
 \alias{recXML}
-\title{TODO}
+\title{Recursively create XML}
 \usage{
 recXML(x, data, errCol, recLevel = list())
 }
 \arguments{
-\item{x}{TODO}
+\item{x}{XML node}
 
 \item{data}{List with experiment information}
 
-\item{errCol}{TODO}
+\item{errCol}{Checkmate error collection}
 
-\item{recLevel}{TODO}
-}
-\value{
-
+\item{recLevel}{List containing current recursion level}
 }
 \description{
-TODO
+Recursively create XML
 }
+\keyword{internal}

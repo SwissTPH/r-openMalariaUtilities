@@ -30,7 +30,7 @@ slurmPrepareScenarios(
 
 \item{time}{Maximum time}
 
-\item{qos}{TODO}
+\item{qos}{Quality of service}
 }
 \description{
 Run preparations for SLURM submission

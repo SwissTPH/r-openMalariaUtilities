@@ -1,13 +1,16 @@
 ### Launch openMalaria and run the scenarios.
 
-## TODO Make compatible with SLURM scheduler
-
 ##' @title Run openMalaria scenarios
+##' @description Generates a system call to launch OpenMalaria with the correct
+##'   parameters for each scenario found in the directory. It is assumed that
+##'   OpenMalaria is available in the PATH.
 ##' @param scenariosDir Directory containing the scenario xml files. Defaults to
 ##'   the cached scenario directory.
 ##' @param cmd Command to run openMalaria.
+##' @param dryRun If TRUE, only the final command is printed but not executed.
 ##' @export
-runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALSE) {
+runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
+                         dryRun = FALSE) {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
     scenariosDir <- get(x = "scenariosDir", envir = .pkgcache)

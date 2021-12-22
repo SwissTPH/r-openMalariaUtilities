@@ -335,7 +335,10 @@ convert_access <- function(dat, pattern = "Access", katya = T,
                                  historical_variables = NULL,
                                  future_variables = NULL,
                                  overwrite = FALSE) {
-
+  ## Appease NSE notes in R CMD check
+  UniqueScenario <- UniqueScenarioSpread <- nr <- HistScenSpread <- NULL
+  FutScenSpread <- NULL
+  
   ## Backwards compatibility (August 2020)
   colnames(CombinedDat_wide)[colnames(CombinedDat_wide) == "Settings"] <- "setting"
 
@@ -460,6 +463,9 @@ add_idvars <- function(scens, full,
                          "futITNcov2022",
                          "futITNcov2023"
                        )) {
+  ## Appease NSE notes in R CMD check
+  ExperimentDir <- enclose <- NULL
+
   ## How are the unique scenario, future, historical things defined?
   temp <- .extract_param_names(
     full = full, scens = scens,
@@ -557,6 +563,9 @@ assign_value <- function(variable = "futIRScov",
 ##' @importFrom utils write.csv
 write_scen_data <- function(scens, full, nameExperiment,
                             startnum = 1, saveit = TRUE, ...) {
+  ## Appease NSE notes in R CMD check
+  ExperimentDir <- NULL
+
   ## set_experiment(nameExperiment)
   ## If scens and full are NULL, loading the saved dataset?
   if (is.null(scens)) {

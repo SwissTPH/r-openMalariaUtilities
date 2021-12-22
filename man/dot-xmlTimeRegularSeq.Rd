@@ -19,3 +19,4 @@ A sequence of dates in the YYYY-MM-DD format
 \description{
 Generate date sequence based on start and end date
 }
+\keyword{internal}

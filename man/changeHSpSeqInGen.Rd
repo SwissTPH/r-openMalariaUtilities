@@ -2,18 +2,15 @@
 % Please edit documentation in R/xml_interventions_changeHS.R
 \name{changeHSpSeqInGen}
 \alias{changeHSpSeqInGen}
-\title{TODO}
+\title{Generate list for 'changeHS/SpSeq'}
 \usage{
 changeHSpSeqInGen(interpolation = NULL, ageGroups)
 }
 \arguments{
-\item{interpolation}{TODO}
+\item{interpolation}{Value for interpolation}
 
-\item{ageGroups}{TODO}
-}
-\value{
-TODO
+\item{ageGroups}{Data frame}
 }
 \description{
-TODO
+Generate list for 'changeHS/SpSeq'
 }

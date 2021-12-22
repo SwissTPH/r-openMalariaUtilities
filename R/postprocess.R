@@ -105,6 +105,9 @@
 ##' @param matchMeasureToNumber Output obtained from .surveyMeasuresDict()
 ##' @importFrom data.table ':='
 .widenProcessedDataset <- function(data, matchMeasureToNumber) {
+  ## Appease NSE notes in R CMD check
+  rownum <- NULL
+
   ## Convert to data.table and reshape into wide format
   wideData <- data.table::dcast(
     data = data.table::data.table(data),
@@ -195,6 +198,9 @@ do_post_processing <- function(nameExperiment,
                                monthyears = 2015:2030,
                                placeholder = NULL,
                                include = NULL) {
+  ## Appease NSE notes in R CMD check
+  full <- age_group <- NULL
+
   ### creating structure
   ## set_experiment(nameExperiment)
   ## TODO Make this a function argument

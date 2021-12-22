@@ -8,16 +8,14 @@ base xml}
 .extract_base_param(baseXml = NULL, SIMSTART = "1918-01-01", pop = NULL)
 }
 \arguments{
+\item{baseXml}{Name of the base xml file}
+
 \item{SIMSTART}{Starting date of the simulations in the format "yyyy-mm-dd",
 default e.g. "1918-01-01", If NULL the base xml is searched for the term
 "Simulation Start" or surveys number 1}
 
 \item{pop}{Total population (integer), if NULL, it will be read from the xml
 file}
-
-\item{MainDir}{Path to experiment directory (character)}
-
-\item{basename}{name of the base xml file}
 }
 \description{
 Supplementary r-script to be included by others, to load key information from

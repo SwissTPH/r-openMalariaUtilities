@@ -75,11 +75,10 @@
 
 #' Supplementary r-script to be included by others, to load key information from
 #' base xml
-#' @param MainDir Path to experiment directory (character)
+#' @param baseXml Name of the base xml file
 #' @param SIMSTART Starting date of the simulations in the format "yyyy-mm-dd",
 #'   default e.g. "1918-01-01", If NULL the base xml is searched for the term
 #'   "Simulation Start" or surveys number 1
-#' @param basename name of the base xml file
 #' @param pop Total population (integer), if NULL, it will be read from the xml
 #'   file
 #' @note used often internally, never seen by user, easy to write, never breaks
@@ -312,6 +311,9 @@
   #' @note used often internally, never seen by user, medium to write, never breaks
   ### removing models if it isn't defined?
 
+  ## Appease NSE notes in R CMD check
+  selectedOutVars <- NULL
+
   if (length(which(colnames(rawdat) %in% "models")) < 1) {
     rawdat[, "models"] <- "base"
   }
@@ -517,6 +519,10 @@
   #' @importFrom dplyr mutate
   #' @note used often internally, never seen by user, easy to write, never breaks
   # groups = c("0to5","2to10","6to11","All")
+
+  ## Appease NSE notes in R CMD check
+  year <- NULL
+
   group_name <- groups
 
   ## -- the separator variable will be 'to'
@@ -575,6 +581,9 @@
   # age_range <- c("0-1")
   # age_group_character  <- "0to1"
   # dataframe <- rawdat
+
+  ## Appease NSE notes in R CMD check
+  age_category <- NULL
 
   #-- ignoring 'ageprop' as a grouping variable
   bads <- which(group_variables == "ageprop")
@@ -693,6 +702,10 @@
   #' @importFrom dplyr select_ group_by
   #' @note used often internally, never seen by user, medium to write, never breaks
 
+  ## Appease NSE notes in R CMD check
+  outcome_variables <- NULL
+  UniqueScenario <- NULL
+
   bads <- which(!is.element(outcomes_of_interest, colnames(dataframe)))
 
   ## -- we should remove them from our required list of outcome_variables
@@ -760,8 +773,11 @@
 ##' @param df Dataframe
 ##' @param key Variable column
 ##' @param value Value columns
-##' @importFrom data.table ':='
+##' @importFrom data.table ':=' .SD
 .spreadAcrossColumns <- function(df, key, value) {
+  ## Appease NSE notes in R CMD check
+  temp <- NULL
+  
   ## Transform into long format
   df <- data.table::melt(
     data = data.table::data.table(df),

@@ -7,11 +7,11 @@
 .xmlAddChunks(outlist, element, attributeList)
 }
 \arguments{
-\item{outlist}{TODO}
+\item{outlist}{List which will get modified and returned.}
 
-\item{element}{TODO}
+\item{element}{Element to add}
 
-\item{attributeList}{TODO}
+\item{attributeList}{Attributes to add}
 }
 \value{
 XML entries
@@ -19,3 +19,4 @@ XML entries
 \description{
 Generate XML chunks
 }
+\keyword{internal}

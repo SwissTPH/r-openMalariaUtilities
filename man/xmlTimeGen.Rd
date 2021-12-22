@@ -7,11 +7,14 @@
 xmlTimeGen(startDate = NULL, endDate = NULL, interval)
 }
 \arguments{
-\item{startDate}{TODO}
+\item{startDate}{Date in YYYY-MM-DD format}
 
-\item{endDate}{TODO}
+\item{endDate}{Date in YYYY-MM-DD format}
 
-\item{interval}{TODO}
+\item{interval}{A string like '1 weeks'. Same as in \code{\link[=seq.Date]{seq.Date()}}}
+}
+\value{
+A sequence of dates in the YYYY-MM-DD format
 }
 \description{
 Generate date sequence based on start and end date
