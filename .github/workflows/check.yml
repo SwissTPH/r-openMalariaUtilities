@@ -42,9 +42,8 @@ jobs:
           extra-packages: rcmdcheck
 
       - uses: r-lib/actions/check-r-package@v1
-      # TODO This should be increased to "warning" when the release is getting close!
         with:
-          error-on: '"error"'
+          error-on: '"warning"'
 
       - name: Show testthat output
         if: always()
