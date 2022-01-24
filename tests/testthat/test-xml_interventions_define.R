@@ -97,3 +97,26 @@ test_that("defineIRS works", {
 
   expect_equal(actual, expected)
 })
+
+test_that("defineTreatSimple works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      human = list(
+        component = list(
+          id = "MDA",
+          name = "MDA",
+          treatSimple = list(
+            durationBlood = "15d",
+            durationLiver = 0
+          )
+        )
+      )
+    )
+  )
+
+  actual <- defineTreatSimple(experiment = testlist)
+  
+  expect_equal(actual, expected)
+})

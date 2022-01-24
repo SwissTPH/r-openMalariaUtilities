@@ -18,7 +18,7 @@ defineIRS <- function(experiment, mosquitos, component = c(
                         "Bendiocarb", "nothing"
                       ),
                       noeffect = "outdoor", steplife = NULL) {
-  # ä Verify input
+  # Verify input
   component <- match.arg(component)
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(noeffect,
@@ -132,7 +132,9 @@ defineIRS <- function(experiment, mosquitos, component = c(
   ## Add mosquito information
   for (i in seq_len(length(mosquitos))) {
     experiment <- .xmlAddList(
-      data = experiment, sublist = c("interventions", "human", "component", "GVI"),
+      data = experiment, sublist = c(
+        "interventions", "human", "component", "GVI"
+      ),
       entry = "anophelesParams",
       input = list(
         mosquito = mosquitos[[i]],
@@ -164,23 +166,56 @@ define_IRS_compat <- defineIRS
 ##' @title SMC, MDA parameterization section
 ##' @description Writes the treatSimple intervention used for mass treatments
 ##'   (i.e. MDA, SMC)
-##' @param component name of the intervention, can be any name but needs to be
+##' @param component Name of the intervention, can be any name but needs to be
 ##'   the same as defined in deployment
-##' @param durationBlood clearance of blood stage parasites
-##' @param durationLiver clearance of liver stage parasites
+##' @param durationBlood Clearance of blood stage parasites
+##' @param durationLiver Clearance of liver stage parasites
 ##' @export
 ##' @examples
 ##' # SMC intervention with a 30 day effect
 ##' define_treatSimple( component = "SMC", durationBlood = "30d")
 ##' # deploying SMC from March to May, in children up to age 10
-##' deploy_it( component = "SMC", y1 = 2005, y2 = 2006, every = 1, interval = "month"
+##' deploy_it( component = "SMC", y1 = 2005, y2 = 2006, every = 1,
+##' interval = "month"
 ##' , maxAge = 10, minAge = .5, m1 = 3, m2 = 5)
-define_treatSimple <- function(component = "MDA", durationBlood = "15d", durationLiver = 0) {
-  if (is.null(component)) stop("component needs to be defined")
+defineTreatSimple <- function(experiment, component = "MDA",
+                              durationBlood = "15d", durationLiver = 0) {
+  # Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(component, add = assertCol)
+  checkmate::assert(
+    checkmate::checkCharacter(durationBlood, pattern = "[0-9]+d{1}\\b"),
+    checkmate::checkNumber(durationBlood, lower = -1),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(durationLiver, pattern = "[0-9]+d{1}\\b"),
+    checkmate::checkNumber(durationLiver, lower = -1),
+    add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
 
-  xmlchunk <- paste0('\n<component id="', component, '">
-<treatSimple durationBlood="', durationBlood, '" durationLiver="', durationLiver, '"/>
-</component>\n')
+  ## Add information
+  experiment <- .xmlAddList(
+    data = experiment, sublist = c("interventions", "human"),
+    entry = "component",
+    input = list(
+      id = component,
+      name = component,
+      treatSimple = list(
+        durationBlood = durationBlood,
+        durationLiver = durationLiver
+      )
+    )
+  )
 
-  return(xmlchunk)
+  return(experiment)
 }
+
+##' @rdname defineTreatSimple
+##' @export
+define_treatSimple <- defineTreatSimple
+
+##' @rdname defineTreatSimple
+##' @export
+define_treatSimple_compat <- defineTreatSimple
