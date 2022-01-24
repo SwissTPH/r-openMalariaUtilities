@@ -11,20 +11,20 @@
 ##' @param steplife Step function decay, the number of months it's effective.
 ##' @export
 defineIRS <- function(experiment, mosquitos, component = c(
-  "Actellic50EC", "Actellic300CS",
-  "Actellic11", "Actellic8",
-  "Actellic80", "magic_actellic",
-  "IRS4", "IRS6", "IRS8",
-  "Bendiocarb", "nothing"
-),
-noeffect = "outdoor", steplife = NULL) {
+                        "Actellic50EC", "Actellic300CS",
+                        "Actellic11", "Actellic8",
+                        "Actellic80", "magic_actellic",
+                        "IRS4", "IRS6", "IRS8",
+                        "Bendiocarb", "nothing"
+                      ),
+                      noeffect = "outdoor", steplife = NULL) {
   # ä Verify input
   component <- match.arg(component)
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(noeffect,
-                          choices = c("indoor", "outdoor"),
-                          add = assertCol
-                          )
+    choices = c("indoor", "outdoor"),
+    add = assertCol
+  )
   checkmate::assertNumeric(steplife, lower = 0, null.ok = TRUE, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
@@ -108,13 +108,16 @@ noeffect = "outdoor", steplife = NULL) {
   }
 
   ## Add decay information
-  topLevel <- c("interventions", "human")
-  experiment[[topLevel]][["component"]] <- list(
-    id = component,
-    name = component,
-    GVI = list(
-      decay = componentData[[component]][["decayL"]],
-      "function" = componentData[[component]][["function"]]
+  experiment <- .xmlAddList(
+    data = experiment, sublist = c("interventions", "human"),
+    entry = "component",
+    input = list(
+      id = component,
+      name = component,
+      GVI = list(
+        decay = componentData[[component]][["decayL"]],
+        "function" = componentData[[component]][["function"]]
+      )
     )
   )
 
@@ -127,23 +130,22 @@ noeffect = "outdoor", steplife = NULL) {
   }
 
   ## Add mosquito information
-  topLevel <- c("interventions", "human", "component", "GVI", "anophelesParams")
   for (i in seq_len(length(mosquitos))) {
-    experiment[[topLevel]] <-
-      append(
-        experiment[[topLevel]],
-        list(
-          mosquito = mosquitos[[i]],
-          propActive = propActive[[i]],
-          deterrency = list(value = componentData[[component]][["vals"]][[1]]),
-          preprandialKillingEffect = list(
-            value = componentData[[component]][["vals"]][[2]]
-          ),
-          postprandialKillingEffect = list(
-            value = componentData[[component]][["vals"]][[3]]
-          )
+    experiment <- .xmlAddList(
+      data = experiment, sublist = c("interventions", "human", "component", "GVI"),
+      entry = "anophelesParams",
+      input = list(
+        mosquito = mosquitos[[i]],
+        propActive = propActive[[i]],
+        deterrency = list(value = componentData[[component]][["vals"]][[1]]),
+        preprandialKillingEffect = list(
+          value = componentData[[component]][["vals"]][[2]]
+        ),
+        postprandialKillingEffect = list(
+          value = componentData[[component]][["vals"]][[3]]
         )
       )
+    )
   }
   return(experiment)
 }
@@ -174,8 +176,7 @@ define_IRS_compat <- defineIRS
 ##' deploy_it( component = "SMC", y1 = 2005, y2 = 2006, every = 1, interval = "month"
 ##' , maxAge = 10, minAge = .5, m1 = 3, m2 = 5)
 define_treatSimple <- function(component = "MDA", durationBlood = "15d", durationLiver = 0) {
-
-  if ( is.null(component) ) stop("component needs to be defined")
+  if (is.null(component)) stop("component needs to be defined")
 
   xmlchunk <- paste0('\n<component id="', component, '">
 <treatSimple durationBlood="', durationBlood, '" durationLiver="', durationLiver, '"/>

@@ -92,3 +92,90 @@ test_that(".xmlMakeDocRec works", {
 
   expect_equal(actual, expected)
 })
+
+
+test_that(".xmlAddList works (not appending)", {
+  testlist <- list(
+    interventions = list(
+      human = list(
+        component = list("foo"), deployment = list("bar"),
+        component = list("foo2"), deployment = list("bar2")
+      )
+    )
+  )
+
+  expected <- list(
+    interventions = list(
+      human = list(
+        component = list(
+          id = "foo3",
+          name = "foo3",
+          GVI = list(
+            decay = 0.25,
+            "function" = "step"
+          )
+        ),
+        deployment = list("bar"),
+        deployment = list("bar2")
+      )
+    )
+  )
+
+  actual <- .xmlAddList(testlist, c("interventions", "human"), "component",
+    list(
+      id = "foo3",
+      name = "foo3",
+      GVI = list(
+        decay = 0.25,
+        "function" = "step"
+      )
+    ),
+    append = FALSE
+  )
+
+  expect_equal(sort(unlist(actual)), sort(unlist(expected)))
+})
+
+test_that(".xmlAddList works (appending)", {
+  testlist <- list(
+    interventions = list(
+      human = list(
+        component = list("foo"), deployment = list("bar"),
+        component = list("foo2"), deployment = list("bar2")
+      )
+    )
+  )
+
+  expected <- list(
+    interventions = list(
+      human = list(
+        component = list(
+          id = "foo3",
+          name = "foo3",
+          GVI = list(
+            decay = 0.25,
+            "function" = "step"
+          )
+        ),
+        component = list("foo"),
+        deployment = list("bar"),
+        component = list("foo2"),
+        deployment = list("bar2")
+      )
+    )
+  )
+
+  actual <- .xmlAddList(
+    testlist, c("interventions", "human"), "component",
+    list(
+      id = "foo3",
+      name = "foo3",
+      GVI = list(
+        decay = 0.25,
+        "function" = "step"
+      )
+    )
+  )
+
+  expect_equal(sort(unlist(actual)), sort(unlist(expected)))
+})
