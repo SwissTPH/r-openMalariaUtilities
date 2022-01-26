@@ -1,6 +1,80 @@
 ## https://swisstph.github.io/openmalaria/schema-43.html#elt-component-2
 ## https://swisstph.github.io/openmalaria/schema-43.html#elt-GVI
 
+
+#' Adds vector control intervention parameterisation to baseXMLfile
+#'@param baseXMLfile xml file to which this functions appends to
+#'@param intervention_parameterization vector control intervention parameterization list depending on three parameters (deterrency, preprandrial, postprandial) and decay functions: 
+# intervention_parameterization=list("LLIN"=list("deterrency_snippet"=list("anophelesParams"=list("mosquito"="Anopheles gambiae", "propActive"=1),
+# "decay"=list("L"=8.826,"function"="weibull","k"=0.6893),
+# "deterrency"=list("value"=0.73))))
+#'@param name name tag  
+#'@param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder
+#'@param resistance scaling function of insecticide resistance ##TODO
+
+define_vector_control<-function(baseXMLfile
+                                ,intervention_parameterization
+                                ,name=list("your_tags")
+                                ,hist=F
+                                ,resistance=0.1){
+  
+  
+  # Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(hist,
+                          choices = c(T, F),
+                          add = assertCol
+  )
+  checkmate::assertNumeric(resistance, lower = 0, upper=1, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+  
+  #some checks
+  if(is.null(baseXMLfile$interventions$human)){stop("To append, the baseXMLfile needs a child called '$interventions$human'")}
+  mosquito_GVI_snippets<-unique(sapply(intervention_parameterization,function(x) x$anophelesParams$mosquito))
+  #if(!mosquito_GVI_snippets%in%baseXMLfile$entomology$vector$anopheles$mosquito){stop("To append, the component mosquito must be one of those specified in the entomology part of the baseXMLfile.")}
+  
+  for (k in names(intervention_parameterization)){
+    
+    componentData<-intervention_parameterization[[k]]
+    
+    for (effects in names(componentData)){
+      
+      component_id<-paste0(k,"-",effects)
+      print(paste0("Defining intervention with component_id ",component_id))
+      
+      ## Add decay and effect information
+      baseXMLfile <- .xmlAddList(
+        data = baseXMLfile, sublist = c("interventions", "human"),
+        entry = "component",
+        input = list(
+          id = component_id,
+          name = "your_tag",
+          GVI = list(
+            decay = if (hist) list("L"=1,"function"="step") else componentData[[effects]][["decay"]],
+            anophelesParams = list(
+              mosquito = componentData[[effects]][["anophelesParams"]][["mosquito"]],
+              propActive = componentData[[effects]][["anophelesParams"]][["propActive"]],
+              deterrency = componentData[[effects]][["deterrency"]],
+              preprandialKillingEffect = componentData[[effects]][["preprandialKillingEffect"]],
+              postprandialKillingEffect = componentData[[effects]][["postprandialKillingEffect"]]
+            )
+          )
+        )
+      )
+      
+    }
+  }
+  
+  return(baseXMLfile)
+}
+
+
+
+
+
+
+
+
 ##' @title Adds the IRS intervention parameterisation
 ##' @param experiment List with experiment data.
 ##' @param mosquitos Mosquito species affected by the intervention.
