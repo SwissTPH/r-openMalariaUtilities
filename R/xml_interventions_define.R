@@ -128,6 +128,10 @@ defineIRS <- function(experiment, mosquitos, component = c(
   if (!is.null(noeffect)) {
     propActive[grep(mosquitos, pattern = noeffect)] <- 0
   }
+  ## If 'component' is 'nothing', set propActive to zero
+  if (component == "nothing") {
+    propActive <- rep(0, length(mosquitos))
+  }
 
   ## Add mosquito information
   for (i in seq_len(length(mosquitos))) {
@@ -166,18 +170,12 @@ define_IRS_compat <- defineIRS
 ##' @title SMC, MDA parameterization section
 ##' @description Writes the treatSimple intervention used for mass treatments
 ##'   (i.e. MDA, SMC)
+##' @param experiment List with experiment data.
 ##' @param component Name of the intervention, can be any name but needs to be
 ##'   the same as defined in deployment
 ##' @param durationBlood Clearance of blood stage parasites
 ##' @param durationLiver Clearance of liver stage parasites
 ##' @export
-##' @examples
-##' # SMC intervention with a 30 day effect
-##' define_treatSimple( component = "SMC", durationBlood = "30d")
-##' # deploying SMC from March to May, in children up to age 10
-##' deploy_it( component = "SMC", y1 = 2005, y2 = 2006, every = 1,
-##' interval = "month"
-##' , maxAge = 10, minAge = .5, m1 = 3, m2 = 5)
 defineTreatSimple <- function(experiment, component = "MDA",
                               durationBlood = "15d", durationLiver = 0) {
   # Verify input
@@ -219,3 +217,39 @@ define_treatSimple <- defineTreatSimple
 ##' @rdname defineTreatSimple
 ##' @export
 define_treatSimple_compat <- defineTreatSimple
+
+##' @title Writes an intervention parameterisation xml chunk that does nothing
+##' @description This is useful if something needs to be deployed, as a
+##'   placeholder.
+##' @param experiment List with experiment data.
+##' @param mosquitos Name of mosquito species affected by the intervention.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment
+##' @export
+defineNothing <- function(experiment, mosquitos) {
+
+  ## This is simply a subset of defineIRS
+  experiment <- defineIRS(
+    experiment = experiment, mosquitos = mosquitos,
+    component = "nothing", noeffect = NULL
+  )
+
+  return(experiment)
+}
+
+##' @rdname defineNothing
+##' @export
+define_nothing <- defineNothing
+
+##' @rdname defineNothing
+##' @export
+define_nothing_compat <- function(experiment, mosquitos, component = "nothing") {
+
+  ## This is simply a subset of defineIRS
+  experiment <- defineIRS(
+    experiment = experiment, mosquitos = mosquitos,
+    component = "nothing", noeffect = NULL
+  )
+
+  return(experiment)
+}

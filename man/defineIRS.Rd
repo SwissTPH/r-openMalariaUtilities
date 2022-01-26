@@ -3,6 +3,7 @@
 \name{defineIRS}
 \alias{defineIRS}
 \alias{define_IRS}
+\alias{define_IRS_compat}
 \title{Adds the IRS intervention parameterisation}
 \usage{
 defineIRS(
@@ -15,6 +16,15 @@ defineIRS(
 )
 
 define_IRS(
+  experiment,
+  mosquitos,
+  component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
+    "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
+  noeffect = "outdoor",
+  steplife = NULL
+)
+
+define_IRS_compat(
   experiment,
   mosquitos,
   component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
