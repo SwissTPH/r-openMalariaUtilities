@@ -253,3 +253,268 @@ define_nothing_compat <- function(experiment, mosquitos, component = "nothing") 
 
   return(experiment)
 }
+
+
+##' @title Calculate smooth compact decay parameters
+##' @param k Shape parameter
+##' @param L Decay parameter (number of years)
+##' @param t Vector of time (years)
+.calculateSmoothCompact <- function(k, L, t = seq(0, 10, length.out = 100)) {
+  # Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertNumeric(k, lower = 0, add = assertCol)
+  checkmate::assertNumeric(L, lower = 0, upper = 10, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+  if (k <= 0) {
+    stop("k needs to be > 0.")
+  }
+
+  d <- ifelse(t < L, exp(k - k / (1 - (t / L)^2)), 0)
+  return(d)
+}
+
+##' @title Calculate smooth compact halflife
+##' @description Explores a space of k x L to find the smooth-compact closest to
+##'   the given smooth-compact, but with a halflife of 'halflife' (say 2 instead
+##'   of 3)
+##' @param k Scaling factor in smooth compact
+##' @param L Other factor in smooth compact
+##' @param halflife Desired halflife (positive number)
+##' @param threshold Set to 0.50 for 'halflife'
+##' @param grid_n How fine of a grid to explore (50 x 50)
+.calculateSmoothCompactHalflife <- function(k = 2.14, L = 6.08, halflife = 2,
+                                            threshold = 0.50, grid_n = 50) {
+  t0 <- seq(0, 10, length.out = 100)
+  d <- .calculateSmoothCompact(k = k, L = L, t = t0)
+  half <- t0[min(which(d < threshold))]
+
+  ## The idea is to keep the original shape of the curve but where time is
+  ## scaled (sped up, or slowed down) to have a different half-life time point
+  ## Constant ratio
+  fact <- half / halflife
+  t1 <- t0 * fact
+  newd <- .calculateSmoothCompact(k = k, L = L, t = t1)
+
+  ## Searching a grid for the parameters with the smallest MSE
+  params <- expand.grid(
+    k = seq(1, 8, length.out = grid_n),
+    L = seq(1, 8, length.out = grid_n)
+  )
+  ## Comparing the 'original scale' (try) with the target values (newd)
+  for (j in seq_len(nrow(params))) {
+    try <- .calculateSmoothCompact(k = params$k[j], L = params$L[j], t = t0)
+    params[j, 3] <- mean(((try - newd)^2))
+  }
+  colnames(params)[3] <- "mse"
+
+  ## Finding the minimum parameters
+  these <- params[which.min(params$mse), ]
+
+  return(these)
+}
+
+## https://swisstph.github.io/openmalaria/schema-43.html#elt-ITN
+
+##' @title Writes the ITN intervention parameterisation xml chunk
+##' @param experiment List with experiment data.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment.
+##' @param mosquitos Name of mosquito species affected by the intervention
+##' @param halflife Attrition of nets in years
+##' @param resist If TRUE, a pyrethroid resistance will be assumed (default
+##'   percentage..?)
+##' @param historical Used for historical intervention coverage?
+##' @param noeffect Which mosquitoes unaffected by intervention?
+##' @param strong If !strong and !resist, then "Pitoa" parameter for LLIN
+##' @export
+defineITN <- function(experiment, component = "histITN", noeffect = "outdoor", mosquitos,
+                      halflife = 2, resist = TRUE, historical = FALSE,
+                      strong = FALSE) {
+  ## Parameters for
+  ## https://swisstph.github.io/openmalaria/schema-43.html#elt-ITN, in that
+  ## order
+  parameterNames <- c(
+    "usage", "holeRateMean", "holeRateCV", "ripRateMean",
+    "ripRateCV", "ripFactor", "initialsecticideMean",
+    "initialsecticideSD", "insecticideDecayL",
+    "insecticideDecayMu", "insecticideDecayCV"
+  )
+  if (!historical) {
+    values <- data.frame(
+      parameterNames = parameterNames,
+      values = c(
+        1, 1.8, signif(sqrt(exp(0.8^2) - 1), 4),
+        1.8, signif(sqrt(exp(0.8^2) - 1), 4), 0.3,
+        55.5, 14, 3, -0.32,
+        signif(sqrt(exp(0.8^2) - 1), 4)
+      )
+    )
+    insecticideDecayFun <- "exponential"
+  } else {
+    values <- data.frame(
+      parameterNames = parameterNames,
+      values = c(1, 0, 0, 0, 0, 0, 55.5, 14, 1, 0, 0)
+    )
+    insecticideDecayFun <- "step"
+  }
+
+  ## REVIEW Where is this coming from?
+  ##        Insecticide decay
+  if (component == "monthITN") {
+    values[values[, "parameterNames"] == "insecticideDecayK", "values"] <- 0.083
+  }
+
+  ## Net attrition
+  if (historical == FALSE) {
+    hh <- .calculateSmoothCompactHalflife(halflife = halflife)
+  }
+
+  ## Add data to experiment
+  outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
+    input = list(
+      id = component,
+      name = component,
+      ITN = list(
+        usage = list(
+          value = values[values[, "parameterNames"] == "usage", "values"]
+        ),
+        holeRate = list(
+          CV = values[values[, "parameterNames"] == "holeRateCV", "values"],
+          distr = "lognormal",
+          mean = values[values[, "parameterNames"] == "holeRateMean", "values"]
+        ),
+        ripRate = list(
+          CV = values[values[, "parameterNames"] == "ripRateCV", "values"],
+          distr = "lognormal",
+          mean = values[values[, "parameterNames"] == "ripRateMean", "values"]
+        ),
+        ripFactor = list(
+          value = values[values[, "parameterNames"] == "ripFactor", "values"]
+        ),
+        initialsecticide = list(
+          mean = values[values[, "parameterNames"] == "initialsecticideMean", "values"],
+          SD = values[values[, "parameterNames"] == "initialsecticideSD", "values"],
+          distr = "normal"
+        ),
+        insecticideDecay = list(
+          "function" = insecticideDecayFun,
+          L = values[values[, "parameterNames"] == "insecticideDecayL", "values"],
+          CV = values[values[, "parameterNames"] == "insecticideDecayCV", "values"]
+        ),
+        ## REVIEW 'monthITN' takes precedence (why?), then 'historial' if TRUE,
+        ##        else 'historical' == FALSE (default)
+        attritionOfNets = if (component == "monthITN") {
+          list(
+            "function" = "step",
+            L = 0.083
+          )
+        } else if (historical == TRUE) {
+          list(
+            "function" = "step",
+            L = 1
+          )
+        } else {
+          list(
+            "function" = "smooth-compact",
+            L = hh$L,
+            k = hh$k
+          )
+        }
+      )
+    )
+  )
+
+  ## Mosquito parameters (resistance or not).
+  ## Parameters from Briet 2013 Malaria Journal, Supplementary Table 2
+  if (resist == TRUE) {
+    ## Kou (P2)
+    val <- c(
+      0.001, 0.003, 0.876, -0.406, 0.018, -0.107, 0.2, 0.268, 0.036, 0.053,
+      0.016, 0.413, 0.097, 0.208, 0.014, 0, 0, 0.265, 0.032, 0
+    )
+  }
+
+  if (resist == FALSE & strong == TRUE) {
+    ## PBOnet (Zeneti P2)
+    val <- c(
+      0.768, 0.2, 0.543, -0.413, 0.012, 0.383, 0.052, 0.322, 0.06, 0.084, 0.016,
+      0.899, 0.096, -0.058, 0.28, 0, 0, 0.389, 0.2, 0
+    )
+  }
+
+
+  if (resist == FALSE & strong == FALSE) {
+    ## PBOweak (Pitoa P2)
+    val <- c(
+      0.018, 0.005, 0.735, -0.477, 0.014, 0.264, 0.017, 0.476, 0.121, 0.145,
+      0.015, 0.682, 0.133, -0.026, 0.067, 0, 0, 0.496, 0.104, 0
+    )
+  }
+
+  ## propActive: Proportion of bites for which ITN acts, defaults to 1
+  propActive <- rep(1, length(mosquitos))
+  ## Set IRS effectiveness to 0 for mosquitos which have 'noeffect' in their
+  ## name, if given
+  for (k in seq_len(length(noeffect))) {
+    propActive[grep(mosquitos, pattern = noeffect[k])] <- 0
+  }
+
+  ## Loop over mosquitoes and add information to list
+  for (i in seq_len(length(mosquitos))) {
+    outlist <- .xmlAddList(
+      data = outlist, sublist = c("ITN"),
+      entry = "anophelesParams",
+      input = list(
+        mosquito = mosquitos[i],
+        propActive = propActive[i],
+        twoStageDeterrency = list(
+          entering = list(
+            insecticideFactor = val[1],
+            insecticideScalingFactor = val[2]
+          ),
+          attacking = list(
+            insecticideFactor = val[6],
+            insecticideScalingFactor = val[7],
+            holeFactor = val[4],
+            interactionFactor = val[8],
+            holeScalingFactor = val[5],
+            baseFactor = val[3]
+          )
+        ),
+        preprandialKillingEffect = list(
+          insecticideFactor = val[12],
+          insecticideScalingFactor = val[13],
+          holeFactor = val[10],
+          interactionFactor = val[14],
+          holeScalingFactor = val[11],
+          baseFactor = val[9]
+        ),
+        postprandialKillingEffect = list(
+          insecticideFactor = val[18],
+          insecticideScalingFactor = val[19],
+          holeFactor = val[16],
+          interactionFactor = val[20],
+          holeScalingFactor = val[17],
+          baseFactor = val[15]
+        )
+      )
+    )
+  }
+
+  experiment <- .xmlAddList(
+    data = experiment, sublist = c("interventions", "human"),
+    entry = "component", input = outlist
+  )
+  return(experiment)
+}
+
+##' @rdname defineITN
+##' @export
+define_ITN <- defineITN
+
+##' @rdname defineITN
+##' @export
+define_ITN_compat <- defineITN

@@ -10,9 +10,9 @@
 \item{data}{List to add to.}
 
 \item{sublist}{Sublist, under which the entry should get added. Must be
-given as a vector, e.g. c("level1", "level2", ...).}
+given as a vector, e.g. c("level1", "level2", ...). Can be NULL.}
 
-\item{entry}{Name of the entry to add, as string.}
+\item{entry}{Name of the entry to add, as string. Can be NULL.}
 
 \item{input}{List to add.}
 
