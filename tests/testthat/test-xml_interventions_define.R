@@ -117,6 +117,46 @@ test_that("defineTreatSimple works", {
   )
 
   actual <- defineTreatSimple(experiment = testlist)
-  
+
+  expect_equal(actual, expected)
+})
+
+test_that("defineNothing works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      human = list(
+        component = list(
+          id = "nothing",
+          name = "nothing",
+          GVI = list(
+            decay = 1,
+            "function" = "step",
+            anophelesParams = list(
+              mosquito = "gam_indoor",
+              propActive = 0,
+              deterrency = list(value = 0),
+              preprandialKillingEffect = list(value = 0),
+              postprandialKillingEffect = list(value = 0)
+            ),
+            anophelesParams = list(
+              mosquito = "gam_outdoor",
+              propActive = 0,
+              deterrency = list(value = 0),
+              preprandialKillingEffect = list(value = 0),
+              postprandialKillingEffect = list(value = 0)
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- defineNothing(
+    experiment = testlist,
+    mosquitos = c("gam_indoor", "gam_outdoor")
+  )
+
   expect_equal(actual, expected)
 })
