@@ -5,18 +5,20 @@
 #' Adds vector control intervention parameterisation to baseXMLfile
 #'@param baseXMLfile xml file to which this functions appends to
 #'@param intervention_parameterization vector control intervention parameterization list depending on three parameters (deterrency, preprandrial, postprandial) and decay functions: 
-# intervention_parameterization=list("LLIN"=list("deterrency_snippet"=list("anophelesParams"=list("mosquito"="Anopheles gambiae", "propActive"=1),
-# "decay"=list("L"=8.826,"function"="weibull","k"=0.6893),
-# "deterrency"=list("value"=0.73))))
-#'@param name name tag  
+#'@param append if T, then append to existing baseXMLfile, otherwise overwrites 
+#'@param name name tag list 
 #'@param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder
 #'@param resistance scaling function of insecticide resistance ##TODO
 
-define_vector_control<-function(baseXMLfile
-                                ,intervention_parameterization
-                                ,name=list("your_tags")
-                                ,hist=F
-                                ,resistance=0.1){
+define_vector_control<-function(baseXMLfile,
+                                intervention_parameterization,
+                                append=T,
+                                name=NULL,
+                                hist=F,
+                                resistance=0.1){
+  ## Examples
+  ## intervention_parameterization=list("LLIN"=list("deterrency_snippet"=list("anophelesParams"=list("mosquito"="Anopheles gambiae", "propActive"=1),"decay"=list("L"=8.826,"function"="weibull","k"=0.6893),"deterrency"=list("value"=0.73))))  
+  ## name=list("LLIN"="your LLIN tag")
   
   
   # Verify input
@@ -44,11 +46,11 @@ define_vector_control<-function(baseXMLfile
       
       ## Add decay and effect information
       baseXMLfile <- .xmlAddList(
-        data = baseXMLfile, sublist = c("interventions", "human"),
+        data = baseXMLfile, sublist = c("interventions", "human"),append=append,
         entry = "component",
         input = list(
           id = component_id,
-          name = "your_tag",
+          name = name[[k]],
           GVI = list(
             decay = if (hist) list("L"=1,"function"="step") else componentData[[effects]][["decay"]],
             anophelesParams = list(
