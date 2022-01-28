@@ -1,0 +1,174 @@
+##' @title Generate placeholder sequence
+##' @param x Input list. First element has to a name, second a sequence, e.g.
+##'   list("name", c(seq1, seq2, ...))
+##' @param placeholders Character vector of names which should be processed
+##' @keywords internal
+.placeholderseqGen <- function(x, placeholders) {
+  ## If we pass a list generated from function arguments, it will contain
+  ## unevalueated expression which we need to evaluate. Furthermore, we store
+  ## them in a temporary environment in order to prevent name conflicts.
+  tempEnv <- new.env()
+  lapply(names(x), function(y) {
+    assign(y, eval(x[[y]]), envir = tempEnv)
+  })
+  ## We loop over the input list, checking if an entry is not in 'placeholders' and is
+  ## a list. If yes, then we enclose the name in '@'s and append the values from
+  ## the sequence.
+  placeholderseq <- list()
+  for (arg in names(x)) {
+    if (arg %in% placeholders) {
+      if (is.list(get(arg, envir = tempEnv))) {
+        placeholderseq[[arg]] <- vapply(get(arg, envir = tempEnv)[[2]], function(x) {
+          paste0("@", get(arg, envir = tempEnv)[[1]], x, "@")
+        }, FUN.VALUE = character(1), USE.NAMES = FALSE
+        )
+      }
+    }
+  }
+  return(placeholderseq)
+}
+
+
+##' @title Writes the deployment of an intervention
+##' @param experiment List with experiment data.
+##' @param component Name of intervention.
+##' @param cumulative default is FALSE. Do not set to TRUE.
+##' @param effects Either NULL or c("det","pre","post")
+##' @param startDate Date in YYYY-MM-DD format.
+##' @param endDate Date in YYYY-MM-DD format.
+##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
+##'   composed of the entries 'days' (optional), 'months' (optional) and
+##'   'years'. If a list is used, startDate and endDate are not used and can be
+##'   NULL.
+##' @param minAge Minimum age for deployment (used in SMC)
+##' @param maxAge Maximum age for deployment (used in SMC)
+##' @param coverage Value or variable of coverage
+##' @param subpop If TRUE, then restricts to a subpopulation (see
+##'   restrictToSubPop in OpenMalaria)
+##' @export
+deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
+                      effects = NULL, startDate = NULL, endDate = NULL,
+                      interval, minAge = NULL, maxAge = NULL, coverage = NULL,
+                      subpop = FALSE) {
+
+  ## Generate a list containing the placeholder sequences from the function
+  ## arguments.
+  ## Get input arguments, remove function name from list
+  funArgs <- as.list(match.call())[-1]
+  ## Generate list
+  placeholderseq <- .placeholderseqGen(
+    x = funArgs,
+    placeholders = c("coverage"))
+
+  ## Generate date sequence
+  dates <- xmlTimeGen(
+    startDate = startDate,
+    endDate = endDate,
+    interval = interval
+  )
+
+  ## Check if the number of dates is equal or bigger than the longest
+  ## placeholder sequence.
+  maxlen <- 0
+  for (i in names(placeholderseq)) {
+    if (length(placeholderseq[[i]]) > maxlen) {
+      maxlen <- length(placeholderseq[[i]])
+    }
+  }
+
+  if (maxlen > length(dates)) {
+    stop(paste0("Number of dates must be equal or larger than placeholder sequences!\n",
+                "Number of dates: ", length(dates), "\n",
+                "Longest placeholder sequence: ", maxlen))
+  } else {
+    maxlen <- length(dates)
+  }
+  ## Equalize lengths, reuse last value if length needs to be adjusted
+  for (var in names(placeholderseq)) {
+    entry <- placeholderseq[[var]]
+    diffLength <- maxlen - length(entry)
+    placeholderseq[[var]] <- append(
+      placeholderseq[[var]], rep(entry[length(entry)], diffLength)
+    )
+  }
+
+  ## Generate output
+  outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
+    input = list(
+      name = component))
+  ## 'component' can have mutliple entries, thus if effects is a vector
+  ## containing strings, we need to generate one entry for each string.
+  ## Furthermore, if effects is not NULL and cumulative or subpop is TRUE, the
+  ## corresponding entries need to be added.
+  if (!is.null(effects) && is.vector(effects)) {
+    for (eff in effects) {
+      outlist <- append(
+        outlist, list(component = list(id = paste0(component, "_", eff))))
+    }
+    if (cumulative == TRUE || subpop == TRUE) {
+      temp <- list()
+      if (cumulative == TRUE) {
+        temp <- append(temp, list(
+          cumulativeCoverage = list(
+            component = paste0(component, "_", effects[1]))
+        ))
+      }
+      if (subpop == TRUE) {
+        temp <- append(temp, list(
+          restrictToSubPop = list(
+            id = paste0(component, "_", effects[1]))
+        ))
+      }
+
+      outlist <- .xmlAddList(
+        data = outlist, sublist = NULL,
+        entry = "timed",
+        input = temp)
+    }
+  }
+
+  ## Add deployments
+  for (i in seq_len(length(dates))) {
+    temp <- list(
+      deploy = list(
+        coverage = if (!is.null(placeholderseq[["coverage"]])) {
+          placeholderseq[["coverage"]][[i]]
+        } else {
+          coverage
+        },
+        time = dates[[i]]
+      )
+    )
+
+    ## Add minAge and maxAge information if given
+    if (!is.null(minAge) && !is.null(maxAge)) {
+      temp[["deploy"]][["minAge"]] <- minAge
+      temp[["deploy"]][["maxAge"]] <- maxAge
+    }
+
+    outlist <- .xmlAddList(
+      data = outlist, sublist = c("timed"),
+      entry = NULL,
+      input = temp
+    )
+  }
+
+  ## Add to base list
+  experiment <- .xmlAddList(
+    data = experiment, sublist = c("interventions", "human"),
+    entry = "deployment", input = outlist
+  )
+
+  return(experiment)
+}
+
+##' @rdname deployIT
+##' @export
+deploy_IT <- deployIT
+
+##' @rdname deployIT
+##' @export
+deploy_it_compat <- deployIT
