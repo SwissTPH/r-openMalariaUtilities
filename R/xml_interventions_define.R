@@ -2,6 +2,65 @@
 ## https://swisstph.github.io/openmalaria/schema-43.html#elt-GVI
 
 
+
+
+#' Adds vaccine intervention parameterisation to baseXMLfile
+#'@param baseXMLfile xml file to which this functions appends to
+#'@param vaccine parameterization list (see example below) 
+#'@param append if T, then append to existing baseXMLfile, otherwise overwrites 
+#'@param name name tag list 
+#'@param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder TODO
+
+define_vaccine<-function(baseXMLfile,
+                         vaccine_parameterization,
+                         append=T,
+                         name=NULL,
+                         hist=F){
+  ## Examples
+  ## vaccine_parameterization=list(RTSS_Vaccine=list(mode_of_action="PEV",decay=list(L="223d",`function`="weibull"),efficacyB=list(value="0.91"),initialEfficacy=list(value="0.91"))), from Penny et al. 2015 
+  
+  # Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(hist,
+                          choices = c(T, F),
+                          add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
+  
+  for (k in names(vaccine_parameterization)){
+    
+    print(paste0("Defining ",k,"_intervention_cohort first..."))
+    baseXMLfile <- .xmlAddList(
+      data = baseXMLfile, sublist = c("interventions", "human"),append=append,
+      entry = "component",    
+      input = list(id=paste0(k,"_intervention_cohort"),
+                   recruitmentOnly=list(),
+                   subPopRemoval=list(afterYears="5"))
+    )
+    
+    print(paste0("Defining ",k," parameterization..."))
+    componentData<-vaccine_parameterization[[k]]
+    
+    baseXMLfile <- .xmlAddList(
+      data = baseXMLfile, sublist = c("interventions", "human"),append=append,
+      entry = "component",
+      input = list(id=k,
+                   name=k,
+                   setNames(list(list(decay=componentData[["decay"]],
+                                      efficacyB=componentData[["efficacyB"]],
+                                      initialEfficacy=componentData[["initialEfficacy"]])),
+                            componentData[["mode_of_action"]])
+      )
+    )
+    
+  }
+  
+  return(baseXMLfile)
+}
+
+
+
+
 #' Adds vector control intervention parameterisation to baseXMLfile
 #'@param baseXMLfile xml file to which this functions appends to
 #'@param intervention_parameterization vector control intervention parameterization list depending on three parameters (deterrency, preprandrial, postprandial) and decay functions: 
@@ -50,7 +109,7 @@ define_vector_control<-function(baseXMLfile,
         entry = "component",
         input = list(
           id = component_id,
-          name = name[[k]],
+          name = if (is.null(name)) "your_tag" else name[[k]],
           GVI = list(
             decay = if (hist) list("L"=1,"function"="step") else componentData[[effects]][["decay"]],
             anophelesParams = list(
