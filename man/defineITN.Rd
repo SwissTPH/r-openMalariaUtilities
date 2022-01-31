@@ -7,7 +7,7 @@
 \title{Writes the ITN intervention parameterisation xml chunk}
 \usage{
 defineITN(
-  experiment,
+  baseList,
   component = "histITN",
   noeffect = "outdoor",
   mosquitos,
@@ -18,7 +18,7 @@ defineITN(
 )
 
 define_ITN(
-  experiment,
+  baseList,
   component = "histITN",
   noeffect = "outdoor",
   mosquitos,
@@ -29,7 +29,7 @@ define_ITN(
 )
 
 define_ITN_compat(
-  experiment,
+  baseList,
   component = "histITN",
   noeffect = "outdoor",
   mosquitos,
@@ -40,7 +40,7 @@ define_ITN_compat(
 )
 }
 \arguments{
-\item{experiment}{List with experiment data.}
+\item{baseList}{List with experiment data.}
 
 \item{component}{Name of the intervention, can be any name but needs to be
 the same as defined in deployment.}

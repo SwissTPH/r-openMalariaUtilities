@@ -5,56 +5,61 @@
 
 
 #' Adds vaccine intervention parameterisation to baseXMLfile
-#'@param baseXMLfile xml file to which this functions appends to
-#'@param vaccine parameterization list (see example below) 
-#'@param append if T, then append to existing baseXMLfile, otherwise overwrites 
-#'@param name name tag list 
-#'@param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder TODO
+#' @param baseXMLfile xml file to which this functions appends to
+#' @param vaccine parameterization list (see example below)
+#' @param append if T, then append to existing baseXMLfile, otherwise overwrites
+#' @param name name tag list
+#' @param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder TODO
 
-define_vaccine<-function(baseXMLfile,
-                         vaccine_parameterization,
-                         append=T,
-                         name=NULL,
-                         hist=F){
+define_vaccine <- function(baseXMLfile,
+                           vaccine_parameterization,
+                           append = T,
+                           name = NULL,
+                           hist = F) {
   ## Examples
-  ## vaccine_parameterization=list(RTSS_Vaccine=list(mode_of_action="PEV",decay=list(L="223d",`function`="weibull"),efficacyB=list(value="0.91"),initialEfficacy=list(value="0.91"))), from Penny et al. 2015 
-  
+  ## vaccine_parameterization=list(RTSS_Vaccine=list(mode_of_action="PEV",decay=list(L="223d",`function`="weibull"),efficacyB=list(value="0.91"),initialEfficacy=list(value="0.91"))), from Penny et al. 2015
+
   # Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(hist,
-                          choices = c(T, F),
-                          add = assertCol
+    choices = c(T, F),
+    add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-  
-  for (k in names(vaccine_parameterization)){
-    
-    print(paste0("Defining ",k,"_intervention_cohort first..."))
+
+  for (k in names(vaccine_parameterization)) {
+    print(paste0("Defining ", k, "_intervention_cohort first..."))
     baseXMLfile <- .xmlAddList(
-      data = baseXMLfile, sublist = c("interventions", "human"),append=append,
-      entry = "component",    
-      input = list(id=paste0(k,"_intervention_cohort"),
-                   recruitmentOnly=list(),
-                   subPopRemoval=list(afterYears="5"))
-    )
-    
-    print(paste0("Defining ",k," parameterization..."))
-    componentData<-vaccine_parameterization[[k]]
-    
-    baseXMLfile <- .xmlAddList(
-      data = baseXMLfile, sublist = c("interventions", "human"),append=append,
+      data = baseXMLfile, sublist = c("interventions", "human"), append = append,
       entry = "component",
-      input = list(id=k,
-                   name=k,
-                   setNames(list(list(decay=componentData[["decay"]],
-                                      efficacyB=componentData[["efficacyB"]],
-                                      initialEfficacy=componentData[["initialEfficacy"]])),
-                            componentData[["mode_of_action"]])
+      input = list(
+        id = paste0(k, "_intervention_cohort"),
+        recruitmentOnly = list(),
+        subPopRemoval = list(afterYears = "5")
       )
     )
-    
+
+    print(paste0("Defining ", k, " parameterization..."))
+    componentData <- vaccine_parameterization[[k]]
+
+    baseXMLfile <- .xmlAddList(
+      data = baseXMLfile, sublist = c("interventions", "human"), append = append,
+      entry = "component",
+      input = list(
+        id = k,
+        name = k,
+        setNames(
+          list(list(
+            decay = componentData[["decay"]],
+            efficacyB = componentData[["efficacyB"]],
+            initialEfficacy = componentData[["initialEfficacy"]]
+          )),
+          componentData[["mode_of_action"]]
+        )
+      )
+    )
   }
-  
+
   return(baseXMLfile)
 }
 
@@ -62,56 +67,56 @@ define_vaccine<-function(baseXMLfile,
 
 
 #' Adds vector control intervention parameterisation to baseXMLfile
-#'@param baseXMLfile xml file to which this functions appends to
-#'@param intervention_parameterization vector control intervention parameterization list depending on three parameters (deterrency, preprandrial, postprandial) and decay functions: 
-#'@param append if T, then append to existing baseXMLfile, otherwise overwrites 
-#'@param name name tag list 
-#'@param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder
-#'@param resistance scaling function of insecticide resistance ##TODO
+#' @param baseXMLfile xml file to which this functions appends to
+#' @param intervention_parameterization vector control intervention parameterization list depending on three parameters (deterrency, preprandrial, postprandial) and decay functions:
+#' @param append if T, then append to existing baseXMLfile, otherwise overwrites
+#' @param name name tag list
+#' @param hist if T, then decay is assumed to be step function set to 1 for a year and then to zero for the remainder
+#' @param resistance scaling function of insecticide resistance ##TODO
 
-define_vector_control<-function(baseXMLfile,
-                                intervention_parameterization,
-                                append=T,
-                                name=NULL,
-                                hist=F,
-                                resistance=0.1){
+define_vector_control <- function(baseXMLfile,
+                                  intervention_parameterization,
+                                  append = T,
+                                  name = NULL,
+                                  hist = F,
+                                  resistance = 0.1) {
   ## Examples
-  ## intervention_parameterization=list("LLIN"=list("deterrency_snippet"=list("anophelesParams"=list("mosquito"="Anopheles gambiae", "propActive"=1),"decay"=list("L"=8.826,"function"="weibull","k"=0.6893),"deterrency"=list("value"=0.73))))  
+  ## intervention_parameterization=list("LLIN"=list("deterrency_snippet"=list("anophelesParams"=list("mosquito"="Anopheles gambiae", "propActive"=1),"decay"=list("L"=8.826,"function"="weibull","k"=0.6893),"deterrency"=list("value"=0.73))))
   ## name=list("LLIN"="your LLIN tag")
-  
-  
+
+
   # Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(hist,
-                          choices = c(T, F),
-                          add = assertCol
+    choices = c(T, F),
+    add = assertCol
   )
-  checkmate::assertNumeric(resistance, lower = 0, upper=1, null.ok = TRUE, add = assertCol)
+  checkmate::assertNumeric(resistance, lower = 0, upper = 1, null.ok = TRUE, add = assertCol)
   checkmate::reportAssertions(assertCol)
-  
-  #some checks
-  if(is.null(baseXMLfile$interventions$human)){stop("To append, the baseXMLfile needs a child called '$interventions$human'")}
-  mosquito_GVI_snippets<-unique(sapply(intervention_parameterization,function(x) x$anophelesParams$mosquito))
-  #if(!mosquito_GVI_snippets%in%baseXMLfile$entomology$vector$anopheles$mosquito){stop("To append, the component mosquito must be one of those specified in the entomology part of the baseXMLfile.")}
-  
-  for (k in names(intervention_parameterization)){
-    
-    componentData<-intervention_parameterization[[k]]
-    
-    for (effects in names(componentData)){
-      
-      component_id<-paste0(k,"-",effects)
-      print(paste0("Defining intervention with component_id ",component_id))
-      
+
+  # some checks
+  if (is.null(baseXMLfile$interventions$human)) {
+    stop("To append, the baseXMLfile needs a child called '$interventions$human'")
+  }
+  mosquito_GVI_snippets <- unique(sapply(intervention_parameterization, function(x) x$anophelesParams$mosquito))
+  # if(!mosquito_GVI_snippets%in%baseXMLfile$entomology$vector$anopheles$mosquito){stop("To append, the component mosquito must be one of those specified in the entomology part of the baseXMLfile.")}
+
+  for (k in names(intervention_parameterization)) {
+    componentData <- intervention_parameterization[[k]]
+
+    for (effects in names(componentData)) {
+      component_id <- paste0(k, "-", effects)
+      print(paste0("Defining intervention with component_id ", component_id))
+
       ## Add decay and effect information
       baseXMLfile <- .xmlAddList(
-        data = baseXMLfile, sublist = c("interventions", "human"),append=append,
+        data = baseXMLfile, sublist = c("interventions", "human"), append = append,
         entry = "component",
         input = list(
           id = component_id,
           name = if (is.null(name)) "your_tag" else name[[k]],
           GVI = list(
-            decay = if (hist) list("L"=1,"function"="step") else componentData[[effects]][["decay"]],
+            decay = if (hist) list("L" = 1, "function" = "step") else componentData[[effects]][["decay"]],
             anophelesParams = list(
               mosquito = componentData[[effects]][["anophelesParams"]][["mosquito"]],
               propActive = componentData[[effects]][["anophelesParams"]][["propActive"]],
@@ -122,10 +127,9 @@ define_vector_control<-function(baseXMLfile,
           )
         )
       )
-      
     }
   }
-  
+
   return(baseXMLfile)
 }
 
@@ -137,7 +141,7 @@ define_vector_control<-function(baseXMLfile,
 
 
 ##' @title Adds the IRS intervention parameterisation
-##' @param experiment List with experiment data.
+##' @param baseList List with experiment data.
 ##' @param mosquitos Mosquito species affected by the intervention.
 ##' @param component Insecticde to use. This will automatically specify efficacy
 ##'   and effect duration. Needs to from predefined choices.
@@ -145,7 +149,7 @@ define_vector_control<-function(baseXMLfile,
 ##'   intervention. Can be "outdoor", "indoor" or NULL.
 ##' @param steplife Step function decay, the number of months it's effective.
 ##' @export
-defineIRS <- function(experiment, mosquitos, component = c(
+defineIRS <- function(baseList, mosquitos, component = c(
                         "Actellic50EC", "Actellic300CS",
                         "Actellic11", "Actellic8",
                         "Actellic80", "magic_actellic",
@@ -243,8 +247,8 @@ defineIRS <- function(experiment, mosquitos, component = c(
   }
 
   ## Add decay information
-  experiment <- .xmlAddList(
-    data = experiment, sublist = c("interventions", "human"),
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
     entry = "component",
     input = list(
       id = component,
@@ -270,8 +274,8 @@ defineIRS <- function(experiment, mosquitos, component = c(
 
   ## Add mosquito information
   for (i in seq_len(length(mosquitos))) {
-    experiment <- .xmlAddList(
-      data = experiment, sublist = c(
+    baseList <- .xmlAddList(
+      data = baseList, sublist = c(
         "interventions", "human", "component", "GVI"
       ),
       entry = "anophelesParams",
@@ -288,7 +292,7 @@ defineIRS <- function(experiment, mosquitos, component = c(
       )
     )
   }
-  return(experiment)
+  return(baseList)
 }
 
 ##' @rdname defineIRS
@@ -305,13 +309,13 @@ define_IRS_compat <- defineIRS
 ##' @title SMC, MDA parameterization section
 ##' @description Writes the treatSimple intervention used for mass treatments
 ##'   (i.e. MDA, SMC)
-##' @param experiment List with experiment data.
+##' @param baseList List with experiment data.
 ##' @param component Name of the intervention, can be any name but needs to be
 ##'   the same as defined in deployment
 ##' @param durationBlood Clearance of blood stage parasites
 ##' @param durationLiver Clearance of liver stage parasites
 ##' @export
-defineTreatSimple <- function(experiment, component = "MDA",
+defineTreatSimple <- function(baseList, component = "MDA",
                               durationBlood = "15d", durationLiver = 0) {
   # Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -329,8 +333,8 @@ defineTreatSimple <- function(experiment, component = "MDA",
   checkmate::reportAssertions(assertCol)
 
   ## Add information
-  experiment <- .xmlAddList(
-    data = experiment, sublist = c("interventions", "human"),
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
     entry = "component",
     input = list(
       id = component,
@@ -342,7 +346,7 @@ defineTreatSimple <- function(experiment, component = "MDA",
     )
   )
 
-  return(experiment)
+  return(baseList)
 }
 
 ##' @rdname defineTreatSimple
@@ -356,20 +360,20 @@ define_treatSimple_compat <- defineTreatSimple
 ##' @title Writes an intervention parameterisation xml chunk that does nothing
 ##' @description This is useful if something needs to be deployed, as a
 ##'   placeholder.
-##' @param experiment List with experiment data.
+##' @param baseList List with experiment data.
 ##' @param mosquitos Name of mosquito species affected by the intervention.
 ##' @param component Name of the intervention, can be any name but needs to be
 ##'   the same as defined in deployment
 ##' @export
-defineNothing <- function(experiment, mosquitos) {
+defineNothing <- function(baseList, mosquitos) {
 
   ## This is simply a subset of defineIRS
-  experiment <- defineIRS(
-    experiment = experiment, mosquitos = mosquitos,
+  baseList <- defineIRS(
+    baseList = baseList, mosquitos = mosquitos,
     component = "nothing", noeffect = NULL
   )
 
-  return(experiment)
+  return(baseList)
 }
 
 ##' @rdname defineNothing
@@ -378,15 +382,15 @@ define_nothing <- defineNothing
 
 ##' @rdname defineNothing
 ##' @export
-define_nothing_compat <- function(experiment, mosquitos, component = "nothing") {
+define_nothing_compat <- function(baseList, mosquitos, component = "nothing") {
 
   ## This is simply a subset of defineIRS
-  experiment <- defineIRS(
-    experiment = experiment, mosquitos = mosquitos,
+  baseList <- defineIRS(
+    baseList = baseList, mosquitos = mosquitos,
     component = "nothing", noeffect = NULL
   )
 
-  return(experiment)
+  return(baseList)
 }
 
 
@@ -451,7 +455,7 @@ define_nothing_compat <- function(experiment, mosquitos, component = "nothing") 
 ## https://swisstph.github.io/openmalaria/schema-43.html#elt-ITN
 
 ##' @title Writes the ITN intervention parameterisation xml chunk
-##' @param experiment List with experiment data.
+##' @param baseList List with experiment data.
 ##' @param component Name of the intervention, can be any name but needs to be
 ##'   the same as defined in deployment.
 ##' @param mosquitos Name of mosquito species affected by the intervention
@@ -462,7 +466,7 @@ define_nothing_compat <- function(experiment, mosquitos, component = "nothing") 
 ##' @param noeffect Which mosquitoes unaffected by intervention?
 ##' @param strong If !strong and !resist, then "Pitoa" parameter for LLIN
 ##' @export
-defineITN <- function(experiment, component = "histITN", noeffect = "outdoor", mosquitos,
+defineITN <- function(baseList, component = "histITN", noeffect = "outdoor", mosquitos,
                       halflife = 2, resist = TRUE, historical = FALSE,
                       strong = FALSE) {
   ## Parameters for
@@ -504,7 +508,7 @@ defineITN <- function(experiment, component = "histITN", noeffect = "outdoor", m
     hh <- .calculateSmoothCompactHalflife(halflife = halflife)
   }
 
-  ## Add data to experiment
+  ## Add data to baseList
   outlist <- list()
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL,
@@ -639,11 +643,11 @@ defineITN <- function(experiment, component = "histITN", noeffect = "outdoor", m
     )
   }
 
-  experiment <- .xmlAddList(
-    data = experiment, sublist = c("interventions", "human"),
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
     entry = "component", input = outlist
   )
-  return(experiment)
+  return(baseList)
 }
 
 ##' @rdname defineITN

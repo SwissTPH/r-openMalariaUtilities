@@ -6,14 +6,14 @@
 \alias{define_nothing_compat}
 \title{Writes an intervention parameterisation xml chunk that does nothing}
 \usage{
-defineNothing(experiment, mosquitos)
+defineNothing(baseList, mosquitos)
 
-define_nothing(experiment, mosquitos)
+define_nothing(baseList, mosquitos)
 
-define_nothing_compat(experiment, mosquitos, component = "nothing")
+define_nothing_compat(baseList, mosquitos, component = "nothing")
 }
 \arguments{
-\item{experiment}{List with experiment data.}
+\item{baseList}{List with experiment data.}
 
 \item{mosquitos}{Name of mosquito species affected by the intervention.}
 

@@ -20,8 +20,7 @@
       if (is.list(get(arg, envir = tempEnv))) {
         placeholderseq[[arg]] <- vapply(get(arg, envir = tempEnv)[[2]], function(x) {
           paste0("@", get(arg, envir = tempEnv)[[1]], x, "@")
-        }, FUN.VALUE = character(1), USE.NAMES = FALSE
-        )
+        }, FUN.VALUE = character(1), USE.NAMES = FALSE)
       }
     }
   }
@@ -30,7 +29,7 @@
 
 
 ##' @title Writes the deployment of an intervention
-##' @param experiment List with experiment data.
+##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
 ##' @param cumulative default is FALSE. Do not set to TRUE.
 ##' @param effects Either NULL or c("det","pre","post")
@@ -46,10 +45,10 @@
 ##' @param subpop If TRUE, then restricts to a subpopulation (see
 ##'   restrictToSubPop in OpenMalaria)
 ##' @export
-deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
-                      effects = NULL, startDate = NULL, endDate = NULL,
-                      interval, minAge = NULL, maxAge = NULL, coverage = NULL,
-                      subpop = FALSE) {
+deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
+                     effects = NULL, startDate = NULL, endDate = NULL,
+                     interval, minAge = NULL, maxAge = NULL, coverage = NULL,
+                     subpop = FALSE) {
 
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
@@ -58,7 +57,8 @@ deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
   ## Generate list
   placeholderseq <- .placeholderseqGen(
     x = funArgs,
-    placeholders = c("coverage"))
+    placeholders = c("coverage")
+  )
 
   ## Generate date sequence
   dates <- xmlTimeGen(
@@ -77,9 +77,11 @@ deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
   }
 
   if (maxlen > length(dates)) {
-    stop(paste0("Number of dates must be equal or larger than placeholder sequences!\n",
-                "Number of dates: ", length(dates), "\n",
-                "Longest placeholder sequence: ", maxlen))
+    stop(paste0(
+      "Number of dates must be equal or larger than placeholder sequences!\n",
+      "Number of dates: ", length(dates), "\n",
+      "Longest placeholder sequence: ", maxlen
+    ))
   } else {
     maxlen <- length(dates)
   }
@@ -98,7 +100,9 @@ deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
     data = outlist, sublist = NULL,
     entry = NULL,
     input = list(
-      name = component))
+      name = component
+    )
+  )
   ## 'component' can have mutliple entries, thus if effects is a vector
   ## containing strings, we need to generate one entry for each string.
   ## Furthermore, if effects is not NULL and cumulative or subpop is TRUE, the
@@ -106,27 +110,31 @@ deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
   if (!is.null(effects) && is.vector(effects)) {
     for (eff in effects) {
       outlist <- append(
-        outlist, list(component = list(id = paste0(component, "_", eff))))
+        outlist, list(component = list(id = paste0(component, "_", eff)))
+      )
     }
     if (cumulative == TRUE || subpop == TRUE) {
       temp <- list()
       if (cumulative == TRUE) {
         temp <- append(temp, list(
           cumulativeCoverage = list(
-            component = paste0(component, "_", effects[1]))
+            component = paste0(component, "_", effects[1])
+          )
         ))
       }
       if (subpop == TRUE) {
         temp <- append(temp, list(
           restrictToSubPop = list(
-            id = paste0(component, "_", effects[1]))
+            id = paste0(component, "_", effects[1])
+          )
         ))
       }
 
       outlist <- .xmlAddList(
         data = outlist, sublist = NULL,
         entry = "timed",
-        input = temp)
+        input = temp
+      )
     }
   }
 
@@ -157,12 +165,12 @@ deployIT <- function(experiment, component = "ITN", cumulative = FALSE,
   }
 
   ## Add to base list
-  experiment <- .xmlAddList(
-    data = experiment, sublist = c("interventions", "human"),
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
     entry = "deployment", input = outlist
   )
 
-  return(experiment)
+  return(baseList)
 }
 
 ##' @rdname deployIT

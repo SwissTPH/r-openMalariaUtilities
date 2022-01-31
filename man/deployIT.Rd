@@ -7,7 +7,7 @@
 \title{Writes the deployment of an intervention}
 \usage{
 deployIT(
-  experiment,
+  baseList,
   component = "ITN",
   cumulative = FALSE,
   effects = NULL,
@@ -21,7 +21,7 @@ deployIT(
 )
 
 deploy_IT(
-  experiment,
+  baseList,
   component = "ITN",
   cumulative = FALSE,
   effects = NULL,
@@ -35,7 +35,7 @@ deploy_IT(
 )
 
 deploy_it_compat(
-  experiment,
+  baseList,
   component = "ITN",
   cumulative = FALSE,
   effects = NULL,
@@ -49,7 +49,7 @@ deploy_it_compat(
 )
 }
 \arguments{
-\item{experiment}{List with experiment data.}
+\item{baseList}{List with experiment data.}
 
 \item{component}{Name of intervention.}
 

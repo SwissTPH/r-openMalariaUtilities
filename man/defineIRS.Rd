@@ -7,7 +7,7 @@
 \title{Adds the IRS intervention parameterisation}
 \usage{
 defineIRS(
-  experiment,
+  baseList,
   mosquitos,
   component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
     "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
@@ -16,7 +16,7 @@ defineIRS(
 )
 
 define_IRS(
-  experiment,
+  baseList,
   mosquitos,
   component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
     "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
@@ -25,7 +25,7 @@ define_IRS(
 )
 
 define_IRS_compat(
-  experiment,
+  baseList,
   mosquitos,
   component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
     "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
@@ -34,7 +34,7 @@ define_IRS_compat(
 )
 }
 \arguments{
-\item{experiment}{List with experiment data.}
+\item{baseList}{List with experiment data.}
 
 \item{mosquitos}{Mosquito species affected by the intervention.}
 

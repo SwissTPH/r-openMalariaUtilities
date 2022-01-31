@@ -7,28 +7,28 @@
 \title{SMC, MDA parameterization section}
 \usage{
 defineTreatSimple(
-  experiment,
+  baseList,
   component = "MDA",
   durationBlood = "15d",
   durationLiver = 0
 )
 
 define_treatSimple(
-  experiment,
+  baseList,
   component = "MDA",
   durationBlood = "15d",
   durationLiver = 0
 )
 
 define_treatSimple_compat(
-  experiment,
+  baseList,
   component = "MDA",
   durationBlood = "15d",
   durationLiver = 0
 )
 }
 \arguments{
-\item{experiment}{List with experiment data.}
+\item{baseList}{List with experiment data.}
 
 \item{component}{Name of the intervention, can be any name but needs to be
 the same as defined in deployment}
