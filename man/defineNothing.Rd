@@ -10,17 +10,22 @@ defineNothing(baseList, mosquitos)
 
 define_nothing(baseList, mosquitos)
 
-define_nothing_compat(baseList, mosquitos, component = "nothing")
+define_nothing_compat(baseList, mosqs, component = "nothing")
 }
 \arguments{
 \item{baseList}{List with experiment data.}
 
 \item{mosquitos}{Name of mosquito species affected by the intervention.}
 
+\item{mosqs}{Name of mosquito species affected by the intervention.}
+
 \item{component}{Name of the intervention, can be any name but needs to be
 the same as defined in deployment}
 }
 \description{
+This is useful if something needs to be deployed, as a
+placeholder.
+
 This is useful if something needs to be deployed, as a
 placeholder.
 }

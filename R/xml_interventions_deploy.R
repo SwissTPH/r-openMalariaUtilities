@@ -183,6 +183,60 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
 ##' @export
 deploy_IT <- deployIT
 
+## DEPRECATED
 ##' @rdname deployIT
+##' @title Writes the deployment of an intervention. Compatibility version.
+##' @param baseList List with experiment data.
+##' @param component Name of intervention.
+##' @param cumulative default is FALSE. Do not set to TRUE.
+##' @param effects Either NULL or c("det","pre","post")
+##' @param y1 Year of the first date (surveys starting from year y1)
+##' @param m1 Month of the first date
+##' @param d1 Day of the first date
+##' @param y2 Year of the end date (surveys continuing until year y2)
+##' @param m2 Month of the end date
+##' @param d2 Day of the end date
+##' @param every Interval size
+##' @param interval Interval size (days, weeks, )
+##' @param SIMSTART Starting date of the simulations in the format "yyyy-mm-dd"
+##' @param minAge Minimum age for deployment (used in SMC)
+##' @param maxAge Maximum age for deployment (used in SMC)
+##' @param coverage Value or variable of coverage
+##' @param subpop If TRUE, then restricts to a subpopulation (see
+##'   restrictToSubPop in OpenMalaria)
+##' @param byyear If TRUE, allows coverage to vary by year
+##'   ('histITNcov2000',...)
+##' @param deployvar Allows for deployment dates to vary (across years y1, ...,
+##'   y2)
 ##' @export
-deploy_it_compat <- deployIT
+deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
+                             effects = NULL, y1 = 2000, y2 = NULL, m1 = 1,
+                             m2 = NULL, d1 = 1, d2 = NULL, every = 1,
+                             interval = "month", SIMSTART = "1918-01-01",
+                             minAge = NULL, maxAge = NULL, coverage = NULL,
+                             byyear = FALSE, deployvar = NULL, subpop = FALSE) {
+  ## Assumptions when missing
+  if (is.null(y2)) y2 <- y1
+  if (is.null(m2)) m2 <- m1
+  if (is.null(d2)) d2 <- d1
+
+  ## Compatibility
+  months <- c(m1, m2)
+  if (interval == "month") {
+    if (m1 < m2) {
+      months <- c(m1:m2)
+    }
+    if (m1 > m2) {
+      months <- c(m1:12, 1:m2)
+    }
+  }
+
+  baseList <- deployIT(
+    baseList = baseList, component = component, cumulative = cumulative,
+    effects = effects, interval = list(
+      years = c(y1:y2), months = months, days = c(d1, d2)
+    ), minAge = minAge, maxAge = maxAge, coverage = coverage, subpop = subpop
+  )
+
+  return(baseList)
+}

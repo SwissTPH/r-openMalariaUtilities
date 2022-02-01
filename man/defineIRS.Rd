@@ -26,9 +26,8 @@ define_IRS(
 
 define_IRS_compat(
   baseList,
-  mosquitos,
-  component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
-    "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
+  mosqs,
+  component = "Actellic50EC",
   noeffect = "outdoor",
   steplife = NULL
 )
@@ -45,7 +44,11 @@ and effect duration. Needs to from predefined choices.}
 intervention. Can be "outdoor", "indoor" or NULL.}
 
 \item{steplife}{Step function decay, the number of months it's effective.}
+
+\item{mosqs}{Mosquito species affected by the intervention.}
 }
 \description{
 Adds the IRS intervention parameterisation
+
+Adds the IRS intervention parameterisation. Compatibility version.
 }

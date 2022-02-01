@@ -39,12 +39,20 @@ deploy_it_compat(
   component = "ITN",
   cumulative = FALSE,
   effects = NULL,
-  startDate = NULL,
-  endDate = NULL,
-  interval,
+  y1 = 2000,
+  y2 = NULL,
+  m1 = 1,
+  m2 = NULL,
+  d1 = 1,
+  d2 = NULL,
+  every = 1,
+  interval = "month",
+  SIMSTART = "1918-01-01",
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
+  byyear = FALSE,
+  deployvar = NULL,
   subpop = FALSE
 )
 }
@@ -61,10 +69,7 @@ deploy_it_compat(
 
 \item{endDate}{Date in YYYY-MM-DD format.}
 
-\item{interval}{A string like '1 weeks'. Same as in \code{\link[=seq.Date]{seq.Date()}}. Or a list
-composed of the entries 'days' (optional), 'months' (optional) and
-'years'. If a list is used, startDate and endDate are not used and can be
-NULL.}
+\item{interval}{Interval size (days, weeks, )}
 
 \item{minAge}{Minimum age for deployment (used in SMC)}
 
@@ -74,7 +79,31 @@ NULL.}
 
 \item{subpop}{If TRUE, then restricts to a subpopulation (see
 restrictToSubPop in OpenMalaria)}
+
+\item{y1}{Year of the first date (surveys starting from year y1)}
+
+\item{y2}{Year of the end date (surveys continuing until year y2)}
+
+\item{m1}{Month of the first date}
+
+\item{m2}{Month of the end date}
+
+\item{d1}{Day of the first date}
+
+\item{d2}{Day of the end date}
+
+\item{every}{Interval size}
+
+\item{SIMSTART}{Starting date of the simulations in the format "yyyy-mm-dd"}
+
+\item{byyear}{If TRUE, allows coverage to vary by year
+('histITNcov2000',...)}
+
+\item{deployvar}{Allows for deployment dates to vary (across years y1, ...,
+y2)}
 }
 \description{
 Writes the deployment of an intervention
+
+Writes the deployment of an intervention. Compatibility version.
 }

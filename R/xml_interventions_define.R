@@ -8,7 +8,7 @@
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
-                           name = NULL, hist = FALSE) {
+                          name = NULL, hist = FALSE) {
   ## REVIEW This should be either in the documentation or in the roxygen code
   ## Example, from Penny et al. 2015
   ## vaccine_parameterization <- list(
@@ -91,8 +91,8 @@ define_vaccine <- defineVaccine
 ##'   a year and then to zero for the remainder
 ##' @param resistance Scaling function of insecticide resistance
 defineVectorControl <- function(baseList, intervention_parameterization,
-                                  append = TRUE, name = NULL, hist = FALSE,
-                                  resistance = 0.1) {
+                                append = TRUE, name = NULL, hist = FALSE,
+                                resistance = 0.1) {
   ## REVIEW This should be either in the documentation or in the roxygen code
   ## Examples
   ## intervention_parameterization <- list("LLIN" = list(
@@ -346,9 +346,26 @@ defineIRS <- function(baseList, mosquitos, component = c(
 ##' @export
 define_IRS <- defineIRS
 
+## DEPRECATED
 ##' @rdname defineIRS
+##' @title Adds the IRS intervention parameterisation. Compatibility version.
+##' @param baseList List with experiment data.
+##' @param mosqs Mosquito species affected by the intervention.
+##' @param component Insecticde to use. This will automatically specify efficacy
+##'   and effect duration. Needs to from predefined choices.
+##' @param noeffect Pattern which defines which mosquitoes are unaffected by
+##'   intervention. Can be "outdoor", "indoor" or NULL.
+##' @param steplife Step function decay, the number of months it's effective.
 ##' @export
-define_IRS_compat <- defineIRS
+define_IRS_compat <- function(baseList, mosqs, component = "Actellic50EC",
+                              noeffect = "outdoor", steplife = NULL) {
+  baseList <- defineIRS(
+    baseList = baseList, mosquitos = mosqs, component = component,
+    noeffect = noeffect, steplife = steplife
+  )
+
+  return(baseList)
+}
 
 
 ## https://swisstph.github.io/openmalaria/schema-43.html#elt-treatSimple-3
@@ -400,7 +417,9 @@ defineTreatSimple <- function(baseList, component = "MDA",
 ##' @export
 define_treatSimple <- defineTreatSimple
 
+## DEPRECATED
 ##' @rdname defineTreatSimple
+##' @title SMC, MDA parameterization section. Compatibility version.
 ##' @export
 define_treatSimple_compat <- defineTreatSimple
 
@@ -427,14 +446,23 @@ defineNothing <- function(baseList, mosquitos) {
 ##' @export
 define_nothing <- defineNothing
 
+## DEPRECATED
 ##' @rdname defineNothing
+##' @title Writes an intervention parameterisation xml chunk that does nothing.
+##'   Compatibility version.
+##' @description This is useful if something needs to be deployed, as a
+##'   placeholder.
+##' @param baseList List with experiment data.
+##' @param mosqs Name of mosquito species affected by the intervention.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment
 ##' @export
-define_nothing_compat <- function(baseList, mosquitos, component = "nothing") {
+define_nothing_compat <- function(baseList, mosqs, component = "nothing") {
 
   ## This is simply a subset of defineIRS
   baseList <- defineIRS(
-    baseList = baseList, mosquitos = mosquitos,
-    component = "nothing", noeffect = NULL
+    baseList = baseList, mosquitos = mosqs, component = "nothing",
+    noeffect = NULL
   )
 
   return(baseList)
@@ -701,6 +729,30 @@ defineITN <- function(baseList, component = "histITN", noeffect = "outdoor", mos
 ##' @export
 define_ITN <- defineITN
 
+## DEPRECATED
 ##' @rdname defineITN
+##' @title Writes the ITN intervention parameterisation xml chunk. Compatibility
+##'   version.
+##' @param baseList List with experiment data.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment.
+##' @param mosqs Name of mosquito species affected by the intervention
+##' @param halflife Attrition of nets in years
+##' @param resist If TRUE, a pyrethroid resistance will be assumed (default
+##'   percentage..?)
+##' @param hist Used for historical intervention coverage?
+##' @param noeffect Which mosquitoes unaffected by intervention?
+##' @param strong If !strong and !resist, then "Pitoa" parameter for LLIN
+##' @param versionnum OpenMalaria version (e.g. 38, 43)
 ##' @export
-define_ITN_compat <- defineITN
+define_ITN_compat <- function(baseList, component = "histITN",
+                              noeffect = "outdoor", mosqs, halflife = 2,
+                              resist = TRUE, hist = FALSE, strong = FALSE,
+                              versionnum = 38) {
+  baseList <- defineITN(baseList = baseList, component = component,
+                        noeffect = noeffect, mosquitos = mosqs,
+                        halflife = halflife, resist = resist, historical = hist,
+                        strong = strong)
+
+  return(baseList)
+}

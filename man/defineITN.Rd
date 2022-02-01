@@ -32,11 +32,12 @@ define_ITN_compat(
   baseList,
   component = "histITN",
   noeffect = "outdoor",
-  mosquitos,
+  mosqs,
   halflife = 2,
   resist = TRUE,
-  historical = FALSE,
-  strong = FALSE
+  hist = FALSE,
+  strong = FALSE,
+  versionnum = 38
 )
 }
 \arguments{
@@ -57,7 +58,16 @@ percentage..?)}
 \item{historical}{Used for historical intervention coverage?}
 
 \item{strong}{If !strong and !resist, then "Pitoa" parameter for LLIN}
+
+\item{mosqs}{Name of mosquito species affected by the intervention}
+
+\item{hist}{Used for historical intervention coverage?}
+
+\item{versionnum}{OpenMalaria version (e.g. 38, 43)}
 }
 \description{
 Writes the ITN intervention parameterisation xml chunk
+
+Writes the ITN intervention parameterisation xml chunk. Compatibility
+version.
 }
