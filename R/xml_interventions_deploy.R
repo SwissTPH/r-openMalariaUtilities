@@ -11,7 +11,11 @@
   ## them in a temporary environment in order to prevent name conflicts.
   tempEnv <- new.env()
   lapply(names(x), function(y) {
-    assign(y, eval(x[[y]]), envir = tempEnv)
+    assign(y, if (is.call(x[[y]])) {
+      eval(x[[y]])
+    } else {
+      x[[y]]
+    }, envir = tempEnv)
   })
   ## We loop over the input list, checking if an entry is not in 'placeholders'
   ## and is a list. If yes, then we enclose the name in '@'s and append the
