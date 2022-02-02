@@ -3,7 +3,6 @@
 \name{defineIRS}
 \alias{defineIRS}
 \alias{define_IRS}
-\alias{define_IRS_compat}
 \title{Adds the IRS intervention parameterisation}
 \usage{
 defineIRS(
@@ -23,14 +22,6 @@ define_IRS(
   noeffect = "outdoor",
   steplife = NULL
 )
-
-define_IRS_compat(
-  baseList,
-  mosqs,
-  component = "Actellic50EC",
-  noeffect = "outdoor",
-  steplife = NULL
-)
 }
 \arguments{
 \item{baseList}{List with experiment data.}
@@ -44,11 +35,7 @@ and effect duration. Needs to from predefined choices.}
 intervention. Can be "outdoor", "indoor" or NULL.}
 
 \item{steplife}{Step function decay, the number of months it's effective.}
-
-\item{mosqs}{Mosquito species affected by the intervention.}
 }
 \description{
 Adds the IRS intervention parameterisation
-
-Adds the IRS intervention parameterisation. Compatibility version.
 }

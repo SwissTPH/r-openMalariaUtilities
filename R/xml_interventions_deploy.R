@@ -202,7 +202,6 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
 deploy_IT <- deployIT
 
 ## DEPRECATED
-##' @rdname deployIT
 ##' @title Writes the deployment of an intervention. Compatibility version.
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.

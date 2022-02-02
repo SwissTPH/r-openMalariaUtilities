@@ -331,7 +331,6 @@ defineIRS <- function(baseList, mosquitos, component = c(
 define_IRS <- defineIRS
 
 ## DEPRECATED
-##' @rdname defineIRS
 ##' @title Adds the IRS intervention parameterisation. Compatibility version.
 ##' @param baseList List with experiment data.
 ##' @param mosqs Mosquito species affected by the intervention.
@@ -412,8 +411,6 @@ define_treatSimple_compat <- defineTreatSimple
 ##'   placeholder.
 ##' @param baseList List with experiment data.
 ##' @param mosquitos Name of mosquito species affected by the intervention.
-##' @param component Name of the intervention, can be any name but needs to be
-##'   the same as defined in deployment
 ##' @export
 defineNothing <- function(baseList, mosquitos) {
 
@@ -431,7 +428,6 @@ defineNothing <- function(baseList, mosquitos) {
 define_nothing <- defineNothing
 
 ## DEPRECATED
-##' @rdname defineNothing
 ##' @title Writes an intervention parameterisation xml chunk that does nothing.
 ##'   Compatibility version.
 ##' @description This is useful if something needs to be deployed, as a
@@ -714,7 +710,6 @@ defineITN <- function(baseList, component = "histITN", noeffect = "outdoor", mos
 define_ITN <- defineITN
 
 ## DEPRECATED
-##' @rdname defineITN
 ##' @title Writes the ITN intervention parameterisation xml chunk. Compatibility
 ##'   version.
 ##' @param baseList List with experiment data.
