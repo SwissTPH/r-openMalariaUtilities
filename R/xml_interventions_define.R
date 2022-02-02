@@ -78,7 +78,6 @@ defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
 define_vaccine <- defineVaccine
 
 
-## TODO Implement scaling function for resistance
 ##' Adds vector control intervention parameterisation to baseList
 ##' @param baseList List with experiment data.
 ##' @param intervention_parameterization Vector control intervention
@@ -89,28 +88,26 @@ define_vaccine <- defineVaccine
 ##' @param name Name tag list
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
-##' @param resistance Scaling function of insecticide resistance
+##' @param resistance Scaling function of insecticide resistance TODO
+##' @examples 
+##'   intervention_parameterization=list("LLIN"=list(deterrency=list(decay=list(L="0.7",`function`="weibull"),
+#'  anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.5"),
+#'                      "Anopheles funestus"=list(propActive=1,value="0.3")
+#' )),
+#' preprandialKillingEffect=list(decay=list(L="0.4",`function`="weibull"),
+#'                               anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.6"),
+#'                                                    "Anopheles funestus"=list(propActive=1,value="0.67")
+#'                               )),
+#' postprandialKillingEffect=list(decay=list(L="0.45",`function`="weibull"),
+#'                                anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.3"),
+#'                                                     "Anopheles funestus"=list(propActive=1,value="0.2")
+#'                                ))
+#' ))
+
+
 defineVectorControl <- function(baseList, intervention_parameterization,
                                 append = TRUE, name = NULL, hist = FALSE,
                                 resistance = 0.1) {
-  ## REVIEW This should be either in the documentation or in the roxygen code
-  ## Examples
-  ## intervention_parameterization <- list("LLIN" = list(
-  ##   "deterrency_snippet" = list(
-  ##     "anophelesParams" = list(
-  ##       "mosquito" = "Anopheles gambiae",
-  ##       "propActive" = 1
-  ##     ),
-  ##     "decay" = list(
-  ##       "L" = 8.826,
-  ##       "function" = "weibull",
-  ##       "k" = 0.6893
-  ##     ),
-  ##     "deterrency" = list("value" = 0.73)
-  ##   )
-  ## ))
-  ## name <- list("LLIN" = "your LLIN tag")
-
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -129,56 +126,58 @@ defineVectorControl <- function(baseList, intervention_parameterization,
     stop("To append, the baseList needs a child called '$interventions$human'")
   }
   mosquito_GVI_snippets <- unique(
-    ## FIXME Replace 'sapply' with 'vapply'; safer
-    sapply(
+    vapply(
       intervention_parameterization, function(x) x$anophelesParams$mosquito
     )
   )
   ## if(!mosquito_GVI_snippets %in% baseList$entomology$vector$anopheles$mosquito){
   ##   stop("To append, the component mosquito must be one of those specified in the entomology part of the baseXMLfile.")
   ## }
-
-  for (k in names(intervention_parameterization)) {
-    componentData <- intervention_parameterization[[k]]
-
-    for (effects in names(componentData)) {
-      component_id <- paste0(k, "-", effects)
-
-      ## Add decay and effect information
-      baseList <- .xmlAddList(
-        data = baseList, sublist = c("interventions", "human"), append = append,
+  
+  ##loop over interventions, effects and vector speicies
+  for (k in names(intervention_parameterization)){
+    
+    componentData<-intervention_parameterization[[k]]
+    
+    for (effect in names(componentData)){
+      
+      component_id<-paste0(k,"-",effect)
+      print(paste0("Defining intervention with component_id: ",component_id))
+      
+      GVIList<-list(decay = if (hist) list("L"=1,"function"="step") else componentData[[effect]][["decay"]])
+      for (vector_species in names(componentData[[effect]]$anophelesParams)){
+        
+        print(paste0("Writing effect values for vector species: ",vector_species))
+        values<-c(deterrency=0,preprandialKillingEffect=0,postprandialKillingEffect=0)
+        values[effect]<-componentData[[effect]][["anophelesParams"]][[vector_species]][["value"]]
+        
+        
+        GVIList<-append(GVIList,
+                        list(anophelesParams=list(
+                          mosquito = vector_species,
+                          propActive = componentData[[effect]][["anophelesParams"]][[vector_species]][["propActive"]],
+                          deterrency = list(value=values[["deterrency"]]),
+                          preprandialKillingEffect = list(value=values[["preprandialKillingEffect"]]),
+                          postprandialKillingEffect = list(value=values[["postprandialKillingEffect"]])
+                        )))
+      }
+      
+      ##write to xml
+      baseXMLfile <- .xmlAddList(
+        data = baseXMLfile, sublist = c("interventions", "human"),append=append,
         entry = "component",
         input = list(
           id = component_id,
-          name = if (is.null(name)) {
-            "your_tag"
-          } else {
-            name[[k]]
-          },
-          GVI = list(
-            decay = if (hist) {
-              list(
-                "L" = 1,
-                "function" = "step"
+          name = if (is.null(name)) "your_tag" else name[[k]],
+          GVI = GVIList
+                )
               )
-            } else {
-              componentData[[effects]][["decay"]]
-            },
-            anophelesParams = list(
-              mosquito = componentData[[effects]][["anophelesParams"]][["mosquito"]],
-              propActive = componentData[[effects]][["anophelesParams"]][["propActive"]],
-              deterrency = componentData[[effects]][["deterrency"]],
-              preprandialKillingEffect = componentData[[effects]][["preprandialKillingEffect"]],
-              postprandialKillingEffect = componentData[[effects]][["postprandialKillingEffect"]]
-            )
-          )
-        )
-      )
+            }
+          }
+          
+          return(baseList)
     }
-  }
-
-  return(baseList)
-}
+      
 
 ##' @rdname defineVectorControl
 ##' @export
