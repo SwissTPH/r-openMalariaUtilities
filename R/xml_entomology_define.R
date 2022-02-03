@@ -1,13 +1,13 @@
 ##' Defines entomology setting
 ##' @param baseList List with experiment data.
-##' @param mosquito_parameters Mosquito bionomics parameterization list of
+##' @param MosquitoParameters Mosquito bionomics parameterization list of
 ##'   different mosquito species as obtained from AnophelesModel package
 ##'   function get_OM_ento_snippet
 ##' @param append If TRUE, then append to existing baseList, otherwise overwrite
-defineEntomology <- function(baseList, mosquito_parameters, append = TRUE) {
+defineEntomology <- function(baseList, MosquitoParameters, append = TRUE) {
   ## REVIEW Is this supposed to be an example considered by Roxygen?
   ## Example:
-  ## mosquito_parameters=list("Anopheles gambiae"=list(
+  ## MosquitoParameters=list("Anopheles gambiae"=list(
   ##   mosqRestDuration=list(value="2"),
   ##   extrinsicIncubationPeriod=list(value="10"),
   ##   mosqLaidEggsSameDayProportion=list(value="0.589"),
@@ -22,8 +22,8 @@ defineEntomology <- function(baseList, mosquito_parameters, append = TRUE) {
   ##    mosqProbOvipositing=list(mean="0.88"),
   ##   mosqHumanBloodIndex=list(mean="0.6243")))
 
-  for (k in names(mosquito_parameters)) {
-    mosqData <- mosquito_parameters[[k]]
+  for (k in names(MosquitoParameters)) {
+    mosqData <- MosquitoParameters[[k]]
 
     ## Add bionomics information for each mosquito species
     baseList <- .xmlAddList(

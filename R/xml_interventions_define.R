@@ -80,7 +80,7 @@ define_vaccine <- defineVaccine
 
 ##' Adds vector control intervention parameterisation to baseList
 ##' @param baseList List with experiment data.
-##' @param intervention_parameterization Vector control intervention
+##' @param VectorInterventionParameters Vector control intervention
 ##'   parameterization list depending on three parameters (deterrency,
 ##'   preprandrial, postprandial) and decay functions:
 ##' @param append If TRUE, then append to existing baseList, otherwise
@@ -90,7 +90,7 @@ define_vaccine <- defineVaccine
 ##'   a year and then to zero for the remainder
 ##' @param resistance Scaling function of insecticide resistance TODO
 ##' @examples 
-##'   intervention_parameterization=list("LLIN"=list(deterrency=list(decay=list(L="0.7",`function`="weibull"),
+##'   VectorInterventionParameters=list("LLIN"=list(deterrency=list(decay=list(L="0.7",`function`="weibull"),
 #'  anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.5"),
 #'                      "Anopheles funestus"=list(propActive=1,value="0.3")
 #' )),
@@ -105,7 +105,7 @@ define_vaccine <- defineVaccine
 #' ))
 
 
-defineVectorControl <- function(baseList, intervention_parameterization,
+defineVectorControl <- function(baseXMLfile, VectorInterventionParameters,
                                 append = TRUE, name = NULL, hist = FALSE,
                                 resistance = 0.1) {
 
@@ -122,12 +122,12 @@ defineVectorControl <- function(baseList, intervention_parameterization,
   checkmate::reportAssertions(assertCol)
 
   ## Some checks
-  if (is.null(baseList$interventions$human)) {
+  if (is.null(baseXMLfile$interventions$human)) {
     stop("To append, the baseList needs a child called '$interventions$human'")
   }
   mosquito_GVI_snippets <- unique(
-    vapply(
-      intervention_parameterization, function(x) x$anophelesParams$mosquito
+    sapply(
+      VectorInterventionParameters, function(x) x$anophelesParams$mosquito
     )
   )
   ## if(!mosquito_GVI_snippets %in% baseList$entomology$vector$anopheles$mosquito){
@@ -135,13 +135,13 @@ defineVectorControl <- function(baseList, intervention_parameterization,
   ## }
   
   ##loop over interventions, effects and vector speicies
-  for (k in names(intervention_parameterization)){
+  for (k in names(VectorInterventionParameters)){
     
-    componentData<-intervention_parameterization[[k]]
+    componentData<-VectorInterventionParameters[[k]]
     
     for (effect in names(componentData)){
       
-      component_id<-paste0(k,"-",effect)
+      component_id<-paste0(k,ifelse(hist,"hist",""),"-",effect)
       print(paste0("Defining intervention with component_id: ",component_id))
       
       GVIList<-list(decay = if (hist) list("L"=1,"function"="step") else componentData[[effect]][["decay"]])
@@ -175,7 +175,7 @@ defineVectorControl <- function(baseList, intervention_parameterization,
             }
           }
           
-          return(baseList)
+          return(baseXMLfile)
     }
       
 
