@@ -116,7 +116,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
   if (!is.null(effects) && is.vector(effects)) {
     for (eff in effects) {
       outlist <- append(
-        outlist, list(component = list(id = paste0(component, "_", eff)))
+        outlist, list(component = list(id = paste0(component, "-", eff)))
       )
     }
     if (cumulative == TRUE || subpop == TRUE) {
@@ -124,7 +124,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
       if (cumulative == TRUE) {
         temp <- append(temp, list(
           cumulativeCoverage = list(
-            component = paste0(component, "_", effects[1])
+            component = paste0(component, "-", effects[1])
           )
         ))
       }

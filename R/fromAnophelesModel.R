@@ -33,7 +33,9 @@ fromAnophelesModel<-function(vectorSpecies,interventionList){
 #                                parameterisation="IRS02")
 # )
 #   
+
   
+print(paste0("You haven chosen vector species: ",paste0(vectorSpecies,collapse=", "))) 
   
 ##part 1: set up entomology parameterization mosq
 mosq<-sapply(vectorSpecies,
@@ -57,6 +59,9 @@ model_params <-lapply(mosq, function(x){
   build_model_obj(x$ent_params, x$host_params, activity_p, host_pop)
 })#initialize the entomological model and build the model object
 
+
+print(paste0("Your chosen interventions are: "))
+print(AnophelesModel::interventions_param$interventions_summary[AnophelesModel::interventions_param$interventions_summary$Parameterisation%in%unlist(lapply(interventionList, function(x) x$parameterisation)),])
 
 VectorInterventions<-list()
 
