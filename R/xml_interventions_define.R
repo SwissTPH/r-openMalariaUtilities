@@ -125,14 +125,16 @@ defineVectorControl <- function(baseXMLfile, VectorInterventionParameters,
   if (is.null(baseXMLfile$interventions$human)) {
     stop("To append, the baseList needs a child called '$interventions$human'")
   }
-  mosquito_GVI_snippets <- unique(
-    sapply(
-      VectorInterventionParameters, function(x) x$anophelesParams$mosquito
-    )
-  )
-  ## if(!mosquito_GVI_snippets %in% baseList$entomology$vector$anopheles$mosquito){
-  ##   stop("To append, the component mosquito must be one of those specified in the entomology part of the baseXMLfile.")
-  ## }
+
+  ## Check whether vector species in entomology section of baseXML and those in vector control interventions are the same
+  for (intervention in names(VectorInterventionParameters)){
+    for (effect in names(VectorInterventionParameters[[intervention]])){
+      if (!setequal(names(VectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]),unique(unlist(lapply(baseXMLfile$entomology$vector,function(x) x$mosquito))))){
+        stop("To append, each vector species definied in the entomology section must be the same as in the intervention component.")
+      }
+  }
+  }
+  
   
   ##loop over interventions, effects and vector speicies
   for (k in names(VectorInterventionParameters)){

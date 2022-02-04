@@ -53,8 +53,9 @@ MosquitoParameters<-sapply(mosq,
 
 ## part 2: generate xml snippets for context-dependent vector control interventions
 activity_p = def_activity_patterns(activity = "default_Anopheles_gambiae")#set up human and mosquito activity patterns over a single day, indoor/outdoor biting rhythm, if available choose context, not all parameters come from single location, we choose default
-host_pop=5000
-interpolation_points<-5
+#activity_patterns 16h00 7h00
+host_pop=2000
+interpolation_points<-4
 model_params <-lapply(mosq, function(x){
   build_model_obj(x$ent_params, x$host_params, activity_p, host_pop)
 })#initialize the entomological model and build the model object
@@ -81,11 +82,10 @@ for (interventionName in names(interventionList))
 
 
 ##calculate intervention effect size directly with Anopheles package
-vec_pop<-10*host_pop
-coverages<-c(0.2,0.5, 0.8)##these are coverage levels in controlled settings, different from deployment?
+vec_pop<-5*host_pop
 effects_dict<-c(deterrency_snippet="deterrency",preprandial_snippet="preprandialKillingEffect",postprandial_snippet="postprandialKillingEffect")
 effects_list<-setNames(vector(mode="list",length=3),unlist(effects_dict))
-VectorInterventionParameters<-setNames(rep(list(effects_list),2),names(VectorInterventions))
+VectorInterventionParameters<-setNames(rep(list(effects_list),length(VectorInterventions)),names(VectorInterventions))
 
 for (it in names(VectorInterventions)){
   for (effect in names(effects_dict)){
