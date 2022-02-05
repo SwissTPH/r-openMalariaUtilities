@@ -34,6 +34,43 @@
 }
 
 
+##' @title Equalize length of placeholder sequences
+##' @param x Sequence which should be the maximum lenght.
+##' @param placeholderseq List with placeholder sequences.
+##' @keywords internal
+.equalizePlaceholders <- function(x, placeholderseq) {
+  ## Find the maximum length
+  maxlen <- 0
+  for (i in names(placeholderseq)) {
+    if (length(placeholderseq[[i]]) > maxlen) {
+      maxlen <- length(placeholderseq[[i]])
+    }
+  }
+
+  ## Compare it to x
+  if (maxlen > length(x)) {
+    stop(paste0(
+      "Number of x must be equal or larger than placeholder sequences!\n",
+      "Number of x: ", length(x), "\n",
+      "Longest placeholder sequence: ", maxlen
+    ))
+  } else {
+    maxlen <- length(x)
+  }
+
+  ## Equalize lengths, reuse last value if length needs to be adjusted
+  for (var in names(placeholderseq)) {
+    entry <- placeholderseq[[var]]
+    diffLength <- maxlen - length(entry)
+    placeholderseq[[var]] <- append(
+      placeholderseq[[var]], rep(entry[length(entry)], diffLength)
+    )
+  }
+
+  return(placeholderseq)
+}
+
+
 ##' @title Writes the deployment of an intervention
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
