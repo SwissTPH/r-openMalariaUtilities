@@ -148,3 +148,68 @@ xmlTimeGen <- function(startDate = NULL, endDate = NULL, interval) {
   }
   return(out)
 }
+
+
+#
+## Compat functions
+
+##' @title Basic function used for deploying interventions
+##' @description Compatibility with Munirflow deploy time format. Returns a list
+##'   with a startDate, endDate and interval for the new format.
+##' @param y1 Year of the first date (surveys starting from year y1)
+##' @param m1 Month of the first date
+##' @param d1 Day of the first date
+##' @param y2 Year of the end date (surveys continuing until year y2)
+##' @param m2 Month of the end date
+##' @param d2 Day of the end date
+##' @param every Interval size
+##' @param interval Interval size (days, weeks, )
+##' @param ... Deprecated arguments
+.deployTime_compat <- function(y1 = 2000, y2 = NULL, m1 = 5, m2 = NULL, d1 = 5,
+                               d2 = NULL, every = 1, interval = "year", ...) {
+  ## Assumptions when missing
+  if (is.null(y2)) {
+    y2 <- y1
+  }
+  if (is.null(m2)) {
+    m2 <- m1
+  }
+  if (is.null(d2)) {
+    d2 <- d1
+  }
+
+  ## Error if non-sensical values are used
+  if (y2 < y1) {
+    stop("error: y2 < y1")
+  }
+
+  o2 <- NULL
+  if (interval == "quarter") {
+    m1 <- 1
+    m2 <- 12
+  }
+
+  ## If the start month is before the end month
+  if (m1 < m2) {
+    for (year in y1:y2) {
+      o2 <- c(
+        as.Date(o2),
+        seq.Date(as.Date(paste(year, m1, d1, sep = "-")),
+          as.Date(paste(year, m2, d2, sep = "-")),
+          by = paste(every, interval)
+        )
+      )
+    }
+  }
+
+  if (m1 >= m2) {
+    o2 <- seq.Date(as.Date(paste(y1, m1, d1, sep = "-")),
+                   as.Date(paste(y2, m2, d1, sep = "-")),
+      by = paste(every, interval)
+    )
+  }
+
+  ## Return unique dates
+  y <- as.Date(sort(unique(o2)))
+  return(y)
+}
