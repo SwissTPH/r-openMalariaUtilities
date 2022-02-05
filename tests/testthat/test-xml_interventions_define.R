@@ -281,3 +281,115 @@ test_that("defineITN works", {
 
   expect_equal(actual, expected, tolerance = 0.001)
 })
+
+test_that("defineLarv works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      vectorPop = list(
+        intervention = list(
+          name = "LSM",
+          description = list(
+            anopheles = list(
+              mosquito = "gambiaesl_indoor",
+              seekingDeathRateIncrease = list(
+                decay = list(
+                  L = 0.247,
+                  "function" = "step"
+                )
+              ),
+              probDeathOvipositing = list(
+                decay = list(
+                  L = 0.247,
+                  "function" = "step"
+                )
+              ),
+              emergenceReduction = list(
+                initial = "@futLSMcov@",
+                decay = list(
+                  "function" = "step",
+                  L = 0.25
+                )
+              )
+            )
+          ),
+          timed = list(
+            deploy = list(
+              coverage = "@futLSMcov@",
+              time = "2020-06-05"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- define_larv(
+    testlist,
+    mosquitos = c("gambiaesl_indoor"), component = "LSM",
+    coverage = "@futLSMcov@", decayVals = list(
+      L = .25, k = NULL, funct = "step"
+    ), interval = list(
+      years = 2020, months = 6, days = 5
+    )
+  )
+
+  expect_equal(actual, expected, tolerance = 0.05)
+})
+
+## DEPRECATED
+test_that("define_larv_compat works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      vectorPop = list(
+        intervention = list(
+          name = "LSM",
+          description = list(
+            anopheles = list(
+              mosquito = "gambiaesl_indoor",
+              seekingDeathRateIncrease = list(
+                decay = list(
+                  L = 0.247,
+                  "function" = "step"
+                )
+              ),
+              probDeathOvipositing = list(
+                decay = list(
+                  L = 0.247,
+                  "function" = "step"
+                )
+              ),
+              emergenceReduction = list(
+                initial = "@futLSMcov@",
+                decay = list(
+                  "function" = "step",
+                  L = 0.25
+                )
+              )
+            )
+          ),
+          timed = list(
+            deploy = list(
+              coverage = "@futLSMcov@",
+              time = as.Date("2020-06-05")
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- define_larv_compat(testlist,
+    mosqs = c("gambiaesl_indoor"),
+    component = "LSM",
+    coverage = "@futLSMcov@",
+    decayVals = list(L = 0.25, k = NULL, funct = "step"),
+    y1 = 2020, y2 = 2020, m1 = 6, m2 = 6,
+    every = 1, interval = "year"
+  )
+
+  expect_equal(actual, expected, tolerance = 0.05)
+})

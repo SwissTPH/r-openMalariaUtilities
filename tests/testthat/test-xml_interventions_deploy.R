@@ -83,6 +83,7 @@ test_that("deployIT works", {
   expect_equal(actual, expected)
 })
 
+## DEPRECATED
 test_that("deploy_it_compat works", {
   testlist <- list(interventions = list())
 

@@ -728,10 +728,186 @@ define_ITN_compat <- function(baseList, component = "histITN",
                               noeffect = "outdoor", mosqs, halflife = 2,
                               resist = TRUE, hist = FALSE, strong = FALSE,
                               versionnum = 38) {
-  baseList <- defineITN(baseList = baseList, component = component,
-                        noeffect = noeffect, mosquitos = mosqs,
-                        halflife = halflife, resist = resist, historical = hist,
-                        strong = strong)
+  baseList <- defineITN(
+    baseList = baseList, component = component,
+    noeffect = noeffect, mosquitos = mosqs,
+    halflife = halflife, resist = resist, historical = hist,
+    strong = strong
+  )
+
+  return(baseList)
+}
+
+
+##' @title Function that writes the larviciding component
+##' @param baseList List with experiment data.
+##' @param mosquitos Names of mosquito species to simulate.
+##' @param component Name of vector population intervention (i.e. LSM).
+##' @param coverage A variable or a numeric value. Can be a placeholder.
+##' @param decayVals Decay (if not specified, constant effectiveness, step
+##'   function as default)
+##' @param startDate Date in YYYY-MM-DD format.
+##' @param endDate Date in YYYY-MM-DD format.
+##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
+##'   composed of the entries 'days' (optional), 'months' (optional) and
+##'   'years'. If a list is used, startDate and endDate are not used and can be
+##'   NULL.
+##' @param dates If NULL, startDate, endDate and interval are used, else a
+##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
+##' @export
+defineLarv <- function(baseList, mosquitos, component = "LSM", coverage = "@futLSMcov@",
+                       decayVals = list(L = 0.25, k = NULL, funct = "step"),
+                       startDate = NULL, endDate = NULL, interval, dates = NULL) {
+
+  ## Set decay values accordingly
+  if (is.null(decayVals)) {
+    decay <- list(L = 0.25, k = NULL, funct = "step")
+  } else {
+    decay <- list(L = decayVals$L, k = decayVals$k, funct = decayVals$funct)
+  }
+
+  ## Add information
+  outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
+    input = list(
+      name = component
+    )
+  )
+
+  ## Loop over mosquitoes and add information to list
+  for (i in seq_len(length(mosquitos))) {
+    outlist <- .xmlAddList(
+      data = outlist, sublist = "description",
+      entry = "anopheles",
+      input = list(
+        mosquito = mosquitos[i],
+        seekingDeathRateIncrease = list(
+          decay = list(
+            L = 0.2466,
+            "function" = "step"
+          )
+        ),
+        probDeathOvipositing = list(
+          decay = list(
+            L = 0.2466,
+            "function" = "step"
+          )
+        ),
+        emergenceReduction = list(
+          initial = coverage,
+          decay = append(
+            list(
+              "function" = decay[["funct"]],
+              L = decay[["L"]]
+            ),
+            if (!is.null(decay[["k"]])) {
+              list(k = decay[["k"]])
+            }
+          )
+        )
+      )
+    )
+  }
+
+  ## Generate a list containing the placeholder sequences from the function
+  ## arguments.
+  ## Get input arguments, remove function name from list and unwanted entries
+  funArgs <- as.list(match.call()[-1])
+  funArgs <- funArgs[!(names(funArgs) %in% c("baseList"))]
+  ## Function arguments are unevaluated and can contain calls and symbols. Thus,
+  ## we need to evaluate them before in the parent environment.
+  for (arg in names(funArgs)) {
+    funArgs[[arg]] <- eval(funArgs[[arg]], envir = parent.frame())
+  }
+  ## Generate list
+  placeholderseq <- .placeholderseqGen(
+    x = funArgs,
+    placeholders = c("coverage")
+  )
+
+  ## Generate date sequence, if NULL
+  if (is.null(dates)) {
+    dates <- xmlTimeGen(
+      startDate = startDate,
+      endDate = endDate,
+      interval = interval
+    )
+  }
+
+  ## Check if the number of dates is equal or bigger than the longest
+  ## placeholder sequence.
+  placeholderseq <- .equalizePlaceholders(dates,
+    placeholderseq = placeholderseq
+  )
+
+  ## Add deployments
+  for (i in seq_len(length(dates))) {
+    temp <- list(
+      deploy = list(
+        coverage = if (!is.null(placeholderseq[["coverage"]])) {
+          placeholderseq[["coverage"]][[i]]
+        } else {
+          coverage
+        },
+        time = dates[[i]]
+      )
+    )
+
+    outlist <- .xmlAddList(
+      data = outlist, sublist = c("timed"),
+      entry = NULL,
+      input = temp
+    )
+  }
+
+  ## Add to base list
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "vectorPop"),
+    entry = "intervention", input = outlist
+  )
+
+  return(baseList)
+}
+
+##' @rdname defineLarv
+##' @export
+define_larv <- defineLarv
+
+## DEPRECATED
+##' @title Function that writes the larviciding component xml chunk
+##' @param baseList List with experiment data.
+##' @param mosqs Names of mosquito species to simulate
+##' @param component Name of vector population intervention (i.e. LSM)
+##' @param coverage A variable or a numeric value
+##' @param decayVals Decay (if not specified, constant effectiveness, step
+##'   function as default)
+##' @param y1 Year of the first date (surveys starting from year y1)
+##' @param m1 Month of the first date
+##' @param y2 Year of the end date (surveys continuing until year y2)
+##' @param m2 Month of the end date
+##' @param interval Month, year, week, quarter
+##' @param every Integer value
+##' @param SIMSTART Starting date of the simulations in the format "yyyy-mm-dd",
+##'   default e.g. "1918-01-01"
+##' @export
+define_larv_compat <- function(baseList, mosqs, component = "LSM",
+                               coverage = "@futLSMcov@",
+                               decayVals = list(
+                                 L = 0.25, k = NULL, funct = "step"
+                               ),
+                               y1 = 2018, y2 = 2030, m1 = 4, m2 = 6, every = 2,
+                               interval = "week", SIMSTART = "1918-01-01") {
+  dates <- .deployTime_compat(
+    y1 = y1, y2 = y2, m1 = m1, m2 = m2, d1 = 5, d2 = 5, every = every,
+    interval = interval
+  )
+
+  baseList <- defineLarv(
+    baseList = baseList, mosquitos = mosqs, component = component,
+    coverage = coverage, decayVals = decayVals, dates = dates
+  )
 
   return(baseList)
 }
