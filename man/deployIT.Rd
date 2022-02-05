@@ -13,6 +13,7 @@ deployIT(
   startDate = NULL,
   endDate = NULL,
   interval,
+  dates = NULL,
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
@@ -27,6 +28,7 @@ deploy_IT(
   startDate = NULL,
   endDate = NULL,
   interval,
+  dates = NULL,
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
@@ -51,11 +53,14 @@ composed of the entries 'days' (optional), 'months' (optional) and
 'years'. If a list is used, startDate and endDate are not used and can be
 NULL.}
 
-\item{minAge}{Minimum age for deployment (used in SMC)}
+\item{dates}{If NULL, startDate, endDate and interval are used, else a
+vector of dates in YYYY-MM-DD format. Can be a placeholder.}
 
-\item{maxAge}{Maximum age for deployment (used in SMC)}
+\item{minAge}{Minimum age for deployment (used in SMC). Can be a placeholder.}
 
-\item{coverage}{Value or variable of coverage}
+\item{maxAge}{Maximum age for deployment (used in SMC). Can be a placeholder.}
+
+\item{coverage}{Value or variable of coverage. Can be a placeholder.}
 
 \item{subpop}{If TRUE, then restricts to a subpopulation (see
 restrictToSubPop in OpenMalaria)}

@@ -78,16 +78,18 @@
 ##'   composed of the entries 'days' (optional), 'months' (optional) and
 ##'   'years'. If a list is used, startDate and endDate are not used and can be
 ##'   NULL.
-##' @param minAge Minimum age for deployment (used in SMC)
-##' @param maxAge Maximum age for deployment (used in SMC)
-##' @param coverage Value or variable of coverage
+##' @param dates If NULL, startDate, endDate and interval are used, else a
+##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
+##' @param minAge Minimum age for deployment (used in SMC). Can be a placeholder.
+##' @param maxAge Maximum age for deployment (used in SMC). Can be a placeholder.
+##' @param coverage Value or variable of coverage. Can be a placeholder.
 ##' @param subpop If TRUE, then restricts to a subpopulation (see
 ##'   restrictToSubPop in OpenMalaria)
 ##' @export
 deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
-                     effects = NULL, startDate = NULL, endDate = NULL,
-                     interval, minAge = NULL, maxAge = NULL, coverage = NULL,
-                     subpop = FALSE) {
+                     effects = NULL, startDate = NULL, endDate = NULL, interval,
+                     dates = NULL, minAge = NULL, maxAge = NULL,
+                     coverage = NULL, subpop = FALSE) {
 
   
   ## Verify input
@@ -109,47 +111,38 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
   
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
-  ## Get input arguments, remove function name from list
-  funArgs <- as.list(match.call())[-1]
+  ## Get input arguments, remove function name from list and unwanted entries
+  funArgs <- as.list(match.call()[-1])
+  funArgs <- funArgs[!(names(funArgs) %in% c("baseList"))]
+  ## Function arguments are unevaluated and can contain calls and symbols. Thus,
+  ## we need to evaluate them before in the parent environment.
+  for (arg in names(funArgs)) {
+    funArgs[[arg]] <- eval(funArgs[[arg]], envir = parent.frame())
+  }
   ## Generate list
   placeholderseq <- .placeholderseqGen(
     x = funArgs,
-    placeholders = c("coverage")
+    placeholders = c("component", "dates", "coverage", "minAge", "maxAge")
   )
 
-  ## Generate date sequence
-  dates <- xmlTimeGen(
-    startDate = startDate,
-    endDate = endDate,
-    interval = interval
-  )
+  ## Generate date sequence, if NULL
+  if (is.null(dates)) {
+    dates <- xmlTimeGen(
+      startDate = startDate,
+      endDate = endDate,
+      interval = interval
+    )
+  }
+  ## Otherwise take them from the placeholders or assume that dates is a vector
+  if (!is.null(placeholderseq[["dates"]])) {
+    dates <- placeholderseq[["dates"]]
+  }
 
   ## Check if the number of dates is equal or bigger than the longest
   ## placeholder sequence.
-  maxlen <- 0
-  for (i in names(placeholderseq)) {
-    if (length(placeholderseq[[i]]) > maxlen) {
-      maxlen <- length(placeholderseq[[i]])
-    }
-  }
-
-  if (maxlen > length(dates)) {
-    stop(paste0(
-      "Number of dates must be equal or larger than placeholder sequences!\n",
-      "Number of dates: ", length(dates), "\n",
-      "Longest placeholder sequence: ", maxlen
-    ))
-  } else {
-    maxlen <- length(dates)
-  }
-  ## Equalize lengths, reuse last value if length needs to be adjusted
-  for (var in names(placeholderseq)) {
-    entry <- placeholderseq[[var]]
-    diffLength <- maxlen - length(entry)
-    placeholderseq[[var]] <- append(
-      placeholderseq[[var]], rep(entry[length(entry)], diffLength)
-    )
-  }
+  placeholderseq <- .equalizePlaceholders(dates,
+    placeholderseq = placeholderseq
+  )
 
   ## Generate output
   outlist <- list()
@@ -210,8 +203,16 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
 
     ## Add minAge and maxAge information if given
     if (!is.null(minAge) && !is.null(maxAge)) {
-      temp[["deploy"]][["minAge"]] <- minAge
-      temp[["deploy"]][["maxAge"]] <- maxAge
+      temp[["deploy"]][["minAge"]] <- if (!is.null(placeholderseq[["minAge"]])) {
+        placeholderseq[["minAge"]][[i]]
+      } else {
+        minAge
+      }
+      temp[["deploy"]][["maxAge"]] <- if (!is.null(placeholderseq[["maxAge"]])) {
+        placeholderseq[["maxAge"]][[i]]
+      } else {
+        maxAge
+      }
     }
 
     outlist <- .xmlAddList(
@@ -265,27 +266,57 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
                              interval = "month", SIMSTART = "1918-01-01",
                              minAge = NULL, maxAge = NULL, coverage = NULL,
                              byyear = FALSE, deployvar = NULL, subpop = FALSE) {
-  ## Assumptions when missing
-  if (is.null(y2)) y2 <- y1
-  if (is.null(m2)) m2 <- m1
-  if (is.null(d2)) d2 <- d1
 
-  ## Compatibility
-  months <- c(m1, m2)
-  if (interval == "month") {
-    if (m1 < m2) {
-      months <- c(m1:m2)
+  ## Translate time information
+  if (is.null(deployvar)) {
+    dates <- .deployTime_compat(
+      y1 = y1, y2 = y2, m1 = m1, m2 = m2, d1 = d1, d2 = d2, every = every,
+      interval = interval
+    )
+    years <- substr(dates, start = 1, stop = 4)
+  }
+
+  ## If deployvar is used, we need to generate date placeholders
+  if (!is.null(deployvar) & !is.null(y1) & !is.null(y2)) {
+    ## deployvar should be names of deployment variables i.e. "@IRSdeploy2000@",
+    ## "@IRSdeploy2001@", "@IRSdeploy2002@", ...
+    if (is.null(every)) {
+      stop("Specify 'every' (1, for every year)")
     }
-    if (m1 > m2) {
-      months <- c(m1:12, 1:m2)
+
+    stripped <- gsub(deployvar, pattern = "@", replacement = "")
+
+    ## Could be every year, every 3 years, it all depends on 'every'
+    years <- seq(y1, y2, by = every)
+    deployvar <- paste0("@", stripped, years, "@")
+    dates <- deployvar
+  }
+
+  if (is.null(coverage)) {
+    if (!byyear) {
+      coverage <- paste0("fut", component, "cov")
+    }
+    if (byyear) {
+      coverage <- list(paste0("fut", component, "cov"), years)
+    }
+  }
+
+  if (!is.null(coverage)) {
+    if (!byyear) {
+      coverage <- coverage
+    }
+    if (byyear) {
+      coverage <- list(
+        gsub(x = coverage, pattern = "@", replacement = ""),
+        years
+      )
     }
   }
 
   baseList <- deployIT(
     baseList = baseList, component = component, cumulative = cumulative,
-    effects = effects, interval = list(
-      years = c(y1:y2), months = months, days = c(d1, d2)
-    ), minAge = minAge, maxAge = maxAge, coverage = coverage, subpop = subpop
+    effects = effects, dates = dates, minAge = minAge, maxAge = maxAge,
+    coverage = coverage, subpop = subpop
   )
 
   return(baseList)
