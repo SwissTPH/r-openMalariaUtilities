@@ -17,13 +17,25 @@
 .xmlTimeRegularSeq <- function(startDate, endDate, interval) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertCharacter(
-    startDate,
-    pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}", add = assertCol
+  checkmate::assert(
+    checkmate::checkCharacter(
+      startDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(
+      startDate
+    ),
+    add = assertCol
   )
-  checkmate::assertCharacter(
-    endDate,
-    pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}", add = assertCol
+  checkmate::assert(
+    checkmate::checkCharacter(
+      endDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(
+      endDate
+    ),
+    add = assertCol
   )
   checkmate::assertCharacter(interval, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
@@ -43,8 +55,10 @@
     interval <- "5 days"
   }
   ## Generate dates
-  sequence <- seq.Date(as.Date(startDate),
-                       as.Date(endDate), interval)
+  sequence <- seq.Date(
+    as.Date(startDate),
+    as.Date(endDate), interval
+  )
   ## Remove YYYY-02-29 if present and replace with YYYY-02-28, then remove
   ## duplicate dates
   sequence <- unique(gsub("(^\\d{4}\\-02)(-29)", "\\1-28", sequence))
