@@ -38,7 +38,7 @@
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
 ##' @param cumulative default is FALSE. Do not set to TRUE.
-##' @param effects Either NULL or c("det","pre","post")
+##' @param effects Either NULL or c("deterrency","preprandialKillingEffect","postprandialKillingEffect")
 ##' @param startDate Date in YYYY-MM-DD format.
 ##' @param endDate Date in YYYY-MM-DD format.
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
@@ -56,6 +56,24 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
                      interval, minAge = NULL, maxAge = NULL, coverage = NULL,
                      subpop = FALSE) {
 
+  
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(cumulative,
+                          choices = c(TRUE, FALSE),
+                          add = assertCol
+  )
+  checkmate::assertSubset(subpop,
+                          choices = c(TRUE, FALSE),
+                          add = assertCol
+  )
+  checkmate::assertSubset(effects,
+                          choices = c(NULL, c("deterrency","preprandialKillingEffect","postprandialKillingEffect")),
+                          add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
+  
+  
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
   ## Get input arguments, remove function name from list
