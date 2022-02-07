@@ -1,10 +1,10 @@
-##' Defines entomology setting
-##' @param baseList List with experiment data.
+##' Defines entomology setting and writes it baseXMLfile file
+##' @param baseXMLfile List with experiment data.
 ##' @param MosquitoParameters Mosquito bionomics parameterization list of
 ##'   different mosquito species as obtained from AnophelesModel package
 ##'   function get_OM_ento_snippet
-##' @param append If TRUE, then append to existing baseList, otherwise overwrite
-defineEntomology <- function(baseList, MosquitoParameters, append = TRUE) {
+##' @param append If TRUE, then append to existing baseXMLfile, otherwise overwrite
+defineEntomology <- function(baseXMLfile, MosquitoParameters, append = TRUE) {
   ## REVIEW Is this supposed to be an example considered by Roxygen?
   ## Example:
   ## MosquitoParameters=list("Anopheles gambiae"=list(
@@ -26,8 +26,8 @@ defineEntomology <- function(baseList, MosquitoParameters, append = TRUE) {
     mosqData <- MosquitoParameters[[k]]
 
     ## Add bionomics information for each mosquito species
-    baseList <- .xmlAddList(
-      data = baseList, sublist = c("entomology", "vector"),
+    baseXMLfile <- .xmlAddList(
+      data = baseXMLfile, sublist = c("entomology", "vector"),
       entry = "anopheles",
       append = append,
       input = list(
@@ -92,13 +92,13 @@ defineEntomology <- function(baseList, MosquitoParameters, append = TRUE) {
   }
 
   ## Add non-human hosts
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("entomology", "vector"),
+  baseXMLfile <- .xmlAddList(
+    data = baseXMLfile, sublist = c("entomology", "vector"),
     entry = "nonHumanHosts",
     input = list(name = "unprotectedAnimals", number = "1.0")
   )
 
-  return(baseList)
+  return(baseXMLfile)
 }
 
 ##' @rdname defineEntomology

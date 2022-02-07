@@ -55,7 +55,7 @@ MosquitoParameters<-sapply(mosq,
 activity_p = def_activity_patterns(activity = "default_Anopheles_gambiae")#set up human and mosquito activity patterns over a single day, indoor/outdoor biting rhythm, if available choose context, not all parameters come from single location, we choose default
 #activity_patterns 16h00 7h00
 host_pop=2000
-interpolation_points<-4
+interpolation_points<-100
 model_params <-lapply(mosq, function(x){
   build_model_obj(x$ent_params, x$host_params, activity_p, host_pop)
 })#initialize the entomological model and build the model object
