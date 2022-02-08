@@ -9,23 +9,6 @@
 ##'   a year and then to zero for the remainder
 defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
                           name = NULL, hist = FALSE) {
-  ## REVIEW This should be either in the documentation or in the roxygen code
-  ## Example, from Penny et al. 2015
-  ## vaccine_parameterization <- list(
-  ##   RTSS_Vaccine = list(
-  ##     mode_of_action = "PEV",
-  ##     decay = list(
-  ##       L = "223d",
-  ##       `function` = "weibull"
-  ##     ),
-  ##     efficacyB = list(
-  ##       value = "0.91"
-  ##     ),
-  ##     initialEfficacy = list(
-  ##       value = "0.91"
-  ##     )
-  ##   )
-  ## )
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()

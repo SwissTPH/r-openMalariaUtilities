@@ -41,6 +41,7 @@ defineDemography <- function(baseXMLfile,demographyData=NULL,popSize=3000,
   checkmate::assertNumeric(lowerbound, null.ok=TRUE, add = assertCol)
   checkmate::assertNumeric(maximumAgeYrs, null.ok=TRUE, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
+  
   ## Build demographyData from function arguments
   if(is.null(demographyData)){
     demographyData<-list(ageGroups=data.frame(upperbound=upperbound,poppercent=poppercent),lowerbound=lowerbound,name=name,maximumAgeYrs=maximumAgeYrs,source=source)
