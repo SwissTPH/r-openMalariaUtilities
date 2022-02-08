@@ -152,3 +152,51 @@ recXML <- function(x, data, errCol, recLevel = list()) {
   ## Return scenario
   return(baseXML)
 }
+
+##' @title Add sublist to list
+##' @param data List to add to.
+##' @param sublist Sublist, under which the entry should get added. Must be
+##'   given as a vector, e.g. c("level1", "level2", ...). Can be NULL.
+##' @param entry Name of the entry to add, as string. Can be NULL.
+##' @param input List to add.
+##' @param append Boolean. Determines if the list should be appended to existing
+##'   entries or overwrite them.
+##' @keywords internal
+.xmlAddList <- function(data, sublist, entry, input, append = TRUE) {
+  ## If we don't want to append, we will override the present entry.
+  if (append == FALSE) {
+    ## Make sure to remove all entries corresponding to sublist
+    if (!is.null(sublist)) {
+      data[[c(sublist)]] <- data[[c(sublist)]][names(data[[c(sublist)]]) %in% c(entry) == FALSE]
+    }
+    ## Add new entry
+    if (!is.null(entry)) {
+      data[[c(sublist, entry)]] <- input
+    } else {
+      data <- input
+    }
+    return(data)
+  } else {
+    ## Otherwise we append the data
+    ## If sublist is not given, backup whole list
+    if (!is.null(sublist)) {
+      oldEntry <- data[[sublist]]
+    } else {
+      oldEntry <- data
+    }
+    ## Create new list
+    newEntry <- list()
+    if (!is.null(entry)) {
+      newEntry[[entry]] <- input
+    } else {
+      newEntry <- input
+    }
+    ## Appen to old list
+    if (!is.null(sublist)) {
+      data[[sublist]] <- append(oldEntry, newEntry)
+    } else {
+      data <- append(oldEntry, newEntry)
+    }
+    return(data)
+  }
+}
