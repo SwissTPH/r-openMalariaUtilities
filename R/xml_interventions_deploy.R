@@ -71,7 +71,8 @@
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
 ##' @param cumulative default is FALSE. Do not set to TRUE.
-##' @param effects Either NULL or c("deterrency","preprandialKillingEffect","postprandialKillingEffect")
+##' @param effects Either NULL or
+##'   c("deterrency","preprandialKillingEffect","postprandialKillingEffect")
 ##' @param startDate Date in YYYY-MM-DD format.
 ##' @param endDate Date in YYYY-MM-DD format.
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
@@ -80,8 +81,10 @@
 ##'   NULL.
 ##' @param dates If NULL, startDate, endDate and interval are used, else a
 ##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
-##' @param minAge Minimum age for deployment (used in SMC). Can be a placeholder.
-##' @param maxAge Maximum age for deployment (used in SMC). Can be a placeholder.
+##' @param minAge Minimum age for deployment (used in SMC). Can be a
+##'   placeholder.
+##' @param maxAge Maximum age for deployment (used in SMC). Can be a
+##'   placeholder.
 ##' @param coverage Value or variable of coverage. Can be a placeholder.
 ##' @param subpop If TRUE, then restricts to a subpopulation (see
 ##'   restrictToSubPop in OpenMalaria)
@@ -91,24 +94,26 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
                      dates = NULL, minAge = NULL, maxAge = NULL,
                      coverage = NULL, subpop = FALSE) {
 
-  
+
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(cumulative,
-                          choices = c(TRUE, FALSE),
-                          add = assertCol
+    choices = c(TRUE, FALSE),
+    add = assertCol
   )
   checkmate::assertSubset(subpop,
-                          choices = c(TRUE, FALSE),
-                          add = assertCol
+    choices = c(TRUE, FALSE),
+    add = assertCol
   )
   checkmate::assertSubset(effects,
-                          choices = c(NULL, c("deterrency","preprandialKillingEffect","postprandialKillingEffect")),
-                          add = assertCol
+    choices = c(NULL, c(
+      "deterrency", "preprandialKillingEffect", "postprandialKillingEffect"
+    )),
+    add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-  
-  
+
+
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
   ## Get input arguments, remove function name from list and unwanted entries
