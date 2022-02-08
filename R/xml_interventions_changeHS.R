@@ -55,6 +55,7 @@ changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
 ##' @title Write the case management deployments
 ##' @param baseList List with experiment data.
 ##' @param name Name of the intervention
+##' @param startDate Date in YYYY-MM-DD format.
 ##' @param endDate Date in YYYY-MM-DD format.
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
 ##'   composed of the entries 'days' (optional), 'months' (optional) and
@@ -77,7 +78,7 @@ changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
 ##'   recurrence of uncomplicated disease seeks official care. Can be a placeholder.
 ##' @param pSeekOfficialCareSevere Probability that a patient with severe
 ##'   disease obtains appropriate care. Can be a placeholder.
-##' @return
+##' @export
 defineChangeHS <- function(baseList, name = "Change in case management",
                            startDate = NULL, endDate = NULL, interval,
                            dates = NULL, initACT = 1, initQN = 1, initSelf = 1,
@@ -239,6 +240,8 @@ defineChangeHS <- function(baseList, name = "Change in case management",
           }
         )
       ),
+      ## REVIEW This is hardcoded for the time being. Should be accessible for
+      ## the users
       CFR = list(
         group = list(lowerbound = 0, value = 0.09189),
         group = list(lowerbound = 0.25, value = 0.0810811),
@@ -251,6 +254,8 @@ defineChangeHS <- function(baseList, name = "Change in case management",
         group = list(lowerbound = 12.5, value = 0.1243243),
         group = list(lowerbound = 15, value = 0.1378378)
       ),
+      ## REVIEW This is hardcoded for the time being. Should be accessible for
+      ## the users
       pSequelaeInpatient = list(
         group = list(lowerbound = 0.0, value = 0.0132),
         group = list(lowerbound = 5.0, value = 0.005)
@@ -274,7 +279,13 @@ defineChangeHS <- function(baseList, name = "Change in case management",
   return(baseList)
 }
 
+##' @rdname defineChangeHS
+##' @export
+define_changeHS <- defineChangeHS
+
+## DEPRECATED
 ##' @title Function to write the case management deployments
+##' @param baseList List with experiment data.
 ##' @param access Name of coverage value (i.e. "Access")
 ##' @param coverage Name of future intervention for change in HS (i.e.
 ##'   "@futCM@")
@@ -291,24 +302,125 @@ defineChangeHS <- function(baseList, name = "Change in case management",
 ##' @param pSeekOfficialCareSevere Proportion of severe episodes that seek care
 ##'   at the formal sector
 ##' @param futSevere Variable for different values of 'pseekOfficialCareSevere'
+##' @param y1 Year of the first date (surveys starting from year y1)
+##' @param m1 Month of the first date
+##' @param y2 Year of the end date (surveys continuing until year y2)
+##' @param m2 Month of the end date
+##' @param every Interval size
+##' @param interval Interval size (days, weeks, )
 ##' @param SIMSTART Start of the simulations (equal to ORIGIN!)
 ##' @export
-define_changeHS_compat <- function(access = "Access",
-                                   coverage = NULL,
-                                   y1 = 2000,
-                                   y2 = 2015,
-                                   use_at_symbol = T,
+define_changeHS_compat <- function(baseList, access = "Access", coverage = NULL,
+                                   y1 = 2000, y2 = 2015, use_at_symbol = TRUE,
                                    pSelfTreatUncomplicated = 0.01821375,
                                    futSevere = NULL,
-                                   pSeekOfficialCareSevere = .48,
-                                   SIMSTART = "1918-01-01",
-                                   every = 1,
-                                   interval = "year",
-                                   m1 = 1,
-                                   m2 = 1,
-                                   init.act = 1,
-                                   init.qn = 1,
-                                   init.self = 1,
-                                   comp.act = 1,
-                                   comp.qn = 1,
-                                   comp.self = 1) {}
+                                   pSeekOfficialCareSevere = 0.48,
+                                   SIMSTART = "1918-01-01", every = 1,
+                                   interval = "year", m1 = 1, m2 = 1,
+                                   init.act = 1, init.qn = 1, init.self = 1,
+                                   comp.act = 1, comp.qn = 1, comp.self = 1) {
+
+  ## Translate time information
+  ## If no 'coverage' provided, then it won't write deployments for future year
+  ## (i.e. year = y2 + 1)
+  if (is.null(coverage)) {
+    futyear <- 0
+  } else {
+    futyear <- 1
+  }
+
+  dates <- .deployTime_compat(
+    y1 = y1, y2 = y2 + futyear, m1 = m1, m2 = m2, d1 = 5, d2 = 5, every = every,
+    interval = interval
+  )
+
+  ## Year format (for specifying the name of the variable, i.e. futCM2021)
+  years <- as.numeric(format(dates, "%Y"))
+  yearid <- years
+
+  ## If the occurence is more often than once a year, naming should include
+  ## year, month, date
+  if (interval != "year") {
+    years <- gsub(dates, pattern = "\\-", replacement = "\\.")
+  }
+  ## Generate placeholders
+  if (use_at_symbol == TRUE) {
+    message(paste(
+      "In your experiment, specify values for:",
+      paste0(access, years, collapse = ", ")
+    ))
+  }
+
+  if (use_at_symbol & !is.null(futSevere)) {
+    message(paste(paste0(futSevere, years, collapse = ", ")))
+  }
+
+  if (!use_at_symbol & length(access) < length(y1:y2)) {
+    stop("when 'use_at_symbol' = F,
+        access needs to be a vector of numbers
+        with an entry for each year in y1 to y2")
+  }
+
+  ## Initialize placeholders
+  varname <- c()
+  var2 <- c()
+  init.a <- c()
+  init.q <- c()
+  init.s <- c()
+  comp.a <- c()
+  comp.q <- c()
+  comp.s <- c()
+
+  for (i in seq_len(length(dates))) {
+    ## Assume that we want @ symbols around everything, e.g. @Access2002@
+    if (use_at_symbol) {
+      varname_tmp <- ifelse(
+        yearid[i] <= y2,
+        paste0("@", access, years[i], "@"),
+        paste0("@", gsub(coverage, pattern = "@", replacement = ""), "@")
+      )
+    } else {
+      varname_tmp <- ifelse(
+        yearid[i] <= y2,
+        access[i],
+        paste0(gsub(coverage, pattern = "@", replacement = ""))
+      )
+    }
+    ## Collect varname
+    varname <- append(varname, varname_tmp)
+
+    ## Other varying attributes
+    var2_tmp <- ifelse(use_at_symbol & !is.null(futSevere), paste0("@", futSevere, years[i], "@"), pSeekOfficialCareSevere)
+    init.a_tmp <- ifelse(use_at_symbol & !is.numeric(init.act), paste0("@", init.act, years[i], "@"), init.act)
+    init.q_tmp <- ifelse(use_at_symbol & !is.numeric(init.qn), paste0("@", init.qn, years[i], "@"), init.qn)
+    init.s_tmp <- ifelse(use_at_symbol & !is.numeric(init.self), paste0("@", init.self, years[i], "@"), init.self)
+    comp.a_tmp <- ifelse(use_at_symbol & !is.numeric(comp.act), paste0("@", comp.act, years[i], "@"), comp.act)
+    comp.q_tmp <- ifelse(use_at_symbol & !is.numeric(comp.qn), paste0("@", comp.qn, years[i], "@"), comp.qn)
+    comp.s_tmp <- ifelse(use_at_symbol & !is.numeric(comp.self), paste0("@", comp.self, years[i], "@"), comp.self)
+
+    ## Collect other placeholders
+    var2 <- ifelse(is.numeric(var2_tmp), var2_tmp, append(var2, var2_tmp))
+    init.a <- ifelse(is.numeric(init.a), init.a_tmp, append(init.a, init.a_tmp))
+    init.q <- ifelse(is.numeric(init.q), init.q_tmp, append(init.q, init.q_tmp))
+    init.s <- ifelse(is.numeric(init.s), init.s_tmp, append(init.s, init.s_tmp))
+    comp.a <- ifelse(is.numeric(comp.a), comp.a_tmp, append(comp.a, comp.a_tmp))
+    comp.q <- ifelse(is.numeric(comp.q), comp.q_tmp, append(comp.q, comp.q_tmp))
+    comp.s <- ifelse(is.numeric(comp.s), comp.s_tmp, append(comp.s, comp.s_tmp))
+
+    if (nchar(varname_tmp) < 3) {
+      message(paste0("WARNING: varname = ", varname_tmp))
+    }
+  }
+
+  baseList <- defineChangeHS(
+    baseList = baseList, name = "Change in case management",
+    dates = dates, initACT = init.a, initQN = init.q, initSelf = init.s,
+    compACT = comp.a, compQN = comp.q, compSelf = comp.s,
+    pSeekOfficialCareUncomplicated1 = varname,
+    pSelfTreatUncomplicated = pSelfTreatUncomplicated,
+    pSeekOfficialCareUncomplicated2 = varname,
+    pSeekOfficialCareSevere = var2
+  )
+
+  return(baseList)
+}

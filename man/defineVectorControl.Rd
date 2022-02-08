@@ -7,7 +7,7 @@
 \usage{
 defineVectorControl(
   baseList,
-  intervention_parameterization,
+  VectorInterventionParameters,
   append = TRUE,
   name = NULL,
   hist = FALSE,
@@ -16,7 +16,7 @@ defineVectorControl(
 
 define_vector_control(
   baseList,
-  intervention_parameterization,
+  VectorInterventionParameters,
   append = TRUE,
   name = NULL,
   hist = FALSE,
@@ -26,7 +26,7 @@ define_vector_control(
 \arguments{
 \item{baseList}{List with experiment data.}
 
-\item{intervention_parameterization}{Vector control intervention
+\item{VectorInterventionParameters}{Vector control intervention
 parameterization list depending on three parameters (deterrency,
 preprandrial, postprandial) and decay functions:}
 
@@ -38,8 +38,62 @@ overwrites}
 \item{hist}{If TRUE, then decay is assumed to be step function set to 1 for
 a year and then to zero for the remainder}
 
-\item{resistance}{Scaling function of insecticide resistance}
+\item{resistance}{Scaling function of insecticide resistance TODO}
 }
 \description{
 Adds vector control intervention parameterisation to baseList
+}
+\examples{
+VectorInterventionParameters <- list(
+  "LLIN" = list(
+    deterrency = list(
+      decay = list(
+        L = "0.7",
+        "function" = "weibull"
+      ),
+      anophelesParams = list(
+        "Anopheles gambiae" = list(
+          propActive = 1,
+          value = "0.5"
+        ),
+        "Anopheles funestus" = list(
+          propActive = 1,
+          value = "0.3"
+        )
+      )
+    ),
+    preprandialKillingEffect = list(
+      decay = list(
+        L = "0.4",
+        "function" = "weibull"
+      ),
+      anophelesParams = list(
+        "Anopheles gambiae" = list(
+          propActive = 1,
+          value = "0.6"
+        ),
+        "Anopheles funestus" = list(
+          propActive = 1,
+          value = "0.67"
+        )
+      )
+    ),
+    postprandialKillingEffect = list(
+      decay = list(
+        L = "0.45",
+        "function" = "weibull"
+      ),
+      anophelesParams = list(
+        "Anopheles gambiae" = list(
+          propActive = 1,
+          value = "0.3"
+        ),
+        "Anopheles funestus" = list(
+          propActive = 1,
+          value = "0.2"
+        )
+      )
+    )
+  )
+)
 }

@@ -72,23 +72,60 @@ define_vaccine <- defineVaccine
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 ##' @param resistance Scaling function of insecticide resistance TODO
-##' @examples 
-##'   VectorInterventionParameters=list("LLIN"=list(deterrency=list(decay=list(L="0.7",`function`="weibull"),
-#'  anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.5"),
-#'                      "Anopheles funestus"=list(propActive=1,value="0.3")
-#' )),
-#' preprandialKillingEffect=list(decay=list(L="0.4",`function`="weibull"),
-#'                               anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.6"),
-#'                                                    "Anopheles funestus"=list(propActive=1,value="0.67")
-#'                               )),
-#' postprandialKillingEffect=list(decay=list(L="0.45",`function`="weibull"),
-#'                                anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.3"),
-#'                                                     "Anopheles funestus"=list(propActive=1,value="0.2")
-#'                                ))
-#' ))
-
-
-defineVectorControl <- function(baseXMLfile, VectorInterventionParameters,
+##' @examples
+##' VectorInterventionParameters <- list(
+##'   "LLIN" = list(
+##'     deterrency = list(
+##'       decay = list(
+##'         L = "0.7",
+##'         "function" = "weibull"
+##'       ),
+##'       anophelesParams = list(
+##'         "Anopheles gambiae" = list(
+##'           propActive = 1,
+##'           value = "0.5"
+##'         ),
+##'         "Anopheles funestus" = list(
+##'           propActive = 1,
+##'           value = "0.3"
+##'         )
+##'       )
+##'     ),
+##'     preprandialKillingEffect = list(
+##'       decay = list(
+##'         L = "0.4",
+##'         "function" = "weibull"
+##'       ),
+##'       anophelesParams = list(
+##'         "Anopheles gambiae" = list(
+##'           propActive = 1,
+##'           value = "0.6"
+##'         ),
+##'         "Anopheles funestus" = list(
+##'           propActive = 1,
+##'           value = "0.67"
+##'         )
+##'       )
+##'     ),
+##'     postprandialKillingEffect = list(
+##'       decay = list(
+##'         L = "0.45",
+##'         "function" = "weibull"
+##'       ),
+##'       anophelesParams = list(
+##'         "Anopheles gambiae" = list(
+##'           propActive = 1,
+##'           value = "0.3"
+##'         ),
+##'         "Anopheles funestus" = list(
+##'           propActive = 1,
+##'           value = "0.2"
+##'         )
+##'       )
+##'     )
+##'   )
+##' )
+defineVectorControl <- function(baseList, VectorInterventionParameters,
                                 append = TRUE, name = NULL, hist = FALSE,
                                 resistance = 0.1) {
 
@@ -105,64 +142,63 @@ defineVectorControl <- function(baseXMLfile, VectorInterventionParameters,
   checkmate::reportAssertions(assertCol)
 
   ## Some checks
-  if (is.null(baseXMLfile$interventions$human)) {
+  if (is.null(baseList$interventions$human)) {
     stop("To append, the baseList needs a child called '$interventions$human'")
   }
 
   ## Check whether vector species in entomology section of baseXML and those in vector control interventions are the same
-  for (intervention in names(VectorInterventionParameters)){
-    for (effect in names(VectorInterventionParameters[[intervention]])){
-      if (!setequal(names(VectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]),unique(unlist(lapply(baseXMLfile$entomology$vector,function(x) x$mosquito))))){
+  for (intervention in names(VectorInterventionParameters)) {
+    for (effect in names(VectorInterventionParameters[[intervention]])) {
+      if (!setequal(names(VectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]), unique(unlist(lapply(baseList$entomology$vector, function(x) x$mosquito))))) {
         stop("To append, each vector species definied in the entomology section must be the same as in the intervention component.")
       }
+    }
   }
-  }
-  
-  
-  ##loop over interventions, effects and vector speicies
-  for (k in names(VectorInterventionParameters)){
-    
-    componentData<-VectorInterventionParameters[[k]]
-    
-    for (effect in names(componentData)){
-      
-      component_id<-paste0(k,ifelse(hist,"hist",""),"-",effect)
-      print(paste0("Defining intervention with component_id: ",component_id))
-      
-      GVIList<-list(decay = if (hist) list("L"=1,"function"="step") else componentData[[effect]][["decay"]])
-      for (vector_species in names(componentData[[effect]]$anophelesParams)){
-        
-        print(paste0("Writing effect values for vector species: ",vector_species))
-        values<-c(deterrency=0,preprandialKillingEffect=0,postprandialKillingEffect=0)
-        values[effect]<-componentData[[effect]][["anophelesParams"]][[vector_species]][["value"]]
-        
-        
-        GVIList<-append(GVIList,
-                        list(anophelesParams=list(
-                          mosquito = vector_species,
-                          propActive = componentData[[effect]][["anophelesParams"]][[vector_species]][["propActive"]],
-                          deterrency = list(value=values[["deterrency"]]),
-                          preprandialKillingEffect = list(value=values[["preprandialKillingEffect"]]),
-                          postprandialKillingEffect = list(value=values[["postprandialKillingEffect"]])
-                        )))
+
+
+  ## loop over interventions, effects and vector speicies
+  for (k in names(VectorInterventionParameters)) {
+    componentData <- VectorInterventionParameters[[k]]
+
+    for (effect in names(componentData)) {
+      component_id <- paste0(k, ifelse(hist, "hist", ""), "-", effect)
+      print(paste0("Defining intervention with component_id: ", component_id))
+
+      GVIList <- list(decay = if (hist) list("L" = 1, "function" = "step") else componentData[[effect]][["decay"]])
+      for (vector_species in names(componentData[[effect]]$anophelesParams)) {
+        print(paste0("Writing effect values for vector species: ", vector_species))
+        values <- c(deterrency = 0, preprandialKillingEffect = 0, postprandialKillingEffect = 0)
+        values[effect] <- componentData[[effect]][["anophelesParams"]][[vector_species]][["value"]]
+
+
+        GVIList <- append(
+          GVIList,
+          list(anophelesParams = list(
+            mosquito = vector_species,
+            propActive = componentData[[effect]][["anophelesParams"]][[vector_species]][["propActive"]],
+            deterrency = list(value = values[["deterrency"]]),
+            preprandialKillingEffect = list(value = values[["preprandialKillingEffect"]]),
+            postprandialKillingEffect = list(value = values[["postprandialKillingEffect"]])
+          ))
+        )
       }
-      
-      ##write to xml
-      baseXMLfile <- .xmlAddList(
-        data = baseXMLfile, sublist = c("interventions", "human"),append=append,
+
+      ## write to xml
+      baseList <- .xmlAddList(
+        data = baseList, sublist = c("interventions", "human"), append = append,
         entry = "component",
         input = list(
           id = component_id,
           name = if (is.null(name)) "your_tag" else name[[k]],
           GVI = GVIList
-                )
-              )
-            }
-          }
-          
-          return(baseXMLfile)
+        )
+      )
     }
-      
+  }
+
+  return(baseList)
+}
+
 
 ##' @rdname defineVectorControl
 ##' @export

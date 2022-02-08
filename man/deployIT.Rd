@@ -42,7 +42,8 @@ deploy_IT(
 
 \item{cumulative}{default is FALSE. Do not set to TRUE.}
 
-\item{effects}{Either NULL or c("det","pre","post")}
+\item{effects}{Either NULL or
+c("deterrency","preprandialKillingEffect","postprandialKillingEffect")}
 
 \item{startDate}{Date in YYYY-MM-DD format.}
 
@@ -56,9 +57,11 @@ NULL.}
 \item{dates}{If NULL, startDate, endDate and interval are used, else a
 vector of dates in YYYY-MM-DD format. Can be a placeholder.}
 
-\item{minAge}{Minimum age for deployment (used in SMC). Can be a placeholder.}
+\item{minAge}{Minimum age for deployment (used in SMC). Can be a
+placeholder.}
 
-\item{maxAge}{Maximum age for deployment (used in SMC). Can be a placeholder.}
+\item{maxAge}{Maximum age for deployment (used in SMC). Can be a
+placeholder.}
 
 \item{coverage}{Value or variable of coverage. Can be a placeholder.}
 

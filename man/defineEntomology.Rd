@@ -3,21 +3,21 @@
 \name{defineEntomology}
 \alias{defineEntomology}
 \alias{define_entomology}
-\title{Defines entomology setting}
+\title{Defines entomology setting and writes it baseList file}
 \usage{
-defineEntomology(baseList, mosquito_parameters, append = TRUE)
+defineEntomology(baseList, MosquitoParameters, append = TRUE)
 
-define_entomology(baseList, mosquito_parameters, append = TRUE)
+define_entomology(baseList, MosquitoParameters, append = TRUE)
 }
 \arguments{
 \item{baseList}{List with experiment data.}
 
-\item{mosquito_parameters}{Mosquito bionomics parameterization list of
+\item{MosquitoParameters}{Mosquito bionomics parameterization list of
 different mosquito species as obtained from AnophelesModel package
 function get_OM_ento_snippet}
 
 \item{append}{If TRUE, then append to existing baseList, otherwise overwrite}
 }
 \description{
-Defines entomology setting
+Defines entomology setting and writes it baseList file
 }

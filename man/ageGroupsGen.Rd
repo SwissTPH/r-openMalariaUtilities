@@ -9,7 +9,7 @@ ageGroupsGen(lowerbound, ageGroups)
 \arguments{
 \item{lowerbound}{Double, lower bound of age group}
 
-\item{ageGroups}{Data frame containing demograpghy}
+\item{ageGroups}{Data frame containing demography}
 }
 \value{
 List for xml contruction
