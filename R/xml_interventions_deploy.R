@@ -71,48 +71,40 @@
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
 ##' @param cumulative default is FALSE. Do not set to TRUE.
-##' @param effects Either NULL or
-##'   c("deterrency","preprandialKillingEffect","postprandialKillingEffect")
+##' @param effects Either NULL or vector of strings
 ##' @param startDate Date in YYYY-MM-DD format.
 ##' @param endDate Date in YYYY-MM-DD format.
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
 ##'   composed of the entries 'days' (optional), 'months' (optional) and
 ##'   'years'. If a list is used, startDate and endDate are not used and can be
 ##'   NULL.
-##' @param dates If NULL, startDate, endDate and interval are used, else a
-##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
-##' @param minAge Minimum age for deployment (used in SMC). Can be a
-##'   placeholder.
-##' @param maxAge Maximum age for deployment (used in SMC). Can be a
-##'   placeholder.
-##' @param coverage Value or variable of coverage. Can be a placeholder.
-##' @param subpop If TRUE, then restricts to a subpopulation (see
+##' @param minAge Minimum age for deployment (used in SMC)
+##' @param maxAge Maximum age for deployment (used in SMC)
+##' @param coverage Value or variable of coverage
+##' @param subpop Either NULL or vector of subpopulations intervention should be restricted to (see
 ##'   restrictToSubPop in OpenMalaria)
 ##' @export
 deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
-                     effects = NULL, startDate = NULL, endDate = NULL, interval,
-                     dates = NULL, minAge = NULL, maxAge = NULL,
-                     coverage = NULL, subpop = FALSE) {
-
-
+                     effects = NULL, startDate = NULL, endDate = NULL,
+                     interval, minAge = NULL, maxAge = NULL, coverage = NULL,
+                     subpop = NULL) {
+  
+  
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(cumulative,
-    choices = c(TRUE, FALSE),
-    add = assertCol
+                          choices = c(TRUE, FALSE),
+                          add = assertCol
   )
-  checkmate::assertSubset(subpop,
-    choices = c(TRUE, FALSE),
-    add = assertCol
+  checkmate::assertVector(subpop,
+                          null.ok = T,
+                          add = assertCol
   )
-  checkmate::assertSubset(effects,
-    choices = c(NULL, c(
-      "deterrency", "preprandialKillingEffect", "postprandialKillingEffect"
-    )),
-    add = assertCol
+  checkmate::assertVector(effects,
+                          null.ok = T,
+                          add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-
 
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
@@ -162,37 +154,60 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
   ## containing strings, we need to generate one entry for each string.
   ## Furthermore, if effects is not NULL and cumulative or subpop is TRUE, the
   ## corresponding entries need to be added.
-  if (!is.null(effects) && is.vector(effects)) {
+  if (!is.null(effects) && is.null(subpop)) {
     for (eff in effects) {
       outlist <- append(
         outlist, list(component = list(id = paste0(component, "-", eff)))
       )
     }
-    if (cumulative == TRUE || subpop == TRUE) {
-      temp <- list()
-      if (cumulative == TRUE) {
-        temp <- append(temp, list(
-          cumulativeCoverage = list(
-            component = paste0(component, "-", effects[1])
-          )
-        ))
-      }
-      if (subpop == TRUE) {
-        temp <- append(temp, list(
-          restrictToSubPop = list(
-            id = paste0(component, "_", effects[1])
-          )
-        ))
-      }
-
-      outlist <- .xmlAddList(
-        data = outlist, sublist = NULL,
-        entry = "timed",
-        input = temp
-      )
-    }
   }
-
+  
+  if (is.null(effects) && is.null(subpop)) {
+    outlist <- append(
+      outlist, list(component = list(id = component))
+    )
+  }
+  
+  
+  if (cumulative == TRUE || !is.null(subpop)) {
+    outlist <- append(
+      outlist, list(component = list(id = component))
+    )
+    temp <- list()
+    if (cumulative == TRUE) {
+      temp <- append(temp, list(
+        cumulativeCoverage = list(
+          component = paste0(component, "_", subpop)
+        )
+      ))
+    }
+    if (!is.null(subpop)) {
+      temp <- append(temp, list(
+        restrictToSubPop = list(
+          id = paste0(component, "_", subpop)
+        )
+      ))
+    }
+    outlist <- .xmlAddList(
+      data = outlist, sublist = NULL,
+      entry = "timed",
+      input = temp
+    )
+  }
+  
+  
+  ## Add deployments
+  for (i in seq_len(length(dates))) {
+    temp <- list(
+      deploy = list(
+        coverage = if (!is.null(placeholderseq[["coverage"]])) {
+          placeholderseq[["coverage"]][[i]]
+        } else {
+          coverage
+        },
+        time = dates[[i]]
+      )
+    )
   ## Add deployments
   for (i in seq_len(length(dates))) {
     temp <- list(

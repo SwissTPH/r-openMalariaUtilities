@@ -1,13 +1,13 @@
 ##  TODO Improve documentation
 ##' Adds vaccine intervention parameterisation to baseList
-##' @param baseList List with experiment data.
-##' @param vaccine_parameterization Parameterization list (see example below)
+##' @param baseXMLfile List with experiment data.
+##' @param vaccineParameterization Parameterization list (see example below)
 ##' @param append If TRUE, then append to existing baseList, otherwise
 ##'   overwrites
 ##' @param name Name tag list
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
-defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
+defineVaccine <- function(baseXMLfile, vaccineParameterization, append = TRUE,
                           name = NULL, hist = FALSE) {
 
   ## Verify input
@@ -18,9 +18,11 @@ defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
   )
   checkmate::reportAssertions(assertCol)
 
-  for (k in names(vaccine_parameterization)) {
-    baseList <- .xmlAddList(
-      data = baseList,
+  
+  ###create intervention cohort
+  for (k in names(vaccineParameterization)) {
+    baseXMLfile <- .xmlAddList(
+      data = baseXMLfile,
       sublist = c("interventions", "human"),
       append = append,
       entry = "component",
@@ -30,30 +32,26 @@ defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
         subPopRemoval = list(afterYears = "5")
       )
     )
-
-    componentData <- vaccine_parameterization[[k]]
-
-    baseList <- .xmlAddList(
-      data = baseList,
+    print(paste0("Writing intervention cohort component ",paste0(k, "_intervention_cohort")," to baseXML file..."))
+    
+    
+    ###Add vaccine mode of action (PEV,BSV,TBV are mutually exclusive?) and define component id
+    mode_of_action_list<-list(id=k,name=k)
+    for (mode_of_action in names(vaccineParameterization[[k]])){
+      mode_of_action_list <- append(mode_of_action_list,vaccineParameterization[[k]][mode_of_action])
+      print(paste0("Writing vaccine component ",k," with mode of action ",mode_of_action," to baseXML file..."))
+    }
+    
+    baseXMLfile <- .xmlAddList(
+      data = baseXMLfile,
       sublist = c("interventions", "human"),
       append = append,
       entry = "component",
-      input = list(
-        id = k,
-        name = k,
-        stats::setNames(
-          list(list(
-            decay = componentData[["decay"]],
-            efficacyB = componentData[["efficacyB"]],
-            initialEfficacy = componentData[["initialEfficacy"]]
-          )),
-          componentData[["mode_of_action"]]
-        )
+      input = mode_of_action_list
       )
-    )
   }
 
-  return(baseList)
+  return(baseXMLfile)
 }
 
 ##' @rdname defineVaccine
@@ -61,8 +59,8 @@ defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
 define_vaccine <- defineVaccine
 
 
-##' Adds vector control intervention parameterisation to baseList
-##' @param baseList List with experiment data.
+##' Adds vector control intervention parameterisation to baseXMLfile
+##' @param baseXMLfile List with experiment data.
 ##' @param VectorInterventionParameters Vector control intervention
 ##'   parameterization list depending on three parameters (deterrency,
 ##'   preprandrial, postprandial) and decay functions:
@@ -72,60 +70,23 @@ define_vaccine <- defineVaccine
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 ##' @param resistance Scaling function of insecticide resistance TODO
-##' @examples
-##' VectorInterventionParameters <- list(
-##'   "LLIN" = list(
-##'     deterrency = list(
-##'       decay = list(
-##'         L = "0.7",
-##'         "function" = "weibull"
-##'       ),
-##'       anophelesParams = list(
-##'         "Anopheles gambiae" = list(
-##'           propActive = 1,
-##'           value = "0.5"
-##'         ),
-##'         "Anopheles funestus" = list(
-##'           propActive = 1,
-##'           value = "0.3"
-##'         )
-##'       )
-##'     ),
-##'     preprandialKillingEffect = list(
-##'       decay = list(
-##'         L = "0.4",
-##'         "function" = "weibull"
-##'       ),
-##'       anophelesParams = list(
-##'         "Anopheles gambiae" = list(
-##'           propActive = 1,
-##'           value = "0.6"
-##'         ),
-##'         "Anopheles funestus" = list(
-##'           propActive = 1,
-##'           value = "0.67"
-##'         )
-##'       )
-##'     ),
-##'     postprandialKillingEffect = list(
-##'       decay = list(
-##'         L = "0.45",
-##'         "function" = "weibull"
-##'       ),
-##'       anophelesParams = list(
-##'         "Anopheles gambiae" = list(
-##'           propActive = 1,
-##'           value = "0.3"
-##'         ),
-##'         "Anopheles funestus" = list(
-##'           propActive = 1,
-##'           value = "0.2"
-##'         )
-##'       )
-##'     )
-##'   )
-##' )
-defineVectorControl <- function(baseList, VectorInterventionParameters,
+##' @examples 
+##'   VectorInterventionParameters=list("LLIN"=list(deterrency=list(decay=list(L="0.7",`function`="weibull"),
+#'  anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.5"),
+#'                      "Anopheles funestus"=list(propActive=1,value="0.3")
+#' )),
+#' preprandialKillingEffect=list(decay=list(L="0.4",`function`="weibull"),
+#'                               anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.6"),
+#'                                                    "Anopheles funestus"=list(propActive=1,value="0.67")
+#'                               )),
+#' postprandialKillingEffect=list(decay=list(L="0.45",`function`="weibull"),
+#'                                anophelesParams=list("Anopheles gambiae"=list(propActive=1,value="0.3"),
+#'                                                     "Anopheles funestus"=list(propActive=1,value="0.2")
+#'                                ))
+#' ))
+
+
+defineVectorControl <- function(baseXMLfile, VectorInterventionParameters,
                                 append = TRUE, name = NULL, hist = FALSE,
                                 resistance = 0.1) {
 
@@ -142,63 +103,62 @@ defineVectorControl <- function(baseList, VectorInterventionParameters,
   checkmate::reportAssertions(assertCol)
 
   ## Some checks
-  if (is.null(baseList$interventions$human)) {
+  if (is.null(baseXMLfile$interventions$human)) {
     stop("To append, the baseList needs a child called '$interventions$human'")
   }
-
   ## Check whether vector species in entomology section of baseXML and those in vector control interventions are the same
-  for (intervention in names(VectorInterventionParameters)) {
-    for (effect in names(VectorInterventionParameters[[intervention]])) {
-      if (!setequal(names(VectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]), unique(unlist(lapply(baseList$entomology$vector, function(x) x$mosquito))))) {
-        stop("To append, each vector species definied in the entomology section must be the same as in the intervention component.")
+  for (intervention in names(VectorInterventionParameters)){
+    for (effect in names(VectorInterventionParameters[[intervention]])){
+      if (!setequal(names(VectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]),unique(unlist(lapply(baseXMLfile$entomology$vector,function(x) x$mosquito))))){
+        stop("To append, vector species defined in the entomology section must be the same as in the intervention component.")
       }
-    }
   }
-
-
-  ## loop over interventions, effects and vector speicies
-  for (k in names(VectorInterventionParameters)) {
-    componentData <- VectorInterventionParameters[[k]]
-
-    for (effect in names(componentData)) {
-      component_id <- paste0(k, ifelse(hist, "hist", ""), "-", effect)
-      print(paste0("Defining intervention with component_id: ", component_id))
-
-      GVIList <- list(decay = if (hist) list("L" = 1, "function" = "step") else componentData[[effect]][["decay"]])
-      for (vector_species in names(componentData[[effect]]$anophelesParams)) {
-        print(paste0("Writing effect values for vector species: ", vector_species))
-        values <- c(deterrency = 0, preprandialKillingEffect = 0, postprandialKillingEffect = 0)
-        values[effect] <- componentData[[effect]][["anophelesParams"]][[vector_species]][["value"]]
-
-
-        GVIList <- append(
-          GVIList,
-          list(anophelesParams = list(
-            mosquito = vector_species,
-            propActive = componentData[[effect]][["anophelesParams"]][[vector_species]][["propActive"]],
-            deterrency = list(value = values[["deterrency"]]),
-            preprandialKillingEffect = list(value = values[["preprandialKillingEffect"]]),
-            postprandialKillingEffect = list(value = values[["postprandialKillingEffect"]])
-          ))
-        )
+  }
+  
+  ##loop over interventions, effects and vector species
+  for (k in names(VectorInterventionParameters)){
+    
+    componentData<-VectorInterventionParameters[[k]]
+    
+    for (effect in names(componentData)){
+      
+      component_id<-paste0(k,ifelse(hist,"hist",""),"-",effect)
+      print(paste0("Defining intervention with component_id: ",component_id))
+      
+      GVIList<-list(decay = if (hist) list("L"=1,"function"="step") else componentData[[effect]][["decay"]])
+      for (vector_species in names(componentData[[effect]]$anophelesParams)){
+        
+        print(paste0("Writing effect values for vector species: ",vector_species))
+        values<-c(deterrency=0,preprandialKillingEffect=0,postprandialKillingEffect=0)
+        values[effect]<-componentData[[effect]][["anophelesParams"]][[vector_species]][["value"]]
+        
+        
+        GVIList<-append(GVIList,
+                        list(anophelesParams=list(
+                          mosquito = vector_species,
+                          propActive = componentData[[effect]][["anophelesParams"]][[vector_species]][["propActive"]],
+                          deterrency = list(value=values[["deterrency"]]),
+                          preprandialKillingEffect = list(value=values[["preprandialKillingEffect"]]),
+                          postprandialKillingEffect = list(value=values[["postprandialKillingEffect"]])
+                        )))
       }
-
-      ## write to xml
-      baseList <- .xmlAddList(
-        data = baseList, sublist = c("interventions", "human"), append = append,
+      
+      ##write to xml
+      baseXMLfile <- .xmlAddList(
+        data = baseXMLfile, sublist = c("interventions", "human"),append=append,
         entry = "component",
         input = list(
           id = component_id,
           name = if (is.null(name)) "your_tag" else name[[k]],
           GVI = GVIList
-        )
-      )
+                )
+              )
+            }
+          }
+          
+          return(baseXMLfile)
     }
-  }
-
-  return(baseList)
-}
-
+      
 
 ##' @rdname defineVectorControl
 ##' @export
@@ -367,6 +327,7 @@ defineIRS <- function(baseList, mosquitos, component = c(
 define_IRS <- defineIRS
 
 ## DEPRECATED
+##' @rdname defineIRS
 ##' @title Adds the IRS intervention parameterisation. Compatibility version.
 ##' @param baseList List with experiment data.
 ##' @param mosqs Mosquito species affected by the intervention.
@@ -447,6 +408,8 @@ define_treatSimple_compat <- defineTreatSimple
 ##'   placeholder.
 ##' @param baseList List with experiment data.
 ##' @param mosquitos Name of mosquito species affected by the intervention.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment
 ##' @export
 defineNothing <- function(baseList, mosquitos) {
 
@@ -464,6 +427,7 @@ defineNothing <- function(baseList, mosquitos) {
 define_nothing <- defineNothing
 
 ## DEPRECATED
+##' @rdname defineNothing
 ##' @title Writes an intervention parameterisation xml chunk that does nothing.
 ##'   Compatibility version.
 ##' @description This is useful if something needs to be deployed, as a
@@ -746,6 +710,7 @@ defineITN <- function(baseList, component = "histITN", noeffect = "outdoor", mos
 define_ITN <- defineITN
 
 ## DEPRECATED
+##' @rdname defineITN
 ##' @title Writes the ITN intervention parameterisation xml chunk. Compatibility
 ##'   version.
 ##' @param baseList List with experiment data.
@@ -764,186 +729,10 @@ define_ITN_compat <- function(baseList, component = "histITN",
                               noeffect = "outdoor", mosqs, halflife = 2,
                               resist = TRUE, hist = FALSE, strong = FALSE,
                               versionnum = 38) {
-  baseList <- defineITN(
-    baseList = baseList, component = component,
-    noeffect = noeffect, mosquitos = mosqs,
-    halflife = halflife, resist = resist, historical = hist,
-    strong = strong
-  )
-
-  return(baseList)
-}
-
-
-##' @title Function that writes the larviciding component
-##' @param baseList List with experiment data.
-##' @param mosquitos Names of mosquito species to simulate.
-##' @param component Name of vector population intervention (i.e. LSM).
-##' @param coverage A variable or a numeric value. Can be a placeholder.
-##' @param decayVals Decay (if not specified, constant effectiveness, step
-##'   function as default)
-##' @param startDate Date in YYYY-MM-DD format.
-##' @param endDate Date in YYYY-MM-DD format.
-##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
-##'   composed of the entries 'days' (optional), 'months' (optional) and
-##'   'years'. If a list is used, startDate and endDate are not used and can be
-##'   NULL.
-##' @param dates If NULL, startDate, endDate and interval are used, else a
-##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
-##' @export
-defineLarv <- function(baseList, mosquitos, component = "LSM", coverage = "@futLSMcov@",
-                       decayVals = list(L = 0.25, k = NULL, funct = "step"),
-                       startDate = NULL, endDate = NULL, interval, dates = NULL) {
-
-  ## Set decay values accordingly
-  if (is.null(decayVals)) {
-    decay <- list(L = 0.25, k = NULL, funct = "step")
-  } else {
-    decay <- list(L = decayVals$L, k = decayVals$k, funct = decayVals$funct)
-  }
-
-  ## Add information
-  outlist <- list()
-  outlist <- .xmlAddList(
-    data = outlist, sublist = NULL,
-    entry = NULL,
-    input = list(
-      name = component
-    )
-  )
-
-  ## Loop over mosquitoes and add information to list
-  for (i in seq_len(length(mosquitos))) {
-    outlist <- .xmlAddList(
-      data = outlist, sublist = "description",
-      entry = "anopheles",
-      input = list(
-        mosquito = mosquitos[i],
-        seekingDeathRateIncrease = list(
-          decay = list(
-            L = 0.2466,
-            "function" = "step"
-          )
-        ),
-        probDeathOvipositing = list(
-          decay = list(
-            L = 0.2466,
-            "function" = "step"
-          )
-        ),
-        emergenceReduction = list(
-          initial = coverage,
-          decay = append(
-            list(
-              "function" = decay[["funct"]],
-              L = decay[["L"]]
-            ),
-            if (!is.null(decay[["k"]])) {
-              list(k = decay[["k"]])
-            }
-          )
-        )
-      )
-    )
-  }
-
-  ## Generate a list containing the placeholder sequences from the function
-  ## arguments.
-  ## Get input arguments, remove function name from list and unwanted entries
-  funArgs <- as.list(match.call()[-1])
-  funArgs <- funArgs[!(names(funArgs) %in% c("baseList"))]
-  ## Function arguments are unevaluated and can contain calls and symbols. Thus,
-  ## we need to evaluate them before in the parent environment.
-  for (arg in names(funArgs)) {
-    funArgs[[arg]] <- eval(funArgs[[arg]], envir = parent.frame())
-  }
-  ## Generate list
-  placeholderseq <- .placeholderseqGen(
-    x = funArgs,
-    placeholders = c("coverage")
-  )
-
-  ## Generate date sequence, if NULL
-  if (is.null(dates)) {
-    dates <- xmlTimeGen(
-      startDate = startDate,
-      endDate = endDate,
-      interval = interval
-    )
-  }
-
-  ## Check if the number of dates is equal or bigger than the longest
-  ## placeholder sequence.
-  placeholderseq <- .equalizePlaceholders(dates,
-    placeholderseq = placeholderseq
-  )
-
-  ## Add deployments
-  for (i in seq_len(length(dates))) {
-    temp <- list(
-      deploy = list(
-        coverage = if (!is.null(placeholderseq[["coverage"]])) {
-          placeholderseq[["coverage"]][[i]]
-        } else {
-          coverage
-        },
-        time = dates[[i]]
-      )
-    )
-
-    outlist <- .xmlAddList(
-      data = outlist, sublist = c("timed"),
-      entry = NULL,
-      input = temp
-    )
-  }
-
-  ## Add to base list
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("interventions", "vectorPop"),
-    entry = "intervention", input = outlist
-  )
-
-  return(baseList)
-}
-
-##' @rdname defineLarv
-##' @export
-define_larv <- defineLarv
-
-## DEPRECATED
-##' @title Function that writes the larviciding component xml chunk
-##' @param baseList List with experiment data.
-##' @param mosqs Names of mosquito species to simulate
-##' @param component Name of vector population intervention (i.e. LSM)
-##' @param coverage A variable or a numeric value
-##' @param decayVals Decay (if not specified, constant effectiveness, step
-##'   function as default)
-##' @param y1 Year of the first date (surveys starting from year y1)
-##' @param m1 Month of the first date
-##' @param y2 Year of the end date (surveys continuing until year y2)
-##' @param m2 Month of the end date
-##' @param interval Month, year, week, quarter
-##' @param every Integer value
-##' @param SIMSTART Starting date of the simulations in the format "yyyy-mm-dd",
-##'   default e.g. "1918-01-01"
-##' @export
-define_larv_compat <- function(baseList, mosqs, component = "LSM",
-                               coverage = "@futLSMcov@",
-                               decayVals = list(
-                                 L = 0.25, k = NULL, funct = "step"
-                               ),
-                               y1 = 2018, y2 = 2030, m1 = 4, m2 = 6, every = 2,
-                               interval = "week", SIMSTART = "1918-01-01") {
-  dates <- .deployTime_compat(
-    y1 = y1, y2 = y2, m1 = m1, m2 = m2, d1 = 5, d2 = 5, every = every,
-    interval = interval
-  )
-
-  baseList <- defineLarv(
-    baseList = baseList, mosquitos = mosqs, component = component,
-    coverage = coverage, decayVals = decayVals, dates = dates
-  )
+  baseList <- defineITN(baseList = baseList, component = component,
+                        noeffect = noeffect, mosquitos = mosqs,
+                        halflife = halflife, resist = resist, historical = hist,
+                        strong = strong)
 
   return(baseList)
 }
