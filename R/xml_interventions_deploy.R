@@ -94,7 +94,6 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
                      dates = NULL, minAge = NULL, maxAge = NULL,
                      coverage = NULL, subpop = FALSE) {
 
-
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(cumulative,
