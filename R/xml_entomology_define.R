@@ -4,6 +4,7 @@
 ##'   different mosquito species as obtained from AnophelesModel package
 ##'   function get_OM_ento_snippet
 ##' @param append If TRUE, then append to existing baseList, otherwise overwrite
+##' @export
 defineEntomology <- function(baseList, MosquitoParameters, append = TRUE) {
   ## REVIEW Is this supposed to be an example considered by Roxygen?
   ## Example:
