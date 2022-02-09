@@ -7,6 +7,7 @@
 ##' @param name Name tag list
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
+##' @export
 defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
                           name = NULL, hist = FALSE) {
 
@@ -125,6 +126,7 @@ define_vaccine <- defineVaccine
 ##'     )
 ##'   )
 ##' )
+##' @export
 defineVectorControl <- function(baseList, VectorInterventionParameters,
                                 append = TRUE, name = NULL, hist = FALSE,
                                 resistance = 0.1) {
