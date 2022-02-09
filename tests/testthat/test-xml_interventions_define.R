@@ -393,3 +393,48 @@ test_that("define_larv_compat works", {
 
   expect_equal(actual, expected, tolerance = 0.05)
 })
+
+test_that("defineImportedInfections works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      importedfections = list(
+        name = "importedInfections",
+        timed = list(
+          rate = list(
+            value = 10,
+            time = 0
+          )
+        )
+      )
+    )
+  )
+
+  actual <- defineImportedInfections(testlist)
+
+  expect_equal(actual, expected)
+})
+
+## DEPRECATED
+test_that("define_importedInfections_compat works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      importedfections = list(
+        name = "importedInfections",
+        timed = list(
+          rate = list(
+            value = 10,
+            time = 0
+          )
+        )
+      )
+    )
+  )
+
+  actual <- define_importedInfections_compat(testlist)
+
+  expect_equal(actual, expected)
+})

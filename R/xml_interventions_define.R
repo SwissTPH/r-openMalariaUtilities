@@ -947,3 +947,54 @@ define_larv_compat <- function(baseList, mosqs, component = "LSM",
 
   return(baseList)
 }
+
+
+##' @title Writes importation intervention
+##' @description Models importation of P. falciparum infections directly into
+##'   humans from an external source. This is infections, not inoculations or
+##'   EIR being imported.
+##' @param baseList List with experiment data.
+##' @param name Name of the intervention.
+##' @param value Number of imported infections per 1000.
+##' @param time Rate of importation, if 0, constant importation rate since the
+##'   beginning.
+##' @export
+defineImportedInfections <- function(baseList, name = "importedInfections",
+                                     value = 10, time = 0) {
+
+  ## Add to base list
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions"),
+    entry = "importedfections",
+    input = list(
+      name = name,
+      timed = list(
+        rate = list(
+          value = value,
+          time = time
+        )
+      )
+    )
+  )
+
+  return(baseList)
+}
+
+##' @rdname defineImportedInfections
+##' @export
+define_importedInfections <- defineImportedInfections
+
+## DEPRECATED
+##' @title Writes importation intervention
+##' @param baseList List with experiment data.
+##' @param val Number of imported infections per 1000.
+##' @param time Rate of importation, if 0, constant importation rate since the
+##'   beginning.
+##' @export
+define_importedInfections_compat <- function(baseList, val = 10, time = 0) {
+  baseList <- defineImportedInfections(
+    baseList, name = "importedInfections",
+    value = val, time = time)
+
+  return(baseList)
+}
