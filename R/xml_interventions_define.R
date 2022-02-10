@@ -1,59 +1,65 @@
 ##  TODO Improve documentation
 ##' Adds vaccine intervention parameterisation to baseList
 ##' @param baseList List with experiment data.
-##' @param vaccine_parameterization Parameterization list (see example below)
+##' @param vaccineParameterization Parameterization list
 ##' @param append If TRUE, then append to existing baseList, otherwise
 ##'   overwrites
 ##' @param name Name tag list
+##' @param verbatim If TRUE, then show messages
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 ##' @export
-defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
-                          name = NULL, hist = FALSE) {
-
+defineVaccine <- function(baseList, vaccineParameterization, append = TRUE,
+                          name = NULL, verbatim = FALSE, hist = FALSE) {
+  
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(verbatim,
+                          choices = c(TRUE, FALSE),
+                          add = assertCol
+  )
   checkmate::assertSubset(hist,
-    choices = c(TRUE, FALSE),
-    add = assertCol
+                          choices = c(TRUE, FALSE),
+                          add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-
-  for (k in names(vaccine_parameterization)) {
+  
+  ## Check name argument
+  if (!is.null(name) && names(name)!=names(vaccineParameterization)){
+    stop("Names of vaccineParameterization and name arguments need to be the same.")
+  }
+  
+  ## Create intervention cohort
+  for (k in names(vaccineParameterization)) {
     baseList <- .xmlAddList(
       data = baseList,
       sublist = c("interventions", "human"),
       append = append,
       entry = "component",
       input = list(
-        id = paste0(k, "_intervention_cohort"),
+        id = paste0(k, "-intervention_cohort"),
         recruitmentOnly = list(),
         subPopRemoval = list(afterYears = "5")
       )
     )
-
-    componentData <- vaccine_parameterization[[k]]
-
+    if(verbatim){message(paste0("Writing intervention cohort component ",paste0(k, "_intervention_cohort")," to baseXML file..."))}
+    
+    ## Add vaccine mode of action (PEV,BSV,TBV are mutually exclusive?) and define component id
+    mode_of_action_list<-list(id=k,name= if (is.null(name)) "your_tag" else name[[k]])
+    for (mode_of_action in names(vaccineParameterization[[k]])){
+      mode_of_action_list <- append(mode_of_action_list,vaccineParameterization[[k]][mode_of_action])
+      if(verbatim){message(paste0("Writing vaccine component ",k," with mode of action ",mode_of_action," to baseXML file..."))}
+    }
+    
     baseList <- .xmlAddList(
       data = baseList,
       sublist = c("interventions", "human"),
       append = append,
       entry = "component",
-      input = list(
-        id = k,
-        name = k,
-        stats::setNames(
-          list(list(
-            decay = componentData[["decay"]],
-            efficacyB = componentData[["efficacyB"]],
-            initialEfficacy = componentData[["initialEfficacy"]]
-          )),
-          componentData[["mode_of_action"]]
-        )
-      )
+      input = mode_of_action_list
     )
   }
-
+  
   return(baseList)
 }
 
@@ -70,6 +76,7 @@ define_vaccine <- defineVaccine
 ##' @param append If TRUE, then append to existing baseList, otherwise
 ##'   overwrites
 ##' @param name Name tag list
+##' @param verbatim If TRUE, then show messages
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 ##' @param resistance Scaling function of insecticide resistance TODO
@@ -128,8 +135,8 @@ define_vaccine <- defineVaccine
 ##' )
 ##' @export
 defineVectorControl <- function(baseList, VectorInterventionParameters,
-                                append = TRUE, name = NULL, hist = FALSE,
-                                resistance = 0.1) {
+                                append = TRUE, name = NULL, verbatim = TRUE,
+                                hist = FALSE,resistance = 0.1) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -158,14 +165,14 @@ defineVectorControl <- function(baseList, VectorInterventionParameters,
   }
 
 
-  ## loop over interventions, effects and vector speicies
+  ## loop over interventions, effects and vector species
   for (k in names(VectorInterventionParameters)) {
     componentData <- VectorInterventionParameters[[k]]
 
     for (effect in names(componentData)) {
       component_id <- paste0(k, ifelse(hist, "hist", ""), "-", effect)
-      print(paste0("Defining intervention with component_id: ", component_id))
-
+      if(verbatim){message(paste0("Defining intervention with component_id: ", component_id))}
+      
       GVIList <- list(decay = if (hist) list("L" = 1, "function" = "step") else componentData[[effect]][["decay"]])
       for (vector_species in names(componentData[[effect]]$anophelesParams)) {
         print(paste0("Writing effect values for vector species: ", vector_species))

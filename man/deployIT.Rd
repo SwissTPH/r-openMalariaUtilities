@@ -3,7 +3,7 @@
 \name{deployIT}
 \alias{deployIT}
 \alias{deploy_IT}
-\title{Writes the deployment of an intervention}
+\title{Writes the deployment of an intervention.}
 \usage{
 deployIT(
   baseList,
@@ -17,7 +17,7 @@ deployIT(
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
-  subpop = FALSE
+  subpop = NULL
 )
 
 deploy_IT(
@@ -32,7 +32,7 @@ deploy_IT(
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
-  subpop = FALSE
+  subpop = NULL
 )
 }
 \arguments{
@@ -40,10 +40,9 @@ deploy_IT(
 
 \item{component}{Name of intervention.}
 
-\item{cumulative}{default is FALSE. Do not set to TRUE.}
+\item{cumulative}{Default is FALSE. Do not set to TRUE.}
 
-\item{effects}{Either NULL or
-c("deterrency","preprandialKillingEffect","postprandialKillingEffect")}
+\item{effects}{Either NULL or vector of strings.}
 
 \item{startDate}{Date in YYYY-MM-DD format.}
 
@@ -54,20 +53,16 @@ composed of the entries 'days' (optional), 'months' (optional) and
 'years'. If a list is used, startDate and endDate are not used and can be
 NULL.}
 
-\item{dates}{If NULL, startDate, endDate and interval are used, else a
-vector of dates in YYYY-MM-DD format. Can be a placeholder.}
+\item{minAge}{Minimum age for deployment}
 
-\item{minAge}{Minimum age for deployment (used in SMC). Can be a
-placeholder.}
+\item{maxAge}{Maximum age for deployment}
 
-\item{maxAge}{Maximum age for deployment (used in SMC). Can be a
-placeholder.}
+\item{coverage}{Value or variable of coverage}
 
-\item{coverage}{Value or variable of coverage. Can be a placeholder.}
-
-\item{subpop}{If TRUE, then restricts to a subpopulation (see
+\item{subpop}{Either NULL or string, concatenation component+"-"+subpop will
+be id in subpopulation intervention should be restricted to (see
 restrictToSubPop in OpenMalaria)}
 }
 \description{
-Writes the deployment of an intervention
+TODO cumulative=T && is.null(subpop)
 }

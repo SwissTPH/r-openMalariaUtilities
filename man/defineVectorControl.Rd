@@ -10,6 +10,7 @@ defineVectorControl(
   VectorInterventionParameters,
   append = TRUE,
   name = NULL,
+  verbatim = TRUE,
   hist = FALSE,
   resistance = 0.1
 )
@@ -19,6 +20,7 @@ define_vector_control(
   VectorInterventionParameters,
   append = TRUE,
   name = NULL,
+  verbatim = TRUE,
   hist = FALSE,
   resistance = 0.1
 )
@@ -34,6 +36,8 @@ preprandrial, postprandial) and decay functions:}
 overwrites}
 
 \item{name}{Name tag list}
+
+\item{verbatim}{If TRUE, then show messages}
 
 \item{hist}{If TRUE, then decay is assumed to be step function set to 1 for
 a year and then to zero for the remainder}

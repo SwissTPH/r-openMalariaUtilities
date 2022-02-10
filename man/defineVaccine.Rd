@@ -7,29 +7,33 @@
 \usage{
 defineVaccine(
   baseList,
-  vaccine_parameterization,
+  vaccineParameterization,
   append = TRUE,
   name = NULL,
+  verbatim = FALSE,
   hist = FALSE
 )
 
 define_vaccine(
   baseList,
-  vaccine_parameterization,
+  vaccineParameterization,
   append = TRUE,
   name = NULL,
+  verbatim = FALSE,
   hist = FALSE
 )
 }
 \arguments{
 \item{baseList}{List with experiment data.}
 
-\item{vaccine_parameterization}{Parameterization list (see example below)}
+\item{vaccineParameterization}{Parameterization list}
 
 \item{append}{If TRUE, then append to existing baseList, otherwise
 overwrites}
 
 \item{name}{Name tag list}
+
+\item{verbatim}{If TRUE, then show messages}
 
 \item{hist}{If TRUE, then decay is assumed to be step function set to 1 for
 a year and then to zero for the remainder}
