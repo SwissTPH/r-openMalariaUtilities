@@ -77,7 +77,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
     ## If current rest is not another list and does not have a name, insert
     ## it. Results in something like '<a>foo</a>'
     if (!is.list(rest[[i]])) {
-      if (is.null(names(rest)[[i]]) | names(rest)[[i]] == "") {
+      if (is.null(names(rest)[[i]]) || names(rest)[[i]] == "") {
         ## Check if it is a placeholder and if yes, store it in the cache
         .placeholderCollect(rest[[i]])
         xml2::xml_set_text(chunk, as.character(rest[[i]]))
