@@ -165,7 +165,9 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
   if (!is.null(effects) && is.null(subpop)) {
     for (eff in effects) {
       outlist <- append(
-        outlist, list(component = list(id = paste0(component, "-", eff)))
+        outlist, list(component = list(id = if (!grepl("^@.*@",component)){
+          paste0(component, "-", eff)} else {
+            paste0(gsub(".{1}$","",component),"-",eff,"@")}))
       )
     }
   }
@@ -185,14 +187,18 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     if (cumulative == TRUE) {
       temp <- append(temp, list(
         cumulativeCoverage = list(
-          component = paste0(component, "-", subpop)
+          component = if (!grepl("^@.*@",component)){
+            paste0(component, "-", subpop)} else {
+              paste0(gsub(".{1}$","",component),"-",subpop,"@")}
         )
       ))
     }
     if (!is.null(subpop)) {
       temp <- append(temp, list(
         restrictToSubPop = list(
-          id = paste0(component, "-", subpop)
+          id = if (!grepl("^@.*@",component)){
+            paste0(component, "-", subpop)} else {
+              paste0(gsub(".{1}$","",component),"-",subpop,"@")}
         )
       ))
     }
