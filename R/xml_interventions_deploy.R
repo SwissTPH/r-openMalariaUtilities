@@ -151,7 +151,9 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     data = outlist, sublist = NULL,
     entry = NULL,
     input = list(
-      name = component
+      name = if (grepl("^@.*@",component)){
+        gsub("@","",component)} else {
+          component}
     )
   )
   
