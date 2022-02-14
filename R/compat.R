@@ -109,24 +109,23 @@ import_countrydat <- function(filename = "MOZ_CountryDat.csv",
 ##' # Going from OpenMalaria timesteps to access to care is also possible
 ##' convert_cm(orig = .249, reverse = TRUE, country = "GHA")
 ##' }
-convert_cm <- function(orig, katya = FALSE, country = NULL, scale = NULL, reverse = F) {
-  if (max(orig) > 1) {
-    stop("Input for access to care is larger than 1. Make sure all numbers are between 0 and 1.")
-  }
-  if (max(orig) < 0) {
-    stop("Input for access to care is less than 0. Make sure all numbers are between 0 and 1.")
-  }
+convert_cm <- function(orig, katya = FALSE, country = NULL, scale = NULL, reverse = FALSE) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertNumeric(orig, lower = 0, upper = 1, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   x <- c(
-    0, 5, 10, 12, 15, 18, 20, 22, 24, 25, 28, 30, 32, 35, 36, 38, 40, 42,
-    45, 48, 49, 50, 53, 55, 59, 60, 62, 65, 68, 70, 73, 75, 78, 80,
-    82, 85, 88, 90, 95, 99, 100
+    0, 5, 10, 12, 15, 18, 20, 22, 24, 25, 28, 30, 32, 35, 36, 38, 40, 42, 45,
+    48, 49, 50, 53, 55, 59, 60, 62, 65, 68, 70, 73, 75, 78, 80, 82, 85, 88, 90,
+    95, 99, 100
   ) / 100
   y <- c(
-    0, 0.0182, 0.0356, 0.0418, 0.0516, 0.0635, 0.0725, 0.0821, 0.0921,
-    0.0972, 0.1125, 0.1227, 0.1329, 0.1488, 0.1544, 0.1661, 0.1782, 0.1905,
-    0.2093, 0.2284, 0.2348, 0.2412, 0.2598, 0.2715, 0.2957, 0.3030,
-    0.3210, 0.3567, 0.3949, 0.4165, 0.4449, 0.4646, 0.5010, 0.5319,
-    0.5644, 0.6057, 0.6466, 0.6813, 0.7934, 0.9580, 1
+    0, 0.0182, 0.0356, 0.0418, 0.0516, 0.0635, 0.0725, 0.0821, 0.0921, 0.0972,
+    0.1125, 0.1227, 0.1329, 0.1488, 0.1544, 0.1661, 0.1782, 0.1905, 0.2093,
+    0.2284, 0.2348, 0.2412, 0.2598, 0.2715, 0.2957, 0.3030, 0.3210, 0.3567,
+    0.3949, 0.4165, 0.4449, 0.4646, 0.5010, 0.5319, 0.5644, 0.6057, 0.6466,
+    0.6813, 0.7934, 0.9580, 1
   )
 
   country_CM_scale <- as.data.frame(
@@ -338,7 +337,7 @@ convert_access <- function(dat, pattern = "Access", katya = T,
   ## Appease NSE notes in R CMD check
   UniqueScenario <- UniqueScenarioSpread <- nr <- HistScenSpread <- NULL
   FutScenSpread <- NULL
-  
+
   ## Backwards compatibility (August 2020)
   colnames(CombinedDat_wide)[colnames(CombinedDat_wide) == "Settings"] <- "setting"
 

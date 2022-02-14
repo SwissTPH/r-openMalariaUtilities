@@ -4,7 +4,7 @@
 \alias{convert_cm}
 \title{Convert access to effective treatment coverage}
 \usage{
-convert_cm(orig, katya = FALSE, country = NULL, scale = NULL, reverse = F)
+convert_cm(orig, katya = FALSE, country = NULL, scale = NULL, reverse = FALSE)
 }
 \arguments{
 \item{orig}{Original values of access to care}
