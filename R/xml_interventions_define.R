@@ -1,56 +1,83 @@
 ##  TODO Improve documentation
 ##' Adds vaccine intervention parameterisation to baseList
 ##' @param baseList List with experiment data.
-##' @param vaccine_parameterization Parameterization list (see example below)
+##' @param vaccineParameterization Parameterization list
 ##' @param append If TRUE, then append to existing baseList, otherwise
 ##'   overwrites
 ##' @param name Name tag list
+##' @param verbatim If TRUE, then show messages
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 ##' @export
-defineVaccine <- function(baseList, vaccine_parameterization, append = TRUE,
-                          name = NULL, hist = FALSE) {
+defineVaccine <- function(baseList, vaccineParameterization, append = TRUE,
+                          name = NULL, verbatim = FALSE, hist = FALSE) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(verbatim,
+    choices = c(TRUE, FALSE),
+    add = assertCol
+  )
   checkmate::assertSubset(hist,
     choices = c(TRUE, FALSE),
     add = assertCol
   )
   checkmate::reportAssertions(assertCol)
 
-  for (k in names(vaccine_parameterization)) {
+  ## Check name argument
+  if (!is.null(name) && names(name) != names(vaccineParameterization)) {
+    stop(
+      "Names of vaccineParameterization and name arguments need to be the same."
+    )
+  }
+
+  ## Create intervention cohort
+  for (k in names(vaccineParameterization)) {
     baseList <- .xmlAddList(
       data = baseList,
       sublist = c("interventions", "human"),
       append = append,
       entry = "component",
       input = list(
-        id = paste0(k, "_intervention_cohort"),
+        id = paste0(k, "-intervention_cohort"),
         recruitmentOnly = list(),
         subPopRemoval = list(afterYears = "5")
       )
     )
+    if (verbatim) {
+      message(
+        paste0(
+          "Writing intervention cohort component ",
+          paste0(k, "_intervention_cohort"), " to baseXML file..."
+        )
+      )
+    }
 
-    componentData <- vaccine_parameterization[[k]]
+    ## Add vaccine mode of action (PEV,BSV,TBV are mutually exclusive?) and
+    ## define component id
+    mode_of_action_list <- list(
+      id = k, name = if (is.null(name)) "your_tag" else name[[k]]
+    )
+    for (mode_of_action in names(vaccineParameterization[[k]])) {
+      mode_of_action_list <- append(
+        mode_of_action_list, vaccineParameterization[[k]][mode_of_action]
+      )
+      if (verbatim) {
+        message(
+          paste0(
+            "Writing vaccine component ", k, " with mode of action ",
+            mode_of_action, " to baseXML file..."
+          )
+        )
+      }
+    }
 
     baseList <- .xmlAddList(
       data = baseList,
       sublist = c("interventions", "human"),
       append = append,
       entry = "component",
-      input = list(
-        id = k,
-        name = k,
-        stats::setNames(
-          list(list(
-            decay = componentData[["decay"]],
-            efficacyB = componentData[["efficacyB"]],
-            initialEfficacy = componentData[["initialEfficacy"]]
-          )),
-          componentData[["mode_of_action"]]
-        )
-      )
+      input = mode_of_action_list
     )
   }
 
@@ -64,17 +91,18 @@ define_vaccine <- defineVaccine
 
 ##' Adds vector control intervention parameterisation to baseList
 ##' @param baseList List with experiment data.
-##' @param VectorInterventionParameters Vector control intervention
+##' @param vectorInterventionParameters Vector control intervention
 ##'   parameterization list depending on three parameters (deterrency,
 ##'   preprandrial, postprandial) and decay functions:
 ##' @param append If TRUE, then append to existing baseList, otherwise
 ##'   overwrites
 ##' @param name Name tag list
+##' @param verbatim If TRUE, then show messages
 ##' @param hist If TRUE, then decay is assumed to be step function set to 1 for
 ##'   a year and then to zero for the remainder
 ##' @param resistance Scaling function of insecticide resistance TODO
 ##' @examples
-##' VectorInterventionParameters <- list(
+##' vectorInterventionParameters <- list(
 ##'   "LLIN" = list(
 ##'     deterrency = list(
 ##'       decay = list(
@@ -127,9 +155,9 @@ define_vaccine <- defineVaccine
 ##'   )
 ##' )
 ##' @export
-defineVectorControl <- function(baseList, VectorInterventionParameters,
-                                append = TRUE, name = NULL, hist = FALSE,
-                                resistance = 0.1) {
+defineVectorControl <- function(baseList, vectorInterventionParameters,
+                                append = TRUE, name = NULL, verbatim = TRUE,
+                                hist = FALSE, resistance = 0.1) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -148,30 +176,49 @@ defineVectorControl <- function(baseList, VectorInterventionParameters,
     stop("To append, the baseList needs a child called '$interventions$human'")
   }
 
-  ## Check whether vector species in entomology section of baseXML and those in vector control interventions are the same
-  for (intervention in names(VectorInterventionParameters)) {
-    for (effect in names(VectorInterventionParameters[[intervention]])) {
-      if (!setequal(names(VectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]), unique(unlist(lapply(baseList$entomology$vector, function(x) x$mosquito))))) {
+  ## Check whether vector species in entomology section of baseList and those in
+  ## vector control interventions are the same
+  ## REVIEW These conditionals look overly complex
+  for (intervention in names(vectorInterventionParameters)) {
+    for (effect in names(vectorInterventionParameters[[intervention]])) {
+      if (!setequal(
+        names(vectorInterventionParameters[[intervention]][[effect]][["anophelesParams"]]),
+        unique(unlist(lapply(baseList$entomology$vector, function(x) x$mosquito)))
+      )) {
         stop("To append, each vector species definied in the entomology section must be the same as in the intervention component.")
       }
     }
   }
 
 
-  ## loop over interventions, effects and vector speicies
-  for (k in names(VectorInterventionParameters)) {
-    componentData <- VectorInterventionParameters[[k]]
+  ## Loop over interventions, effects and vector species
+  for (k in names(vectorInterventionParameters)) {
+    componentData <- vectorInterventionParameters[[k]]
 
     for (effect in names(componentData)) {
       component_id <- paste0(k, ifelse(hist, "hist", ""), "-", effect)
-      print(paste0("Defining intervention with component_id: ", component_id))
+      if (verbatim) {
+        message(
+          paste0("Defining intervention with component_id: ", component_id)
+        )
+      }
 
-      GVIList <- list(decay = if (hist) list("L" = 1, "function" = "step") else componentData[[effect]][["decay"]])
+      GVIList <- list(decay = if (hist) {
+        list("L" = 1, "function" = "step")
+      } else {
+        componentData[[effect]][["decay"]]
+      })
+
       for (vector_species in names(componentData[[effect]]$anophelesParams)) {
-        print(paste0("Writing effect values for vector species: ", vector_species))
-        values <- c(deterrency = 0, preprandialKillingEffect = 0, postprandialKillingEffect = 0)
+        print(
+          paste0("Writing effect values for vector species: ", vector_species)
+        )
+        values <- c(
+          deterrency = 0,
+          preprandialKillingEffect = 0,
+          postprandialKillingEffect = 0
+        )
         values[effect] <- componentData[[effect]][["anophelesParams"]][[vector_species]][["value"]]
-
 
         GVIList <- append(
           GVIList,
@@ -185,7 +232,7 @@ defineVectorControl <- function(baseList, VectorInterventionParameters,
         )
       }
 
-      ## write to xml
+      ## Add to list
       baseList <- .xmlAddList(
         data = baseList, sublist = c("interventions", "human"), append = append,
         entry = "component",
@@ -559,9 +606,9 @@ define_nothing_compat <- function(baseList, mosqs, component = "nothing") {
 ##' @param noeffect Which mosquitoes unaffected by intervention?
 ##' @param strong If !strong and !resist, then "Pitoa" parameter for LLIN
 ##' @export
-defineITN <- function(baseList, component = "histITN", noeffect = "outdoor", mosquitos,
-                      halflife = 2, resist = TRUE, historical = FALSE,
-                      strong = FALSE) {
+defineITN <- function(baseList, component = "histITN", noeffect = "outdoor",
+                      mosquitos, halflife = 2, resist = TRUE,
+                      historical = FALSE, strong = FALSE) {
   ## Parameters for
   ## https://swisstph.github.io/openmalaria/schema-43.html#elt-ITN, in that
   ## order
@@ -793,9 +840,11 @@ define_ITN_compat <- function(baseList, component = "histITN",
 ##' @param dates If NULL, startDate, endDate and interval are used, else a
 ##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
 ##' @export
-defineLarv <- function(baseList, mosquitos, component = "LSM", coverage = "@futLSMcov@",
+defineLarv <- function(baseList, mosquitos, component = "LSM",
+                       coverage = "@futLSMcov@",
                        decayVals = list(L = 0.25, k = NULL, funct = "step"),
-                       startDate = NULL, endDate = NULL, interval, dates = NULL) {
+                       startDate = NULL, endDate = NULL, interval,
+                       dates = NULL) {
 
   ## Set decay values accordingly
   if (is.null(decayVals)) {
@@ -995,8 +1044,10 @@ define_importedInfections <- defineImportedInfections
 ##' @export
 define_importedInfections_compat <- function(baseList, val = 10, time = 0) {
   baseList <- defineImportedInfections(
-    baseList, name = "importedInfections",
-    value = val, time = time)
+    baseList,
+    name = "importedInfections",
+    value = val, time = time
+  )
 
   return(baseList)
 }

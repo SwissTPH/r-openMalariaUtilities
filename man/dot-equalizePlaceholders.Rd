@@ -7,7 +7,7 @@
 .equalizePlaceholders(x, placeholderseq)
 }
 \arguments{
-\item{x}{Sequence which should be the maximum lenght.}
+\item{x}{Sequence which should be the maximum length.}
 
 \item{placeholderseq}{List with placeholder sequences.}
 }
