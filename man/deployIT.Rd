@@ -42,7 +42,7 @@ deploy_IT(
 
 \item{cumulative}{Default is FALSE. Do not set to TRUE.}
 
-\item{effects}{Either NULL or vector of strings.}
+\item{effects}{Either NULL or vector of strings, e.g. c("det","pre","post")}
 
 \item{startDate}{Date in YYYY-MM-DD format.}
 
@@ -53,16 +53,21 @@ composed of the entries 'days' (optional), 'months' (optional) and
 'years'. If a list is used, startDate and endDate are not used and can be
 NULL.}
 
-\item{minAge}{Minimum age for deployment}
+\item{dates}{If NULL, startDate, endDate and interval are used, else a
+vector of dates in YYYY-MM-DD format. Can be a placeholder.}
 
-\item{maxAge}{Maximum age for deployment}
+\item{minAge}{Minimum age for deployment (used in SMC). Can be a
+placeholder.}
 
-\item{coverage}{Value or variable of coverage}
+\item{maxAge}{Maximum age for deployment (used in SMC). Can be a
+placeholder.}
 
-\item{subpop}{Either NULL or string, concatenation component+"-"+subpop will
+\item{coverage}{Value or variable of coverage. Can be a placeholder.}
+
+\item{subpop}{Either NULL or string. Concatenation component+"-"+subpop will
 be id in subpopulation intervention should be restricted to (see
 restrictToSubPop in OpenMalaria)}
 }
 \description{
-TODO cumulative=T && is.null(subpop)
+TODO cumulative=TRUE && is.null(subpop)
 }

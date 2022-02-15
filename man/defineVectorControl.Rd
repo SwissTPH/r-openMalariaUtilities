@@ -7,7 +7,7 @@
 \usage{
 defineVectorControl(
   baseList,
-  VectorInterventionParameters,
+  vectorInterventionParameters,
   append = TRUE,
   name = NULL,
   verbatim = TRUE,
@@ -17,7 +17,7 @@ defineVectorControl(
 
 define_vector_control(
   baseList,
-  VectorInterventionParameters,
+  vectorInterventionParameters,
   append = TRUE,
   name = NULL,
   verbatim = TRUE,
@@ -28,7 +28,7 @@ define_vector_control(
 \arguments{
 \item{baseList}{List with experiment data.}
 
-\item{VectorInterventionParameters}{Vector control intervention
+\item{vectorInterventionParameters}{Vector control intervention
 parameterization list depending on three parameters (deterrency,
 preprandrial, postprandial) and decay functions:}
 
@@ -48,7 +48,7 @@ a year and then to zero for the remainder}
 Adds vector control intervention parameterisation to baseList
 }
 \examples{
-VectorInterventionParameters <- list(
+vectorInterventionParameters <- list(
   "LLIN" = list(
     deterrency = list(
       decay = list(
