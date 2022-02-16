@@ -161,9 +161,8 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
   ## containing strings, we need to generate one entry for each string.
   ## component id is concatenation component+'-'+effects[1] etc.
   ## Furthermore, if subpop is not NULL, deployment to subpopulation with 
-  ## restrictToSubPop id
-  ## concatenation component+'-'+subpop' is defined
-  
+  ## restrictToSubPop id concatenation component+'-'+subpop' is defined
+  ## First: is effects NULL?
   if (!is.null(effects) && is.null(subpop)) {
     for (eff in effects) {
       outlist <- append(
@@ -226,8 +225,16 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     
     ## Add minAge and maxAge information if given
     if (!is.null(minAge) && !is.null(maxAge)) {
-      temp[["deploy"]][["minAge"]] <- minAge
-      temp[["deploy"]][["maxAge"]] <- maxAge
+      temp[["deploy"]][["minAge"]] <- if (!is.null(placeholderseq[["minAge"]])) {
+        placeholderseq[["minAge"]][[i]]
+      } else {
+        minAge
+      }
+      temp[["deploy"]][["maxAge"]] <- if (!is.null(placeholderseq[["maxAge"]])) {
+        placeholderseq[["maxAge"]][[i]]
+      } else {
+        maxAge
+      }
     }
     
     outlist <- .xmlAddList(
@@ -275,64 +282,75 @@ deploy_IT <- deployIT
 ##' @param deployvar Allows for deployment dates to vary (across years y1, ...,
 ##'   y2)
 ##' @export
-deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
-                             effects = NULL, y1 = 2000, y2 = NULL, m1 = 1,
-                             m2 = NULL, d1 = 1, d2 = NULL, every = 1,
-                             interval = "month", SIMSTART = "1918-01-01",
-                             minAge = NULL, maxAge = NULL, coverage = NULL,
-                             byyear = FALSE, deployvar = NULL, subpop = FALSE) {
-
-  ## Translate time information
-  if (is.null(deployvar)) {
-    dates <- .deployTime_compat(
-      y1 = y1, y2 = y2, m1 = m1, m2 = m2, d1 = d1, d2 = d2, every = every,
-      interval = interval
-    )
-    years <- substr(dates, start = 1, stop = 4)
-  }
-
-  ## If deployvar is used, we need to generate date placeholders
-  if (!is.null(deployvar) & !is.null(y1) & !is.null(y2)) {
-    ## deployvar should be names of deployment variables i.e. "@IRSdeploy2000@",
-    ## "@IRSdeploy2001@", "@IRSdeploy2002@", ...
-    if (is.null(every)) {
-      stop("Specify 'every' (1, for every year)")
-    }
-
-    stripped <- gsub(deployvar, pattern = "@", replacement = "")
-
-    ## Could be every year, every 3 years, it all depends on 'every'
-    years <- seq(y1, y2, by = every)
-    deployvar <- paste0("@", stripped, years, "@")
-    dates <- deployvar
-  }
-
-  if (is.null(coverage)) {
-    if (!byyear) {
-      coverage <- paste0("fut", component, "cov")
-    }
-    if (byyear) {
-      coverage <- list(paste0("fut", component, "cov"), years)
-    }
-  }
-
-  if (!is.null(coverage)) {
-    if (!byyear) {
-      coverage <- coverage
-    }
-    if (byyear) {
-      coverage <- list(
-        gsub(x = coverage, pattern = "@", replacement = ""),
-        years
-      )
-    }
-  }
-
-  baseList <- deployIT(
-    baseList = baseList, component = component, cumulative = cumulative,
-    effects = effects, dates = dates, minAge = minAge, maxAge = maxAge,
-    coverage = coverage, subpop = subpop
-  )
-
-  return(baseList)
-}
+# deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
+#                              effects = NULL, y1 = 2000, y2 = NULL, m1 = 1,
+#                              m2 = NULL, d1 = 1, d2 = NULL, every = 1,
+#                              interval = "month", SIMSTART = "1918-01-01",
+#                              minAge = NULL, maxAge = NULL, coverage = NULL,
+#                              byyear = FALSE, deployvar = NULL, subpop = FALSE) {
+#   
+#   ## Translate time information
+#   if (is.null(deployvar)) {
+#     dates <- .deployTime_compat(
+#       y1 = y1, y2 = y2, m1 = m1, m2 = m2, d1 = d1, d2 = d2, every = every,
+#       interval = interval
+#     )
+#     years <- substr(dates, start = 1, stop = 4)
+#   }
+#   
+#   ## Translate subpop values
+#   if (subpop == FALSE) {
+#     subpop <- NULL
+#   } else {
+#     if (!is.null(effects)) {
+#       subpop <- effects[1]
+#     } else {
+#       subpop <- component
+#     }
+#   }
+#   
+#   ## If deployvar is used, we need to generate date placeholders
+#   if (!is.null(deployvar) & !is.null(y1) & !is.null(y2)) {
+#     ## deployvar should be names of deployment variables i.e. "@IRSdeploy2000@",
+#     ## "@IRSdeploy2001@", "@IRSdeploy2002@", ...
+#     if (is.null(every)) {
+#       stop("Specify 'every' (1, for every year)")
+#     }
+#     
+#     stripped <- gsub(deployvar, pattern = "@", replacement = "")
+#     
+#     ## Could be every year, every 3 years, it all depends on 'every'
+#     years <- seq(y1, y2, by = every)
+#     deployvar <- paste0("@", stripped, years, "@")
+#     dates <- deployvar
+#   }
+#   
+#   if (is.null(coverage)) {
+#     if (!byyear) {
+#       coverage <- paste0("fut", component, "cov")
+#     }
+#     if (byyear) {
+#       coverage <- list(paste0("fut", component, "cov"), years)
+#     }
+#   }
+#   
+#   if (!is.null(coverage)) {
+#     if (!byyear) {
+#       coverage <- coverage
+#     }
+#     if (byyear) {
+#       coverage <- list(
+#         gsub(x = coverage, pattern = "@", replacement = ""),
+#         years
+#       )
+#     }
+#   }
+#   
+#   baseList <- deployIT(
+#     baseList = baseList, component = component, cumulative = cumulative,
+#     effects = effects, dates = dates, minAge = minAge, maxAge = maxAge,
+#     coverage = coverage, subpop = subpop
+#   )
+#   
+#   return(baseList)
+# }
