@@ -50,7 +50,7 @@ defineEntomology <- function(baseList, seasonalityParameters, mosquitoParameters
         !(is.numeric(seasData$seasonality)&&length(seasData$seasonality)==12)&&
         !(grepl("^@.*@",seasData$seasonality)&&length(seasData$seasonality)==12)&&
         !(is.numeric(seasData$seasonality)&&length(seasData$seasonality)==365)&&
-        !!(grepl("^@.*@",seasData$seasonality)&&length(seasData$seasonality)==365)){
+        !(grepl("^@.*@",seasData$seasonality)&&length(seasData$seasonality)==365)){
       stop("Seasonality needs to be either 'fourierSeries', a numeric vector or 
            a vector of placeholders '@foo@' of length 12 or 365")
     }
