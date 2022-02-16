@@ -13,9 +13,8 @@ ageGroupsGen <- function(lowerbound, ageGroups) {
   ## Assign lowerbound
   outlist <- list(lowerbound = lowerbound)
   ## Apply expected data types
-  ageGroups[c("poppercent", "upperbound")] <- vapply(
-    ageGroups[c("poppercent", "upperbound")], as.double,
-    FUN.VALUE = double(1), USE.NAMES = FALSE
+  ageGroups[c("poppercent", "upperbound")] <- lapply(
+    ageGroups[c("poppercent", "upperbound")], as.double
   )
   outlist <- .xmlAddChunks(
     outlist = outlist, element = "group", attributeList = ageGroups
@@ -23,84 +22,76 @@ ageGroupsGen <- function(lowerbound, ageGroups) {
   return(outlist)
 }
 
+## See https://swisstph.github.io/openmalaria/schema-43.html#elt-demography
 
 ##' @title Define and write demography input to baseList
 ##' @param baseList List with experiment data.
-##' @param demographyData List with demography data in specific format
-##' @param popSize Number of agents in openMalaria
-##' @param upperbound Upper bound of age group
-##' @param poppercent Percentage of human population in age group
-##' @param lowerbound Lower bound of age group
-##' @param name Name of demography data
-##' @param maximumAgeYrs Maximum age of simulated humans in years
+##' @param name Name of demography data.
+##' @param popSize Population size.
+##' @param maximumAgeYrs Maximum age of simulated humans in years.
+##' @param growthRate Growth rate of human population.
+##' @param lowerbound Lower bound of age group.
+##' @param upperbound Upper bound of age group. Must be a numerical vector.
+##' @param poppercent Percentage of human population in age group. Must be a
+##'   numerical vector.
 ##' @export
-defineDemography <- function(baseList, demographyData = NULL, popSize = 3000,
-                             upperbound = NULL, poppercent = NULL,
-                             lowerbound = NULL, name = NULL,
-                             maximumAgeYrs = NULL) {
+defineDemography <- function(baseList, name, popSize = 3000,
+                             maximumAgeYrs, growthRate = NULL, lowerbound,
+                             poppercent, upperbound) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertList(demographyData, null.ok = TRUE, add = assertCol)
-  checkmate::assertVector(upperbound, null.ok = TRUE, add = assertCol)
-  checkmate::assertVector(poppercent, null.ok = TRUE, add = assertCol)
-  checkmate::assertNumeric(lowerbound, null.ok = TRUE, add = assertCol)
-  checkmate::assertNumeric(maximumAgeYrs, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(name, add = assertCol)
+  checkmate::assert(
+    checkmate::checkInteger(popSize, lower = 1L, upper = 100000L),
+    checkmate::checkCharacter(popSize, pattern = "@(.*?)@"),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkDouble(maximumAgeYrs, lower = 0, upper = 100),
+    checkmate::checkCharacter(maximumAgeYrs, pattern = "@(.*?)@"),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkDouble(growthRate, null.ok = TRUE),
+    checkmate::checkCharacter(growthRate, pattern = "@(.*?)@"),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkDouble(lowerbound, lower = 0, upper = 100),
+    checkmate::checkCharacter(lowerbound, pattern = "@(.*?)@"),
+    add = assertCol
+  )
+  checkmate::assertDouble(upperbound, lower = 0, upper = 100, add = assertCol)
+  checkmate::assertDouble(poppercent, lower = 0, upper = 100, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
 
-  ## Build demographyData from function arguments
-  if (is.null(demographyData)) {
-    demographyData <- list(
-      ageGroups = data.frame(upperbound = upperbound, poppercent = poppercent),
-      lowerbound = lowerbound,
-      name = name,
-      maximumAgeYrs = maximumAgeYrs
+  ## Assign values to output list
+  baseList <- .xmlAddList(
+    data = baseList, sublist = NULL, append = FALSE, entry = "demography",
+    input = c(
+      list(
+        name = name,
+        popSize = popSize,
+        maximumAgeYrs = maximumAgeYrs
+      ),
+      if (!is.null(growthRate)) {
+        list(growthRate = growthRate)
+      },
+      list(
+        ageGroup = ageGroupsGen(
+          lowerbound = lowerbound,
+          ageGroups = data.frame(
+            poppercent = poppercent,
+            upperbound = upperbound
+          )
+        )
+      )
     )
-    print(paste0(
-      "Created demographyData from your input: ",
-      paste0(demographyData, collapse = "; ")
-    ))
-  }
-
-
-  ## Assign name, maximumAgeYrs, lowerbound, popSize
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("demography"), append = FALSE,
-    entry = "name",
-    input = demographyData$name
-  )
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("demography"), append = FALSE,
-    entry = "maximumAgeYrs",
-    input = demographyData$maximumAgeYrs
-  )
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("demography"), append = FALSE,
-    entry = "popSize",
-    input = popSize
-  )
-
-  ageGroupList <- list()
-  for (idx in 1:nrow(demographyData$ageGroups)) {
-    ageGroupList <- append(
-      ageGroupList,
-      list(group = list(
-        poppercent = demographyData$ageGroups[idx, "poppercent"],
-        upperbound = demographyData$ageGroups[idx, "upperbound"]
-      ))
-    )
-  }
-
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("demography"), append = FALSE,
-    entry = "ageGroup",
-    input = ageGroupList
-  )
-
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("demography", "ageGroup"), append = TRUE,
-    entry = "lowerbound",
-    input = demographyData$lowerbound
   )
 
   return(baseList)
 }
+
+##' @rdname defineDemography
+##' @export
+define_demography <- defineDemography

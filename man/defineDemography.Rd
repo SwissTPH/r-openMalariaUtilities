@@ -2,35 +2,48 @@
 % Please edit documentation in R/xml_demography.R
 \name{defineDemography}
 \alias{defineDemography}
+\alias{define_demography}
 \title{Define and write demography input to baseList}
 \usage{
 defineDemography(
   baseList,
-  demographyData = NULL,
+  name,
   popSize = 3000,
-  upperbound = NULL,
-  poppercent = NULL,
-  lowerbound = NULL,
-  name = NULL,
-  maximumAgeYrs = NULL
+  maximumAgeYrs,
+  growthRate = NULL,
+  lowerbound,
+  poppercent,
+  upperbound
+)
+
+define_demography(
+  baseList,
+  name,
+  popSize = 3000,
+  maximumAgeYrs,
+  growthRate = NULL,
+  lowerbound,
+  poppercent,
+  upperbound
 )
 }
 \arguments{
 \item{baseList}{List with experiment data.}
 
-\item{demographyData}{List with demography data in specific format}
+\item{name}{Name of demography data.}
 
-\item{popSize}{Number of agents in openMalaria}
+\item{popSize}{Population size.}
 
-\item{upperbound}{Upper bound of age group}
+\item{maximumAgeYrs}{Maximum age of simulated humans in years.}
 
-\item{poppercent}{Percentage of human population in age group}
+\item{growthRate}{Growth rate of human population.}
 
-\item{lowerbound}{Lower bound of age group}
+\item{lowerbound}{Lower bound of age group.}
 
-\item{name}{Name of demography data}
+\item{poppercent}{Percentage of human population in age group. Must be a
+numerical vector.}
 
-\item{maximumAgeYrs}{Maximum age of simulated humans in years}
+\item{upperbound}{Upper bound of age group. Must be a numerical vector.}
 }
 \description{
 Define and write demography input to baseList
