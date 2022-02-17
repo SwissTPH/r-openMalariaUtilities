@@ -171,3 +171,8 @@ test_that("write_scen_data works", {
   expect_equal(out$fut, c(1, 1, 2, 2))
   expect_equal(out$HistScen_nr, rep(1:2, times = 2))
 })
+
+test_that("make_mosquito_name works", {
+  out <- make_mosquito_name(mosq = c("one", "two"), inout = TRUE)
+  expect_equal(out, c("one_indoor", "two_indoor", "one_outdoor", "two_outdoor"))
+})

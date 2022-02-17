@@ -598,3 +598,18 @@ write_scen_data <- function(scens, full, nameExperiment,
   }
   return(scens)
 }
+
+## DEPRECATED
+##' @title Generate mosquito names
+##' @description Valid names begin with 'gam' (Gambiae), 'fun' (Funestus), 'ara'
+##'   (Arabiensis) and 'alb' (Albimanus)
+##' @param mosq Name of Anopheles mosquito species (format: i.e. 'gambiaess')
+##' @param inout If TRUE indoor and outdoor names are generated
+##' @export
+make_mosquito_name <- function(mosq = c("gambiaess", "funestuss"),
+                               inout = TRUE) {
+  if (inout == TRUE) {
+    mosq <- c(paste0(mosq, "_indoor"), paste0(mosq, "_outdoor"))
+  }
+  return(mosq)
+}
