@@ -13,9 +13,11 @@ ageGroupsGen <- function(lowerbound, ageGroups) {
   ## Assign lowerbound
   outlist <- list(lowerbound = lowerbound)
   ## Apply expected data types
-  ageGroups[c("poppercent", "upperbound")] <- lapply(
-    ageGroups[c("poppercent", "upperbound")], as.double
-  )
+  for (i in names(ageGroups)) {
+    ageGroups[c(i)] <- lapply(
+      ageGroups[c(i)], as.double
+    )
+  }
   outlist <- .xmlAddChunks(
     outlist = outlist, element = "group", attributeList = ageGroups
   )
