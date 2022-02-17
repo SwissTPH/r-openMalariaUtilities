@@ -95,3 +95,33 @@ defineDemography <- function(baseList, name, popSize = 3000,
 ##' @rdname defineDemography
 ##' @export
 define_demography <- defineDemography
+
+## DEPRECATED
+##' @title Write xml chunk for demography
+##' @param baseList List with experiment data.
+##' @param pop Population size in simulations
+##' @param maxage Maximum age of the human population
+##' @param country Country (abbreviation, format "BEN")
+##' @param percents Percents
+##' @param uppers Upper age limit
+##' @param pop Population size in simulations
+##' @export
+write_demography_compat <- function(baseList, maxage = 90, country = "BEN",
+                                    percents = NULL, uppers = NULL,
+                                    pop = "@pop@") {
+  ## Get country information if available
+  if (country %in% c("BEN", "CMR", "GHA", "HTI", "MOZ", "TZA", "UGA")) {
+    if (is.null(percents) && is.null(uppers)) {
+      countryData <- eval(as.symbol(country))
+      percents <- countryData$poppercent
+      uppers <- countryData$upperbound
+    }
+  }
+  ## Add to list
+  baseList <- defineDemography(
+    baseList = baseList, name = country, popSize = pop, maximumAgeYrs = maxage,
+    lowerbound = 0, poppercent = percents, upperbound = uppers
+  )
+
+  return(baseList)
+}

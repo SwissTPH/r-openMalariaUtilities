@@ -53,3 +53,27 @@ test_that("defineDemography works", {
 
   expect_equal(actual, expected)
 })
+
+test_that("write_demography_compat works", {
+  testlist <- list(demography = list())
+
+  ## With placeholders
+  expected <- list(
+    demography = list(
+      name = "foo",
+      popSize = "@pop@",
+      maximumAgeYrs = 90,
+      ageGroup = list(
+        lowerbound = 0,
+        group = list("poppercent" = 1, "upperbound" = 2)
+      )
+    )
+  )
+
+  actual <- write_demography_compat(
+    baseList = testlist, country = "foo", pop = "@pop@", percents = 1,
+    uppers = 2
+  )
+
+  expect_equal(actual, expected)
+})
