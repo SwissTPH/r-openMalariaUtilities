@@ -29,12 +29,3 @@ add_idvars(
 \description{
 Add future, historical identifiers to scens object
 }
-\examples{
-full <- list()
-full$ setting <- "alpha"
-full$ futITNcov <- c(0, .8)
-full$ EIR <- c(5, 25)
-full$ seed <- 1
-scens <- expand.grid(full)
-scens <- add_idvars(full = full, scens = scens, save = FALSE, confirm = FALSE)
-}

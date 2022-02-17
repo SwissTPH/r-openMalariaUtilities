@@ -439,6 +439,22 @@ convert_access <- function(dat, pattern = "Access", katya = T,
   return(CombinedDat_wide)
 }
 
+##' Enclose a string of text and passing it on as a vector c("blah")
+##' @param text Text to enclose
+##' @examples stuff <- c("a", "b", "c", "d")
+##' enclose(stuff)
+##' @export
+enclose <- function(text) {
+  if (!is.null(text)) {
+    paste0("c(", paste0(
+      paste0("'", text, "'"),
+      collapse = ","
+    ), ")")
+  } else {
+    return("NULL")
+  }
+}
+
 ##' Add future, historical identifiers to scens object
 ##' @param full List of experiment variables
 ##' @param scens Scens object
@@ -446,14 +462,6 @@ convert_access <- function(dat, pattern = "Access", katya = T,
 ##' @param save Saves the "param_names.RDS" file
 ##' @param ignores Variables to ignore
 ##' @param overwrite Overwrites existing fut, HistScen_nr
-##' @examples
-##' full <- list()
-##' full$ setting <- "alpha"
-##' full$ futITNcov <- c(0, .8)
-##' full$ EIR <- c(5, 25)
-##' full$ seed <- 1
-##' scens <- expand.grid(full)
-##' scens <- add_idvars(full = full, scens = scens, save = FALSE, confirm = FALSE)
 ##' @export
 add_idvars <- function(scens, full,
                        confirm = TRUE, overwrite = TRUE, save = TRUE,
@@ -462,8 +470,6 @@ add_idvars <- function(scens, full,
                          "futITNcov2022",
                          "futITNcov2023"
                        )) {
-  ## Appease NSE notes in R CMD check
-  ExperimentDir <- enclose <- NULL
 
   ## How are the unique scenario, future, historical things defined?
   temp <- .extract_param_names(
@@ -475,8 +481,9 @@ add_idvars <- function(scens, full,
   )
 
   ## Saving it the first time, then loading it whenever needed
+  experimentDir <- get("experimentDir", envir = .pkgcache)
   if (save) {
-    saveRDS(object = temp, file = file.path(ExperimentDir, "param_names.RDS"))
+    saveRDS(object = temp, file = file.path(experimentDir, "param_names.RDS"))
   }
 
   scens <- .assign_id_variables(
@@ -562,13 +569,11 @@ assign_value <- function(variable = "futIRScov",
 ##' @importFrom utils write.csv
 write_scen_data <- function(scens, full, nameExperiment,
                             startnum = 1, saveit = TRUE, ...) {
-  ## Appease NSE notes in R CMD check
-  ExperimentDir <- NULL
-
   ## set_experiment(nameExperiment)
   ## If scens and full are NULL, loading the saved dataset?
+  experimentDir <- get("experimentDir", envir = .pkgcache)
   if (is.null(scens)) {
-    load(file.path(ExperimentDir, "scens.RData"))
+    load(file.path(experimentDir, "scens.RData"))
   }
 
   ## Writing scenarios.csv and saving scens.RData
@@ -578,12 +583,12 @@ write_scen_data <- function(scens, full, nameExperiment,
   scens <- add_idvars(scens, full, confirm = FALSE, overwrite = FALSE)
 
   ## Saving full, scens
-  scenfile <- file.path(ExperimentDir, "scens.RData")
+  scenfile <- file.path(experimentDir, "scens.RData")
 
   if (!is.logical(saveit)) saveit <- TRUE
   if (saveit) {
     ## Writing scenarios.csv
-    utils::write.csv(x = scens, file = file.path(ExperimentDir, "scenarios.csv"))
+    utils::write.csv(x = scens, file = file.path(experimentDir, "scenarios.csv"))
     save(scens, full, file = scenfile)
 
     if (file.exists(scenfile)
