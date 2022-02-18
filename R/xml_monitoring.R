@@ -1,9 +1,9 @@
 ### Little helpers for the the monitoring section
 
-## These functions generate entries for the monitoring/continous part which are
+## These functions generate entries for the monitoring/continuous part which are
 ## tedious to define by hand.
 ## This includes:
-##   - the options (for continous and surveys), which can be passed as a list or
+##   - the options (for continuous and surveys), which can be passed as a list or
 ##     data frame
 ##   - the timepoints for monitoring
 ## The time points generation is more involved as it tries to take care that all
@@ -14,11 +14,11 @@
 ## information (not fine). Thus, we generate here the dates and store them for
 ## later (postprocessing).
 
-##' @title Generate list for 'monitoring/continous/options'
+##' @title Generate list for 'monitoring/continuous/options'
 ##' @param period Value for period
 ##' @param options List of options
 ##' @export
-monitoringContinousGen <- function(period, options) {
+monitoringContinuousGen <- function(period, options) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(
@@ -37,7 +37,7 @@ monitoringContinousGen <- function(period, options) {
   return(outlist)
 }
 
-##' @title Generate list for 'monitoring/continous/options'
+##' @title Generate list for 'monitoring/continuous/options'
 ##' @param onlyNewEpisodes Value for onlyNewEpisodes
 ##' @param options List of options
 ##' @export
@@ -338,7 +338,7 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
     startDate = startDate
   )
 
-  ## Generate continous content
+  ## Generate continuous content
   if (continuous == TRUE) {
     cout <- list(
       inputEIR = TRUE, simEIRcont = FALSE, humanInfect = FALSE, immunH = FALSE,
@@ -358,14 +358,14 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
     cout <- lapply(cout, tolower)
 
     outlist <- .xmlAddList(
-      data = outlist, sublist = NULL, entry = "continous",
-      input = monitoringContinousGen(period = 1, list(
+      data = outlist, sublist = NULL, entry = "continuous",
+      input = monitoringContinuousGen(period = 1, list(
         name = c(
           "input EIR", "simulated EIR", "human infectiousness", "immunity h",
           "immunity Y", "new infections", "num transmitting humans",
-          "alpha", "P_B", "P_C*P_D", "mean insecticide content"
+          "alpha", "P_B", "P_C*P_D"
         ),
-        value = c(unlist(cout), NA)
+        value = unlist(cout)
       ))
     )
   }
