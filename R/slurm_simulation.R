@@ -91,7 +91,7 @@ output <- file.path(
   get(x = \"outputsDir\", envir = openMalariaUtilities:::.pkgcache),
   paste0(
     sub(
-      pattern = \"\.xml$\",
+      pattern = \".xml$\",
       replacement = \"\",
       basename(scenario)
     ),
@@ -102,7 +102,7 @@ ctsout <- file.path(
   get(x = \"outputsDir\", envir = openMalariaUtilities:::.pkgcache),
   paste0(
     sub(
-      pattern = \"\.xml$\",
+      pattern = \".xml$\",
       replacement = \"\",
       basename(scenario)
     ),
