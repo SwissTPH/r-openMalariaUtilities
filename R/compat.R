@@ -439,7 +439,7 @@ convert_access <- function(dat, pattern = "Access", katya = T,
   return(CombinedDat_wide)
 }
 
-##' Enclose a string of text and passing it on as a vector c("blah")
+##' @title Enclose a string of text and passing it on as a vector c("blah")
 ##' @param text Text to enclose
 ##' @examples stuff <- c("a", "b", "c", "d")
 ##' enclose(stuff)
@@ -453,6 +453,15 @@ enclose <- function(text) {
   } else {
     return("NULL")
   }
+}
+
+##' @title Enclose (numeric)
+##' @description To enclose a string of num and pass it on as a c(1,2,3) form
+##' @param num numeric values
+##' @export
+enclose_numeric <- function(num) {
+  x <- paste0("c(", paste0(num, collapse = ","), ")")
+  return(x)
 }
 
 ##' Add future, historical identifiers to scens object
