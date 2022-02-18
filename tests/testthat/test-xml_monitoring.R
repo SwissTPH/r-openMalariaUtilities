@@ -1,9 +1,9 @@
-actual <- monitoringContinousGen(1, list("bar" = "true", "baz" = "false"))
+actual <- monitoringContinuousGen(1, list("bar" = "true", "baz" = "false"))
 expected <- list(
   period = 1, option = list("bar" = "true", "baz" = "false")
 )
 
-test_that("monitoringContinousGen works", {
+test_that("monitoringContinuousGen works", {
   expect_equal(actual, expected)
 })
 
@@ -65,7 +65,7 @@ test_that("write_monitoring_compat works", {
     monitoring = list(
       name = "Annual Surveys",
       startDate = "1918-01-01",
-      continous = list(
+      continuous = list(
         period = 1,
         option = list(name = "input EIR", value = "true"),
         option = list(name = "simulated EIR", value = "true"),
@@ -76,8 +76,7 @@ test_that("write_monitoring_compat works", {
         option = list(name = "num transmitting humans", value = "true"),
         option = list(name = "alpha", value = "false"),
         option = list(name = "P_B", value = "false"),
-        option = list(name = "P_C*P_D", value = "false"),
-        option = list(name = "mean insecticide content", value = "NA")
+        option = list(name = "P_C*P_D", value = "false")
       ),
       SurveyOptions = list(
         option = list(name = "nHost", value = "true"),

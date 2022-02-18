@@ -52,14 +52,14 @@ defineHealthSystem <- function(baseList, name = "Tanzania ACT",
       treatmentActions = list(
         ACT = list(
           name = "clear blood-stage infections",
-          clearfections = list(
+          clearInfections = list(
             stage = "blood",
             timesteps = "1"
           )
         ),
         QN = list(
           name = "clear blood-stage infections",
-          clearfections = list(
+          clearInfections = list(
             stage = "blood",
             timesteps = "1"
           )

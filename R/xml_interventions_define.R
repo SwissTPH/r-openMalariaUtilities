@@ -31,6 +31,9 @@ defineVaccine <- function(baseList, vaccineParameterization, append = TRUE,
     )
   }
 
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
   ## Create intervention cohort
   for (k in names(vaccineParameterization)) {
     baseList <- .xmlAddList(
@@ -190,6 +193,8 @@ defineVectorControl <- function(baseList, vectorInterventionParameters,
     }
   }
 
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
 
   ## Loop over interventions, effects and vector species
   for (k in names(vectorInterventionParameters)) {
@@ -363,15 +368,18 @@ defineIRS <- function(baseList, mosquitos, component = c(
   }
 
   ## Add decay information
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("interventions", "human"),
-    entry = "component",
+  outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
     input = list(
       id = component,
       name = component,
       GVI = list(
-        decay = componentData[[component]][["decayL"]],
-        "function" = componentData[[component]][["function"]]
+        decay = list(
+          L = componentData[[component]][["decayL"]],
+          "function" = componentData[[component]][["function"]]
+        )
       )
     )
   )
@@ -390,10 +398,8 @@ defineIRS <- function(baseList, mosquitos, component = c(
 
   ## Add mosquito information
   for (i in seq_len(length(mosquitos))) {
-    baseList <- .xmlAddList(
-      data = baseList, sublist = c(
-        "interventions", "human", "component", "GVI"
-      ),
+    outlist <- .xmlAddList(
+      data = outlist, sublist = c("GVI"),
       entry = "anophelesParams",
       input = list(
         mosquito = mosquitos[[i]],
@@ -408,6 +414,15 @@ defineIRS <- function(baseList, mosquitos, component = c(
       )
     )
   }
+
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
+    entry = "component", input = outlist
+  )
+
   return(baseList)
 }
 
@@ -463,6 +478,9 @@ defineTreatSimple <- function(baseList, component = "MDA",
     add = assertCol
   )
   checkmate::reportAssertions(assertCol)
+
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
 
   ## Add information
   baseList <- .xmlAddList(
@@ -673,7 +691,7 @@ defineITN <- function(baseList, component = "histITN", noeffect = "outdoor",
         ripFactor = list(
           value = values[values[, "parameterNames"] == "ripFactor", "values"]
         ),
-        initialsecticide = list(
+        initialInsecticide = list(
           mean = values[values[, "parameterNames"] == "initialsecticideMean", "values"],
           SD = values[values[, "parameterNames"] == "initialsecticideSD", "values"],
           distr = "normal"
@@ -783,10 +801,14 @@ defineITN <- function(baseList, component = "histITN", noeffect = "outdoor",
     )
   }
 
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
   baseList <- .xmlAddList(
     data = baseList, sublist = c("interventions", "human"),
     entry = "component", input = outlist
   )
+
   return(baseList)
 }
 
@@ -853,51 +875,6 @@ defineLarv <- function(baseList, mosquitos, component = "LSM",
     decay <- list(L = decayVals$L, k = decayVals$k, funct = decayVals$funct)
   }
 
-  ## Add information
-  outlist <- list()
-  outlist <- .xmlAddList(
-    data = outlist, sublist = NULL,
-    entry = NULL,
-    input = list(
-      name = component
-    )
-  )
-
-  ## Loop over mosquitoes and add information to list
-  for (i in seq_len(length(mosquitos))) {
-    outlist <- .xmlAddList(
-      data = outlist, sublist = "description",
-      entry = "anopheles",
-      input = list(
-        mosquito = mosquitos[i],
-        seekingDeathRateIncrease = list(
-          decay = list(
-            L = 0.2466,
-            "function" = "step"
-          )
-        ),
-        probDeathOvipositing = list(
-          decay = list(
-            L = 0.2466,
-            "function" = "step"
-          )
-        ),
-        emergenceReduction = list(
-          initial = coverage,
-          decay = append(
-            list(
-              "function" = decay[["funct"]],
-              L = decay[["L"]]
-            ),
-            if (!is.null(decay[["k"]])) {
-              list(k = decay[["k"]])
-            }
-          )
-        )
-      )
-    )
-  }
-
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
   ## Get input arguments, remove function name from list and unwanted entries
@@ -923,21 +900,67 @@ defineLarv <- function(baseList, mosquitos, component = "LSM",
     )
   }
 
-  ## Check if the number of dates is equal or bigger than the longest
+  ## Check if the number of mosquitos is equal or bigger than the longest
   ## placeholder sequence.
-  placeholderseq <- .equalizePlaceholders(dates,
+  placeholderseq <- .equalizePlaceholders(mosquitos,
     placeholderseq = placeholderseq
   )
+
+  ## Add information
+  outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
+    input = list(
+      name = component
+    )
+  )
+
+  ## Loop over mosquitoes and add information to list
+  for (i in seq_len(length(mosquitos))) {
+    outlist <- .xmlAddList(
+      data = outlist, sublist = "description",
+      entry = "anopheles",
+      input = list(
+        mosquito = mosquitos[i],
+        seekingDeathRateIncrease = list(
+          initial = 0.0,
+          decay = list(
+            L = 0.2466,
+            "function" = "step"
+          )
+        ),
+        probDeathOvipositing = list(
+          initial = 0.0,
+          decay = list(
+            L = 0.2466,
+            "function" = "step"
+          )
+        ),
+        emergenceReduction = list(
+          initial = if (!is.null(placeholderseq[["coverage"]])) {
+            placeholderseq[["coverage"]][[i]]
+          } else {
+            coverage
+          },
+          decay = append(
+            list(
+              "function" = decay[["funct"]],
+              L = decay[["L"]]
+            ),
+            if (!is.null(decay[["k"]])) {
+              list(k = decay[["k"]])
+            }
+          )
+        )
+      )
+    )
+  }
 
   ## Add deployments
   for (i in seq_len(length(dates))) {
     temp <- list(
       deploy = list(
-        coverage = if (!is.null(placeholderseq[["coverage"]])) {
-          placeholderseq[["coverage"]][[i]]
-        } else {
-          coverage
-        },
         time = dates[[i]]
       )
     )
@@ -948,6 +971,9 @@ defineLarv <- function(baseList, mosquitos, component = "LSM",
       input = temp
     )
   }
+
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
 
   ## Add to base list
   baseList <- .xmlAddList(
@@ -1013,10 +1039,13 @@ define_larv_compat <- function(baseList, mosqs, component = "LSM",
 defineImportedInfections <- function(baseList, name = "importedInfections",
                                      value = 10, time = 0) {
 
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
   ## Add to base list
   baseList <- .xmlAddList(
     data = baseList, sublist = c("interventions"),
-    entry = "importedfections",
+    entry = "importedInfections",
     input = list(
       name = name,
       timed = list(

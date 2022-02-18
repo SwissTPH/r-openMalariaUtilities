@@ -34,9 +34,11 @@ storeScenarios <- function(scenarios, full) {
 ##' @param rowEnd End row. Optional.
 ##' @keywords internal
 .scenariosRowSelect <- function(scenarios, rowStart = NULL, rowEnd = NULL) {
-  if (is.null(rowStart) | is.null(rowEnd)) {
+  if (is.null(rowStart) && is.null(rowEnd)) {
     range <- seq_len(nrow(scenarios))
   } else {
+    rowStart <- ifelse(is.null(rowStart), 1, rowStart)
+    rowEnd <- ifelse(is.null(rowEnd), length(scenarios), rowEnd)
     range <- rowStart:rowEnd
   }
   return(range)
@@ -128,11 +130,12 @@ storeScenarios <- function(scenarios, full) {
         )
       }
       filename <- paste(prefix, "_", row, ".xml", sep = "")
+
       ## Write file
       cat(out, file = file.path(
         get(x = "scenariosDir", envir = .pkgcache),
         filename
-      ))
+      ), sep = "\n")
     })
   }
 }
@@ -151,7 +154,7 @@ storeScenarios <- function(scenarios, full) {
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
 ##' @export
-generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios = NULL,
+generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
                               full = NULL, rowStart = NULL, rowEnd = NULL) {
   ## Get values from cache if not given
   if (is.null(baseFile)) {

@@ -3,13 +3,16 @@ test_that("defineIRS works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         component = list(
           id = "Actellic50EC",
           name = "Actellic50EC",
           GVI = list(
-            decay = 0.299,
-            "function" = "weibull",
+            decay = list(
+              L = 0.299,
+              "function" = "weibull"
+            ),
             anophelesParams = list(
               mosquito = "gam_indoor",
               propActive = 1,
@@ -41,8 +44,10 @@ test_that("defineIRS works", {
 
   ## Set 'noeffect' to indoor
   expected$interventions$human$component$GVI <- list(
-    decay = 0.299,
-    "function" = "weibull",
+    decay = list(
+      L = 0.299,
+      "function" = "weibull"
+    ),
     anophelesParams = list(
       mosquito = "gam_indoor",
       propActive = 0,
@@ -70,8 +75,10 @@ test_that("defineIRS works", {
 
   ## Set 'noeffect' to NULL
   expected$interventions$human$component$GVI <- list(
-    decay = 0.299,
-    "function" = "weibull",
+    decay = list(
+      L = 0.299,
+      "function" = "weibull"
+    ),
     anophelesParams = list(
       mosquito = "gam_indoor",
       propActive = 1,
@@ -103,6 +110,7 @@ test_that("defineTreatSimple works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         component = list(
           id = "MDA",
@@ -126,13 +134,16 @@ test_that("defineNothing works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         component = list(
           id = "nothing",
           name = "nothing",
           GVI = list(
-            decay = 1,
-            "function" = "step",
+            decay = list(
+              L = 1,
+              "function" = "step"
+            ),
             anophelesParams = list(
               mosquito = "gam_indoor",
               propActive = 0,
@@ -166,6 +177,7 @@ test_that("defineITN works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         component = list(
           id = "histITN",
@@ -185,7 +197,7 @@ test_that("defineITN works", {
             ripFactor = list(
               value = 0.3
             ),
-            initialsecticide = list(
+            initialInsecticide = list(
               mean = 55.5,
               SD = 14,
               distr = "normal"
@@ -287,6 +299,7 @@ test_that("defineLarv works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       vectorPop = list(
         intervention = list(
           name = "LSM",
@@ -294,12 +307,14 @@ test_that("defineLarv works", {
             anopheles = list(
               mosquito = "gambiaesl_indoor",
               seekingDeathRateIncrease = list(
+                initial = 0,
                 decay = list(
                   L = 0.247,
                   "function" = "step"
                 )
               ),
               probDeathOvipositing = list(
+                initial = 0,
                 decay = list(
                   L = 0.247,
                   "function" = "step"
@@ -316,7 +331,6 @@ test_that("defineLarv works", {
           ),
           timed = list(
             deploy = list(
-              coverage = "@futLSMcov@",
               time = "2020-06-05"
             )
           )
@@ -344,6 +358,7 @@ test_that("define_larv_compat works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       vectorPop = list(
         intervention = list(
           name = "LSM",
@@ -351,12 +366,14 @@ test_that("define_larv_compat works", {
             anopheles = list(
               mosquito = "gambiaesl_indoor",
               seekingDeathRateIncrease = list(
+                initial = 0,
                 decay = list(
                   L = 0.247,
                   "function" = "step"
                 )
               ),
               probDeathOvipositing = list(
+                initial = 0,
                 decay = list(
                   L = 0.247,
                   "function" = "step"
@@ -373,7 +390,6 @@ test_that("define_larv_compat works", {
           ),
           timed = list(
             deploy = list(
-              coverage = "@futLSMcov@",
               time = as.Date("2020-06-05")
             )
           )
@@ -399,7 +415,8 @@ test_that("defineImportedInfections works", {
 
   expected <- list(
     interventions = list(
-      importedfections = list(
+      name = "All interventions",
+      importedInfections = list(
         name = "importedInfections",
         timed = list(
           rate = list(
@@ -422,7 +439,8 @@ test_that("define_importedInfections_compat works", {
 
   expected <- list(
     interventions = list(
-      importedfections = list(
+      name = "All interventions",
+      importedInfections = list(
         name = "importedInfections",
         timed = list(
           rate = list(

@@ -14,9 +14,16 @@ issues.
 
 # Install instructions
 
-So far, a stable version has not been released. Instead, use
+A CRAN release is currently not available. For the time being, please use
 
 ``` R
 devtools::install_github("SwissTPH/r-openMalariaUtilities")
 ```
 
+or
+
+``` R
+devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = "develop")
+```
+
+for the development branch.

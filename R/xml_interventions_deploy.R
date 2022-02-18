@@ -243,6 +243,9 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     )
   }
 
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
   ## Add to base list
   baseList <- .xmlAddList(
     data = baseList, sublist = c("interventions", "human"),

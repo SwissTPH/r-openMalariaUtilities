@@ -27,14 +27,14 @@ test_that("defineHealthSystem works", {
         treatmentActions = list(
           ACT = list(
             name = "clear blood-stage infections",
-            clearfections = list(
+            clearInfections = list(
               stage = "blood",
               timesteps = "1"
             )
           ),
           QN = list(
             name = "clear blood-stage infections",
-            clearfections = list(
+            clearInfections = list(
               stage = "blood",
               timesteps = "1"
             )
@@ -111,14 +111,14 @@ test_that("write_healthsys_compat works", {
         treatmentActions = list(
           ACT = list(
             name = "clear blood-stage infections",
-            clearfections = list(
+            clearInfections = list(
               stage = "blood",
               timesteps = "1"
             )
           ),
           QN = list(
             name = "clear blood-stage infections",
-            clearfections = list(
+            clearInfections = list(
               stage = "blood",
               timesteps = "1"
             )

@@ -139,9 +139,7 @@ defineChangeHS <- function(baseList, name = "Change in case management",
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL,
     entry = NULL,
-    input = list(
-      name = name
-    )
+    input = curChangeHS
   )
 
   ## Generate an entry for each given date
@@ -196,14 +194,14 @@ defineChangeHS <- function(baseList, name = "Change in case management",
         treatmentActions = list(
           ACT = list(
             name = "clear blood-stage infections",
-            clearfections = list(
+            clearInfections = list(
               stage = "blood",
               timesteps = "1"
             )
           ),
           QN = list(
             name = "clear blood-stage infections",
-            clearfections = list(
+            clearInfections = list(
               stage = "blood",
               timesteps = "1"
             )
@@ -263,16 +261,19 @@ defineChangeHS <- function(baseList, name = "Change in case management",
     )
 
     outlist <- .xmlAddList(
-      data = outlist, sublist = c("timedDeployment"),
-      entry = NULL,
+      data = outlist, sublist = NULL,
+      entry = "timedDeployment",
       input = temp
     )
   }
 
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
   ## Add to base list
   baseList <- .xmlAddList(
-    data = baseList, sublist = c("interventions"),
-    entry = "changeHS", input = outlist
+    data = baseList, sublist = c("interventions", "changeHS"),
+    entry = NULL, input = outlist
   )
 
   ## Return modified baseList
@@ -329,6 +330,7 @@ define_changeHS_compat <- function(baseList, access = "Access", coverage = NULL,
     futyear <- 1
   }
 
+  ## The +1 is for the future CM level
   dates <- .deployTime_compat(
     y1 = y1, y2 = y2 + futyear, m1 = m1, m2 = m2, d1 = 5, d2 = 5, every = every,
     interval = interval

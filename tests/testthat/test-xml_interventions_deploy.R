@@ -20,6 +20,7 @@ test_that("deployIT works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
@@ -54,6 +55,7 @@ test_that("deployIT works", {
   ## minAge and maxAge
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
@@ -96,6 +98,7 @@ test_that("deploy_it_compat works", {
   ## Normal, dates generated
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
@@ -131,6 +134,7 @@ test_that("deploy_it_compat works", {
   ## deployvar used
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
@@ -163,6 +167,7 @@ test_that("deploy_it_compat works", {
   ## coverage placeholder
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
@@ -195,6 +200,7 @@ test_that("deploy_it_compat works", {
   ## cumulative
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
@@ -231,6 +237,7 @@ test_that("deploy_it_compat works", {
   ## cumulative + subpop
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
