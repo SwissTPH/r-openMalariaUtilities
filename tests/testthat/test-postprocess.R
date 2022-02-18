@@ -15,7 +15,9 @@ test_that(".two_digit_month works", {
   expect_equal(actual, expected)
 
   CombinedDat <- data.frame(Date = c("2020-05-03", "2020-15-15", "2020-30-03"))
-  expect_error(.twoDigitMonth(CombinedDat))
+  actual <- .twoDigitMonth(CombinedDat)
+  expected <- stats::na.omit(c("05", NA, NA))
+  expect_equal(actual, expected)
 })
 
 
