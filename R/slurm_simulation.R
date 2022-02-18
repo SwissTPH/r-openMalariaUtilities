@@ -58,7 +58,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
     ),
     cmd = list(paste("Rscript", file.path(
       get(x = "experimentDir", envir = .pkgcache), "slurm_run_simulation.R"
-    ), "ID")),
+    ), "$ID")),
     file = filename
   )
 
