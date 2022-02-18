@@ -2,9 +2,12 @@
 % Please edit documentation in R/base.R
 \name{createBaseXml}
 \alias{createBaseXml}
+\alias{create_base_xml}
 \title{Create a base xml file}
 \usage{
 createBaseXml(data = NULL, replace = "ask")
+
+create_base_xml(data = NULL, replace = "ask")
 }
 \arguments{
 \item{data}{List containing all information}
