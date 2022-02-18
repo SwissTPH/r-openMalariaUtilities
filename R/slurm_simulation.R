@@ -68,7 +68,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-"setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
 
 ## Load library
 library(openMalariaUtilities)
@@ -126,5 +126,12 @@ system(command = fullCmd)
 ##' @title Submit simulation job to SLURM
 ##' @export
 slurmRunSimulation <- function() {
-  system(command = "sbatch slurm_simulation.sh")
+  system(
+    command = paste0(
+      "sbatch ", file.path(
+        get("experimentDir", envir = .pkgcache),
+        "slurm_simulation.sh"
+      )
+    )
+  )
 }
