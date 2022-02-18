@@ -12,9 +12,6 @@
 \item{name}{Name of the interventions.}
 }
 \description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
+Make sure required elements are declared
 }
 \keyword{internal}

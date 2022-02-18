@@ -56,7 +56,9 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
       "module purge",
       "module load R/4.1.2-foss-2018b-Python-3.6.6"
     ),
-    cmd = list("Rscript slurm_run_scenarios.R $ID"),
+    cmd = list(paste("Rscript", file.path(
+      get(x = "experimentDir", envir = .pkgcache), "slurm_run_scenarios.R"
+    ), "ID")),
     file = filename
   )
 
