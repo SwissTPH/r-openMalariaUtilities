@@ -56,7 +56,9 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
       "module purge",
       "module load R/4.1.2-foss-2018b-Python-3.6.6"
     ),
-    cmd = list("Rscript slurm_run_scenarios.R $ID"),
+    cmd = list(paste("Rscript", file.path(
+      get(x = "experimentDir", envir = .pkgcache), "slurm_run_scenarios.R"
+    ), "$ID")),
     file = filename
   )
 
@@ -68,7 +70,7 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-"setwd(dir = \"", paste0(get(x = "baseDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(get(x = "baseDir", envir = .pkgcache)), "\")
 
 ## Load library
 library(openMalariaUtilities)
@@ -125,5 +127,12 @@ storeScenarios(
 ##' @title Submit scenario creation job to SLURM
 ##' @export
 slurmCreateScenarios <- function() {
-  system(command = "sbatch slurm_scenarios.sh")
+  system(
+    command = paste0(
+      "sbatch ", file.path(
+        get("experimentDir", envir = .pkgcache),
+        "slurm_scenarios.sh"
+      )
+    )
+  )
 }

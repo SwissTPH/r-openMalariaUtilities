@@ -2,7 +2,7 @@
 % Please edit documentation in R/xml_monitoring.R
 \name{monitoringSurveyOptionsGen}
 \alias{monitoringSurveyOptionsGen}
-\title{Generate list for 'monitoring/continous/options'}
+\title{Generate list for 'monitoring/continuous/options'}
 \usage{
 monitoringSurveyOptionsGen(onlyNewEpisodes = NULL, options)
 }
@@ -12,5 +12,5 @@ monitoringSurveyOptionsGen(onlyNewEpisodes = NULL, options)
 \item{options}{List of options}
 }
 \description{
-Generate list for 'monitoring/continous/options'
+Generate list for 'monitoring/continuous/options'
 }

@@ -683,7 +683,7 @@
 ##' @param CombinedDat CombinedDat dataset
 .twoDigitMonth <- function(CombinedDat) {
   months <- stats::na.omit(format(as.Date(CombinedDat$Date), "%m"))
-  stopifnot(length(months) == length(CombinedDat$Date))
+
   return(months)
 }
 
@@ -777,7 +777,7 @@
 .spreadAcrossColumns <- function(df, key, value) {
   ## Appease NSE notes in R CMD check
   temp <- NULL
-  
+
   ## Transform into long format
   df <- data.table::melt(
     data = data.table::data.table(df),

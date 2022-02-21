@@ -49,6 +49,7 @@ test_that("defineChangeHS works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       changeHS = list(
         name = "Change in case management",
         timedDeployment = list(
@@ -77,14 +78,14 @@ test_that("defineChangeHS works", {
             treatmentActions = list(
               ACT = list(
                 name = "clear blood-stage infections",
-                clearfections = list(
+                clearInfections = list(
                   stage = "blood",
                   timesteps = "1"
                 )
               ),
               QN = list(
                 name = "clear blood-stage infections",
-                clearfections = list(
+                clearInfections = list(
                   stage = "blood",
                   timesteps = "1"
                 )
@@ -140,6 +141,7 @@ test_that("define_changeHS_compat works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       changeHS = list(
         name = "Change in case management",
         timedDeployment = list(
@@ -168,14 +170,14 @@ test_that("define_changeHS_compat works", {
             treatmentActions = list(
               ACT = list(
                 name = "clear blood-stage infections",
-                clearfections = list(
+                clearInfections = list(
                   stage = "blood",
                   timesteps = "1"
                 )
               ),
               QN = list(
                 name = "clear blood-stage infections",
-                clearfections = list(
+                clearInfections = list(
                   stage = "blood",
                   timesteps = "1"
                 )

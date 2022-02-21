@@ -15,7 +15,9 @@ test_that(".two_digit_month works", {
   expect_equal(actual, expected)
 
   CombinedDat <- data.frame(Date = c("2020-05-03", "2020-15-15", "2020-30-03"))
-  expect_error(.twoDigitMonth(CombinedDat))
+  actual <- .twoDigitMonth(CombinedDat)
+  expected <- stats::na.omit(c("05", NA, NA))
+  expect_equal(actual, expected)
 })
 
 
@@ -144,4 +146,95 @@ test_that(".spreadAcrossColumns works", {
     Bob_B = c(5, 6, 7)
   )
   expect_equal(actual, expected)
+})
+
+test_that("do_post_processing integration test", {
+  nameExperiment <- "test"
+  ## temp <- .make_structure(nameExperiment = nameExperiment)
+  ## username <- temp$username
+  ## USER_OMDir <- temp$USER_OMDir
+  ## MainDir <- temp$MainDir
+  ## AnalysisDir <- temp$AnalysisDir
+  ## CombinedDir <- temp$CombinedDir
+  ## OMpath <- temp$OMpath
+  ## MalariaDir <- temp$MalariaDir
+  ## FittingDir <- temp$FittingDir
+  ## ExperimentDir <- temp$ExperimentDir
+
+  .createFolders(
+    experimentName = nameExperiment,
+    rootDir = tempdir(),
+    replace = TRUE
+  )
+
+  dates <- data.frame(
+    date = as.Date(c("2000-01-01", "2000-01-06", "2000-02-05", "2000-03-06", "2000-04-05", "2000-05-05", "2000-06-04")),
+    timestep = c(5990, 5991, 5997, 6003, 6009, 6015, 6021)
+  )
+  assign(x = "surveyTimes", dates, envir = openMalariaUtilities:::.pkgcache)
+
+  assign(x = "baseXml", value = file.path(
+    get(x = "experimentDir", openMalariaUtilities:::.pkgcache),
+    "base.xml"
+  ), envir = openMalariaUtilities:::.pkgcache)
+
+  ExperimentDir <- get(x = "experimentDir", envir = openMalariaUtilities:::.pkgcache)
+  MainDir <- tempdir()
+  MalariaDir <- get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache)
+  CombinedDir <- get(x = "combinedDir", envir = openMalariaUtilities:::.pkgcache)
+
+  #-- create scens and full
+  #-- EIR does not need to be a column, but 'pop' must be
+  scens <- data.frame(
+    setting = "alpha",
+    futITNcov = c(0, 0, 1, 1), pop = 500,
+    seed = c(1, 2, 1, 2),
+    file = paste0("wutest_", 1:4, ".xml")
+  )
+
+  full <- list()
+  full$setting <- "alpha"
+  full$futITNcov <- c("none", "high")
+  full$seed <- 1:2
+
+  storeScenarios(scenarios = scens, full = full)
+
+  #-- create base
+  base <- .create_test_base()
+  writeLines(base, con = file.path(get(x = "baseXml", envir = openMalariaUtilities:::.pkgcache)))
+
+  #-- create openmalaria output files
+  .create_test_output_files(n = nrow(scens), MalariaDir = MalariaDir)
+
+  #-- post_process code
+  out <- do_post_processing(
+    nameExperiment = nameExperiment,
+    basename = "base.xml", number_loops = 1,
+    setting_number = 1, loop_id = 1,
+    fsize = 500,
+    monthyears = 2000
+  )
+  expect_equal(out, T)
+
+  #--- CombinedDat
+  load(file.path(CombinedDir, "1_1_CombinedDat.RData"))
+  expect_equal(dim(CombinedDat), c(24, 46))
+
+  #--- CombinedDat_wide
+  load(file.path(CombinedDir, "1_1_CombinedDat_wide.RData"))
+  expect_equal(dim(CombinedDat_wide), c(4, 35))
+
+  #--- CombinedDat_Aggr
+  load(file.path(CombinedDir, "1_1_CombinedDat_Aggr.RData"))
+  expect_equal(dim(CombinedDat_Aggr), c(12, 40))
+
+  #--- CombinedDat_month
+  load(file.path(CombinedDir, "1_1_CombinedDat_month.RData"))
+  expect_equal(dim(CombinedDat_month), c(4, 17))
+
+
+  unlink(file.path(CombinedDir, "1_1_CombinedDat.RData"))
+  unlink(file.path(CombinedDir, "1_1_CombinedDat_month.RData"))
+  unlink(file.path(CombinedDir, "1_1_CombinedDat_wide.RData"))
+  unlink(file.path(MalariaDir, "*_out.txt"))
 })

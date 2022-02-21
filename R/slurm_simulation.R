@@ -56,7 +56,9 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
       ## supporting files (*.xsd, etc)
       paste0("cd ", get(x = "experimentDir", envir = .pkgcache))
     ),
-    cmd = list("Rscript slurm_run_simulation.R $ID"),
+    cmd = list(paste("Rscript", file.path(
+      get(x = "experimentDir", envir = .pkgcache), "slurm_run_simulation.R"
+    ), "$ID")),
     file = filename
   )
 
@@ -68,7 +70,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-"setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
 
 ## Load library
 library(openMalariaUtilities)
@@ -89,7 +91,7 @@ output <- file.path(
   get(x = \"outputsDir\", envir = openMalariaUtilities:::.pkgcache),
   paste0(
     sub(
-      pattern = \"\\.xml$\",
+      pattern = \".xml$\",
       replacement = \"\",
       basename(scenario)
     ),
@@ -100,7 +102,7 @@ ctsout <- file.path(
   get(x = \"outputsDir\", envir = openMalariaUtilities:::.pkgcache),
   paste0(
     sub(
-      pattern = \"\\.xml$\",
+      pattern = \".xml$\",
       replacement = \"\",
       basename(scenario)
     ),
@@ -126,5 +128,12 @@ system(command = fullCmd)
 ##' @title Submit simulation job to SLURM
 ##' @export
 slurmRunSimulation <- function() {
-  system(command = "sbatch slurm_simulation.sh")
+  system(
+    command = paste0(
+      "sbatch ", file.path(
+        get("experimentDir", envir = .pkgcache),
+        "slurm_simulation.sh"
+      )
+    )
+  )
 }

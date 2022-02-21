@@ -39,7 +39,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
   }
 
   for (i in seq_len(length(scenarios))) {
-    resources <- file.path(get(x = "baseDir", envir = .pkgcache))
+    resources <- file.path(get(x = "experimentDir", envir = .pkgcache))
     scenario <- scenarios[[i]]
     output <- file.path(
       get(x = "outputsDir", envir = .pkgcache),
@@ -72,7 +72,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
     if (dryRun == TRUE) {
       print(fullCmd)
     } else {
-      system(command = fullCmd, intern = TRUE)
+      system(command = fullCmd, wait = TRUE)
     }
   }
 }

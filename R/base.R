@@ -57,3 +57,66 @@ createBaseXml <- function(data = NULL, replace = "ask") {
   ## Write cache
   .storeCache()
 }
+
+##' @rdname createBaseXml
+##' @export
+create_base_xml <- createBaseXml
+
+
+##' @title Download required Open Malaria files
+##' @param version Major schema version. Supported: 43
+##' @param dir Target directory. Defaults to experiment directory.
+##' @export
+setupOM <- function(version = 43, dir = NULL) {
+  ## Check for supported version and select correct subversion
+  suppVers <- c(43)
+  if (version %in% suppVers) {
+    major <- version
+    version <- ifelse(version == 43, 43.1, version)
+
+    ## Download files into experiment folder if not already present
+    if (is.null(dir)) {
+      dir <- get("experimentDir", envir = .pkgcache)
+    }
+
+    ## Utility files
+    for (f in c("autoRegressionParameters.csv", "densities.csv")) {
+      if (!file.exists(file.path(dir, f))) {
+        utils::download.file(
+          url = paste0(
+            "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
+            version,
+            "/test/", f
+          ),
+          destfile = file.path(dir, f)
+        )
+      } else {
+        message(paste0("File ", f, " already exists, skipping."))
+      }
+    }
+
+    ## Schema file
+    f <- paste0("scenario_", major, ".xsd")
+    if (!file.exists(file.path(dir, f))) {
+      utils::download.file(
+        url = paste0(
+          "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
+          version,
+          "/schema/", f
+        ),
+        destfile = file.path(dir, f)
+      )
+    } else {
+      message(paste0("File ", f, " already exists, skipping."))
+    }
+  } else {
+    stop(paste0(
+      "Only the following versions of Open Malaria are supported: ",
+      suppVers
+    ))
+  }
+}
+
+##' @rdname setupOM
+##' @export
+setup_om <- setupOM

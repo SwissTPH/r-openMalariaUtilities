@@ -109,24 +109,23 @@ import_countrydat <- function(filename = "MOZ_CountryDat.csv",
 ##' # Going from OpenMalaria timesteps to access to care is also possible
 ##' convert_cm(orig = .249, reverse = TRUE, country = "GHA")
 ##' }
-convert_cm <- function(orig, katya = FALSE, country = NULL, scale = NULL, reverse = F) {
-  if (max(orig) > 1) {
-    stop("Input for access to care is larger than 1. Make sure all numbers are between 0 and 1.")
-  }
-  if (max(orig) < 0) {
-    stop("Input for access to care is less than 0. Make sure all numbers are between 0 and 1.")
-  }
+convert_cm <- function(orig, katya = FALSE, country = NULL, scale = NULL, reverse = FALSE) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertNumeric(orig, lower = 0, upper = 1, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   x <- c(
-    0, 5, 10, 12, 15, 18, 20, 22, 24, 25, 28, 30, 32, 35, 36, 38, 40, 42,
-    45, 48, 49, 50, 53, 55, 59, 60, 62, 65, 68, 70, 73, 75, 78, 80,
-    82, 85, 88, 90, 95, 99, 100
+    0, 5, 10, 12, 15, 18, 20, 22, 24, 25, 28, 30, 32, 35, 36, 38, 40, 42, 45,
+    48, 49, 50, 53, 55, 59, 60, 62, 65, 68, 70, 73, 75, 78, 80, 82, 85, 88, 90,
+    95, 99, 100
   ) / 100
   y <- c(
-    0, 0.0182, 0.0356, 0.0418, 0.0516, 0.0635, 0.0725, 0.0821, 0.0921,
-    0.0972, 0.1125, 0.1227, 0.1329, 0.1488, 0.1544, 0.1661, 0.1782, 0.1905,
-    0.2093, 0.2284, 0.2348, 0.2412, 0.2598, 0.2715, 0.2957, 0.3030,
-    0.3210, 0.3567, 0.3949, 0.4165, 0.4449, 0.4646, 0.5010, 0.5319,
-    0.5644, 0.6057, 0.6466, 0.6813, 0.7934, 0.9580, 1
+    0, 0.0182, 0.0356, 0.0418, 0.0516, 0.0635, 0.0725, 0.0821, 0.0921, 0.0972,
+    0.1125, 0.1227, 0.1329, 0.1488, 0.1544, 0.1661, 0.1782, 0.1905, 0.2093,
+    0.2284, 0.2348, 0.2412, 0.2598, 0.2715, 0.2957, 0.3030, 0.3210, 0.3567,
+    0.3949, 0.4165, 0.4449, 0.4646, 0.5010, 0.5319, 0.5644, 0.6057, 0.6466,
+    0.6813, 0.7934, 0.9580, 1
   )
 
   country_CM_scale <- as.data.frame(
@@ -338,7 +337,7 @@ convert_access <- function(dat, pattern = "Access", katya = T,
   ## Appease NSE notes in R CMD check
   UniqueScenario <- UniqueScenarioSpread <- nr <- HistScenSpread <- NULL
   FutScenSpread <- NULL
-  
+
   ## Backwards compatibility (August 2020)
   colnames(CombinedDat_wide)[colnames(CombinedDat_wide) == "Settings"] <- "setting"
 
@@ -440,6 +439,31 @@ convert_access <- function(dat, pattern = "Access", katya = T,
   return(CombinedDat_wide)
 }
 
+##' @title Enclose a string of text and passing it on as a vector c("blah")
+##' @param text Text to enclose
+##' @examples stuff <- c("a", "b", "c", "d")
+##' enclose(stuff)
+##' @export
+enclose <- function(text) {
+  if (!is.null(text)) {
+    paste0("c(", paste0(
+      paste0("'", text, "'"),
+      collapse = ","
+    ), ")")
+  } else {
+    return("NULL")
+  }
+}
+
+##' @title Enclose (numeric)
+##' @description To enclose a string of num and pass it on as a c(1,2,3) form
+##' @param num numeric values
+##' @export
+enclose_numeric <- function(num) {
+  x <- paste0("c(", paste0(num, collapse = ","), ")")
+  return(x)
+}
+
 ##' Add future, historical identifiers to scens object
 ##' @param full List of experiment variables
 ##' @param scens Scens object
@@ -447,14 +471,6 @@ convert_access <- function(dat, pattern = "Access", katya = T,
 ##' @param save Saves the "param_names.RDS" file
 ##' @param ignores Variables to ignore
 ##' @param overwrite Overwrites existing fut, HistScen_nr
-##' @examples
-##' full <- list()
-##' full$ setting <- "alpha"
-##' full$ futITNcov <- c(0, .8)
-##' full$ EIR <- c(5, 25)
-##' full$ seed <- 1
-##' scens <- expand.grid(full)
-##' scens <- add_idvars(full = full, scens = scens, save = FALSE, confirm = FALSE)
 ##' @export
 add_idvars <- function(scens, full,
                        confirm = TRUE, overwrite = TRUE, save = TRUE,
@@ -463,8 +479,6 @@ add_idvars <- function(scens, full,
                          "futITNcov2022",
                          "futITNcov2023"
                        )) {
-  ## Appease NSE notes in R CMD check
-  ExperimentDir <- enclose <- NULL
 
   ## How are the unique scenario, future, historical things defined?
   temp <- .extract_param_names(
@@ -476,8 +490,9 @@ add_idvars <- function(scens, full,
   )
 
   ## Saving it the first time, then loading it whenever needed
+  experimentDir <- get("experimentDir", envir = .pkgcache)
   if (save) {
-    saveRDS(object = temp, file = file.path(ExperimentDir, "param_names.RDS"))
+    saveRDS(object = temp, file = file.path(experimentDir, "param_names.RDS"))
   }
 
   scens <- .assign_id_variables(
@@ -563,13 +578,11 @@ assign_value <- function(variable = "futIRScov",
 ##' @importFrom utils write.csv
 write_scen_data <- function(scens, full, nameExperiment,
                             startnum = 1, saveit = TRUE, ...) {
-  ## Appease NSE notes in R CMD check
-  ExperimentDir <- NULL
-
   ## set_experiment(nameExperiment)
   ## If scens and full are NULL, loading the saved dataset?
+  experimentDir <- get("experimentDir", envir = .pkgcache)
   if (is.null(scens)) {
-    load(file.path(ExperimentDir, "scens.RData"))
+    load(file.path(experimentDir, "scens.RData"))
   }
 
   ## Writing scenarios.csv and saving scens.RData
@@ -579,12 +592,12 @@ write_scen_data <- function(scens, full, nameExperiment,
   scens <- add_idvars(scens, full, confirm = FALSE, overwrite = FALSE)
 
   ## Saving full, scens
-  scenfile <- file.path(ExperimentDir, "scens.RData")
+  scenfile <- file.path(experimentDir, "scens.RData")
 
   if (!is.logical(saveit)) saveit <- TRUE
   if (saveit) {
     ## Writing scenarios.csv
-    utils::write.csv(x = scens, file = file.path(ExperimentDir, "scenarios.csv"))
+    utils::write.csv(x = scens, file = file.path(experimentDir, "scenarios.csv"))
     save(scens, full, file = scenfile)
 
     if (file.exists(scenfile)
@@ -593,4 +606,19 @@ write_scen_data <- function(scens, full, nameExperiment,
     }
   }
   return(scens)
+}
+
+## DEPRECATED
+##' @title Generate mosquito names
+##' @description Valid names begin with 'gam' (Gambiae), 'fun' (Funestus), 'ara'
+##'   (Arabiensis) and 'alb' (Albimanus)
+##' @param mosq Name of Anopheles mosquito species (format: i.e. 'gambiaess')
+##' @param inout If TRUE indoor and outdoor names are generated
+##' @export
+make_mosquito_name <- function(mosq = c("gambiaess", "funestuss"),
+                               inout = TRUE) {
+  if (inout == TRUE) {
+    mosq <- c(paste0(mosq, "_indoor"), paste0(mosq, "_outdoor"))
+  }
+  return(mosq)
 }

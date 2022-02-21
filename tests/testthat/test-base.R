@@ -11,3 +11,17 @@ test_that("createBaseXml works", {
 
   expect_equal(actual, expected)
 })
+
+test_that("setupOM works", {
+  dir <- tempdir()
+  assign("experimentDir", dir, envir = openMalariaUtilities:::.pkgcache)
+
+  setupOM()
+
+  found <- list.files(dir, pattern = ".csv|.xsd")
+
+  actual <- all(grepl("autoRegressionParameters|densities|scenario", found))
+  expected <- TRUE
+
+  expect_equal(actual, expected)
+})

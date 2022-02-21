@@ -20,9 +20,13 @@ test_that("deployIT works", {
 
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
           timed = list(
             deploy = list(
               coverage = "@foo2001@",
@@ -51,9 +55,13 @@ test_that("deployIT works", {
   ## minAge and maxAge
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
           timed = list(
             deploy = list(
               coverage = "@foo2001@",
@@ -90,9 +98,13 @@ test_that("deploy_it_compat works", {
   ## Normal, dates generated
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
           timed = list(
             deploy = list(
               coverage = "futITNcov",
@@ -112,7 +124,7 @@ test_that("deploy_it_compat works", {
     testlist,
     component = "ITN",
     coverage = "futITNcov",
-    byyear = F,
+    byyear = FALSE,
     y1 = 2021, y2 = 2021, every = 1, interval = "month",
     m1 = 6, m2 = 7, d1 = 5, d2 = 5, SIMSTART = "1918-01-01"
   )
@@ -122,9 +134,13 @@ test_that("deploy_it_compat works", {
   ## deployvar used
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
           timed = list(
             deploy = list(
               coverage = "futITNcov",
@@ -140,7 +156,7 @@ test_that("deploy_it_compat works", {
     testlist,
     component = "ITN",
     coverage = "futITNcov",
-    byyear = F,
+    byyear = FALSE,
     deployvar = "deploy_month",
     y1 = 2021, y2 = 2021, every = 1, interval = "month",
     m1 = 6, m2 = 7, d1 = 5, d2 = 5, SIMSTART = "1918-01-01"
@@ -151,9 +167,13 @@ test_that("deploy_it_compat works", {
   ## coverage placeholder
   expected <- list(
     interventions = list(
+      name = "All interventions",
       human = list(
         deployment = list(
           name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
           timed = list(
             deploy = list(
               coverage = "@futITNcov2021@",
@@ -169,10 +189,87 @@ test_that("deploy_it_compat works", {
     testlist,
     component = "ITN",
     coverage = "@futITNcov@",
-    byyear = T,
+    byyear = TRUE,
     deployvar = "deploy_month",
     y1 = 2021, y2 = 2021, every = 1, interval = "month",
     m1 = 6, m2 = 7, d1 = 5, d2 = 5, SIMSTART = "1918-01-01"
+  )
+
+  expect_equal(actual, expected)
+
+  ## cumulative
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
+          timed = list(
+            cumulativeCoverage = list(
+              component = "ITN"
+            ),
+            deploy = list(
+              coverage = "@futITNcov2021@",
+              time = "@deploy_month2021@"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_it_compat(
+    testlist,
+    component = "ITN",
+    coverage = "@futITNcov@",
+    byyear = TRUE,
+    deployvar = "deploy_month",
+    y1 = 2021, y2 = 2021, every = 1, interval = "month",
+    m1 = 6, m2 = 7, d1 = 5, d2 = 5, SIMSTART = "1918-01-01",
+    cumulative = TRUE
+  )
+
+  expect_equal(actual, expected)
+
+  ## cumulative + subpop
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
+          timed = list(
+            restrictToSubPop = list(
+              id = "ITN-ITN"
+            ),
+            cumulativeCoverage = list(
+              component = "ITN-ITN"
+            ),
+            deploy = list(
+              coverage = "@futITNcov2021@",
+              time = "@deploy_month2021@"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_it_compat(
+    testlist,
+    component = "ITN",
+    coverage = "@futITNcov@",
+    byyear = TRUE,
+    deployvar = "deploy_month",
+    y1 = 2021, y2 = 2021, every = 1, interval = "month",
+    m1 = 6, m2 = 7, d1 = 5, d2 = 5, SIMSTART = "1918-01-01",
+    cumulative = TRUE, subpop = TRUE
   )
 
   expect_equal(actual, expected)

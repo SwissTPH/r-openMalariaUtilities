@@ -8,7 +8,7 @@ for each scenario and setting separately}
 \usage{
 do_post_processing(
   nameExperiment,
-  basename,
+  basename = "base.xml",
   ORIGIN = "1918-01-01",
   number_loops = 12,
   setting_number = 1,

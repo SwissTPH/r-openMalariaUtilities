@@ -1,9 +1,9 @@
 ### Little helpers for the the monitoring section
 
-## These functions generate entries for the monitoring/continous part which are
+## These functions generate entries for the monitoring/continuous part which are
 ## tedious to define by hand.
 ## This includes:
-##   - the options (for continous and surveys), which can be passed as a list or
+##   - the options (for continuous and surveys), which can be passed as a list or
 ##     data frame
 ##   - the timepoints for monitoring
 ## The time points generation is more involved as it tries to take care that all
@@ -14,11 +14,11 @@
 ## information (not fine). Thus, we generate here the dates and store them for
 ## later (postprocessing).
 
-##' @title Generate list for 'monitoring/continous/options'
+##' @title Generate list for 'monitoring/continuous/options'
 ##' @param period Value for period
 ##' @param options List of options
 ##' @export
-monitoringContinousGen <- function(period, options) {
+monitoringContinuousGen <- function(period, options) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(
@@ -37,7 +37,7 @@ monitoringContinousGen <- function(period, options) {
   return(outlist)
 }
 
-##' @title Generate list for 'monitoring/continous/options'
+##' @title Generate list for 'monitoring/continuous/options'
 ##' @param onlyNewEpisodes Value for onlyNewEpisodes
 ##' @param options List of options
 ##' @export
@@ -298,4 +298,163 @@ monitoringCohortsGen <- function(ids) {
     attributeList = subPops
   )
   return(outlist)
+}
+
+
+
+## DEPRECATED
+##' @title Writes the monitoring measures xml chunk
+##' @description Wrapper function for write_continuous and write_SurveyOptions
+##' @param baseList List with experiment data.
+##' @param name Name of monitoring settings.
+##' @param continuous Write measures for the continuous surveys
+##' @param SurveyOptions Write measures for the SurveyOptions
+##' @param surveyMeasures If NULL, default will be used
+##' @param continuousMeasures If NULL, default will be used
+##' @param y1 Year of the first date (surveys starting from year y1)
+##' @param m1 Month of the first date
+##' @param d1 Day of the first date
+##' @param y2 Year of the end date (surveys continuing until year y2)
+##' @param m2 Month of the end date
+##' @param d2 Day of the end date
+##' @param interval Interval "month" "year" "quarter"
+##' @param SIMSTART Starting date of the simulations in the format "yyyy-mm-dd",
+##'   default e.g. "1918-01-01"
+##' @param detect Detection limit for parasites in the blood
+##' @param upperbounds Defines the upper age bound per age group
+##' @export
+write_monitoring_compat <- function(baseList, name = "Annual Surveys",
+                                    continuous = TRUE, SurveyOptions = TRUE,
+                                    surveyMeasures = NULL,
+                                    continuousMeasures = NULL, y1 = 2000,
+                                    y2 = 2036, m1 = 1, m2 = 1, d1 = 1, d2 = 1,
+                                    SIMSTART = "1918-01-01", interval = "month",
+                                    detect = 200,
+                                    upperbounds = c(1, 2, 5, 6, 10, 11, 100)) {
+  ## Start list
+  startDate <- SIMSTART
+  outlist <- list(
+    name = name,
+    startDate = startDate
+  )
+
+  ## Generate continuous content
+  if (continuous == TRUE) {
+    cout <- list(
+      inputEIR = TRUE, simEIRcont = FALSE, humanInfect = FALSE, immunH = FALSE,
+      immunY = FALSE, newInfect = FALSE, transmHuman = FALSE, alpha = FALSE,
+      PB = FALSE, PCPD = FALSE
+    )
+
+    ## Defaults
+    if (is.null(continuousMeasures)) {
+      continuousMeasures <- c(
+        "inputEIR", "simEIRcont", "humanInfect", "immunH", "immunY", "newInfect",
+        "transmHuman"
+      )
+    }
+
+    cout[names(cout) %in% continuousMeasures] <- TRUE
+    cout <- lapply(cout, tolower)
+
+    outlist <- .xmlAddList(
+      data = outlist, sublist = NULL, entry = "continuous",
+      input = monitoringContinuousGen(period = 1, list(
+        name = c(
+          "input EIR", "simulated EIR", "human infectiousness", "immunity h",
+          "immunity Y", "new infections", "num transmitting humans",
+          "alpha", "P_B", "P_C*P_D"
+        ),
+        value = unlist(cout)
+      ))
+    )
+  }
+  ## Generate survey options content
+  if (SurveyOptions == TRUE) {
+    cout <- list(
+      nHost = TRUE,
+      nPatent = TRUE,
+      nUncomp = TRUE,
+      nSevere = TRUE,
+      totalInfs = TRUE,
+      nNewInfections = TRUE,
+      totalPatentInf = TRUE,
+      nTreatments1 = TRUE,
+      nTreatments2 = TRUE,
+      nTreatments3 = TRUE,
+      nTreatDeployments = TRUE,
+      nHospitalDeaths = TRUE,
+      nHospitalSeqs = TRUE,
+      nHospitalRecovs = TRUE,
+      nIndDeaths = TRUE,
+      nDirDeaths = TRUE,
+      expectedDirectDeaths = TRUE,
+      expectedHospitalDeaths = TRUE,
+      expectedIndirectDeaths = TRUE,
+      expectedSevere = TRUE,
+      nMassITNs = FALSE,
+      nMassIRS = FALSE,
+      nMDAs = FALSE,
+      nMassGVI = FALSE,
+      nMassVaccinations = FALSE,
+      nEPIVaccinations = FALSE,
+      inputEIR = FALSE,
+      simEIR = FALSE
+    )
+
+    if (is.null(surveyMeasures)) {
+      basics <- c("nHost", "nPatent", "nUncomp", "nSevere", "simEIR")
+      allTreatments <- c("nTreatments1", "nTreatments2", "nTreatments3", "nTreatDeployments")
+      allHospital <- c("nHospitalSeqs", "nHospitalRecovs", "nHospitalDeaths")
+      allDeaths <- c("nHospitalDeaths", "nIndDeaths", "nDirDeaths")
+      allExpDeaths <- c("expectedDirectDeaths", "expectedHospitalDeaths", "expectedIndirectDeaths")
+      allExpDeaths <- c("expectedDirectDeaths", "expectedHospitalDeaths", "expectedIndirectDeaths")
+      allInterventions <- c("nMassITNs", "nMassIRS", "nMDAs", "nMassGVI", "nMassVaccinations", "nEPIVaccinations")
+      surveyMeasures <- c(basics, allTreatments, allHospital, allDeaths, allExpDeaths, "expectedSevere")
+    }
+
+    cout[names(cout) %in% surveyMeasures] <- TRUE
+    cout <- lapply(cout, tolower)
+
+    outlist <- .xmlAddList(
+      data = outlist, sublist = NULL, entry = "SurveyOptions",
+      input = monitoringSurveyOptionsGen(
+        onlyNewEpisodes = NULL, options = list(
+          name = c(
+            "nHost", "nPatent", "nUncomp", "nSevere", "totalInfs",
+            "totalPatentInf", "nNewInfections", "nTreatments1", "nTreatments2",
+            "nTreatments3", "nTreatDeployments", "nHospitalSeqs",
+            "nHospitalRecovs", "nHospitalDeaths", "nIndDeaths", "nDirDeaths",
+            "expectedDirectDeaths", "expectedHospitalDeaths",
+            "expectedIndirectDeaths", "expectedSevere", "simulatedEIR",
+            "inputEIR", "nMDAs", "nMassGVI", "nEPIVaccinations", "nMassIRS",
+            "nMassITNs", "nMassVaccinations"
+          ),
+          value = c(unlist(cout))
+        )
+      )
+    )
+  }
+
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL, entry = "surveys",
+    input = monitoringSurveyTimesGen(
+      detectionLimit = detect, startDate = paste(y1, m1, d1, sep = "-"),
+      endDate = paste(y2, m2, d2, sep = "-"), interval = paste0("1 ", interval)
+    )
+  )
+
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL, entry = "ageGroup",
+    input = ageGroupsGen(
+      lowerbound = 0, ageGroups = data.frame(upperbound = upperbounds)
+    )
+  )
+  
+  baseList <- .xmlAddList(
+    data = baseList, sublist = NULL, entry = "monitoring",
+    input = outlist, append = FALSE
+  )
+  
+  return(baseList)
 }

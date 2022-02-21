@@ -7,7 +7,7 @@
 generateScenarios(
   baseFile = NULL,
   prefix = NULL,
-  scenarios = NULL,
+  scenarios,
   full = NULL,
   rowStart = NULL,
   rowEnd = NULL

@@ -31,7 +31,7 @@
 
 
 ##' @title Equalize length of placeholder sequences
-##' @param x Sequence which should be the maximum lenght.
+##' @param x Sequence which should be the maximum length.
 ##' @param placeholderseq List with placeholder sequences.
 ##' @keywords internal
 .equalizePlaceholders <- function(x, placeholderseq) {
@@ -66,13 +66,12 @@
   return(placeholderseq)
 }
 
-
-##' @title Writes the deployment of an intervention
+##' TODO cumulative=TRUE && is.null(subpop)
+##' @title Writes the deployment of an intervention.
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
-##' @param cumulative default is FALSE. Do not set to TRUE.
-##' @param effects Either NULL or
-##'   c("deterrency","preprandialKillingEffect","postprandialKillingEffect")
+##' @param cumulative Default is FALSE. Do not set to TRUE.
+##' @param effects Either NULL or vector of strings, e.g. c("det","pre","post")
 ##' @param startDate Date in YYYY-MM-DD format.
 ##' @param endDate Date in YYYY-MM-DD format.
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
@@ -86,14 +85,14 @@
 ##' @param maxAge Maximum age for deployment (used in SMC). Can be a
 ##'   placeholder.
 ##' @param coverage Value or variable of coverage. Can be a placeholder.
-##' @param subpop If TRUE, then restricts to a subpopulation (see
+##' @param subpop Either NULL or string. Concatenation component+"-"+subpop will
+##'   be id in subpopulation intervention should be restricted to (see
 ##'   restrictToSubPop in OpenMalaria)
 ##' @export
 deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
-                     effects = NULL, startDate = NULL, endDate = NULL, interval,
-                     dates = NULL, minAge = NULL, maxAge = NULL,
-                     coverage = NULL, subpop = FALSE) {
-
+                     effects = NULL, startDate = NULL, endDate = NULL,
+                     interval, dates = NULL, minAge = NULL, maxAge = NULL,
+                     coverage = NULL, subpop = NULL) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -101,18 +100,16 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     choices = c(TRUE, FALSE),
     add = assertCol
   )
-  checkmate::assertSubset(subpop,
-    choices = c(TRUE, FALSE),
+  checkmate::assertVector(subpop,
+    null.ok = TRUE,
+    len = 1,
     add = assertCol
   )
-  checkmate::assertSubset(effects,
-    choices = c(NULL, c(
-      "deterrency", "preprandialKillingEffect", "postprandialKillingEffect"
-    )),
+  checkmate::assertVector(effects,
+    null.ok = TRUE,
     add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-
 
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
@@ -149,7 +146,8 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     placeholderseq = placeholderseq
   )
 
-  ## Generate output
+
+  ## Generate output list
   outlist <- list()
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL,
@@ -158,40 +156,58 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
       name = component
     )
   )
-  ## 'component' can have mutliple entries, thus if effects is a vector
+
+  ## 'component' can have multiple entries, thus if effects is a vector
   ## containing strings, we need to generate one entry for each string.
-  ## Furthermore, if effects is not NULL and cumulative or subpop is TRUE, the
-  ## corresponding entries need to be added.
-  if (!is.null(effects) && is.vector(effects)) {
+  ## Component id is concatenation component+'-'+effects[1] etc.
+  ## Furthermore, if subpop is not NULL, deployment to subpopulation with
+  ## restrictToSubPop id concatenation component+'-'+subpop' is defined
+  ## First: is effects NULL?
+  if (is.null(effects)) {
+    outlist <- append(
+      outlist, list(component = list(id = component))
+    )
+  } else {
     for (eff in effects) {
       outlist <- append(
         outlist, list(component = list(id = paste0(component, "-", eff)))
       )
     }
-    if (cumulative == TRUE || subpop == TRUE) {
-      temp <- list()
-      if (cumulative == TRUE) {
-        temp <- append(temp, list(
-          cumulativeCoverage = list(
-            component = paste0(component, "-", effects[1])
-          )
-        ))
-      }
-      if (subpop == TRUE) {
-        temp <- append(temp, list(
-          restrictToSubPop = list(
-            id = paste0(component, "_", effects[1])
-          )
-        ))
-      }
+  }
 
-      outlist <- .xmlAddList(
-        data = outlist, sublist = NULL,
-        entry = "timed",
-        input = temp
+  ## Use temporary list to add possible entries for subpop and cumulative
+  temp <- list()
+  ## Second: is subpop NULL?
+  if (!is.null(subpop)) {
+    temp <- append(temp, list(
+      restrictToSubPop = list(
+        id = paste0(component, "-", subpop)
       )
+    ))
+    ## Third: is cumulative TRUE?
+    if (cumulative == TRUE) {
+      temp <- append(temp, list(
+        cumulativeCoverage = list(
+          component = paste0(component, "-", subpop)
+        )
+      ))
+    }
+  } else {
+    ## Third: is cumulative TRUE?
+    if (cumulative == TRUE) {
+      temp <- append(temp, list(
+        cumulativeCoverage = list(
+          component = component
+        )
+      ))
     }
   }
+
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = "timed",
+    input = temp
+  )
 
   ## Add deployments
   for (i in seq_len(length(dates))) {
@@ -226,6 +242,9 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
       input = temp
     )
   }
+
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
 
   ## Add to base list
   baseList <- .xmlAddList(
@@ -279,6 +298,17 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
       interval = interval
     )
     years <- substr(dates, start = 1, stop = 4)
+  }
+
+  ## Translate subpop values
+  if (subpop == FALSE) {
+    subpop <- NULL
+  } else {
+    if (!is.null(effects)) {
+      subpop <- effects[1]
+    } else {
+      subpop <- component
+    }
   }
 
   ## If deployvar is used, we need to generate date placeholders
