@@ -5,19 +5,51 @@
 \alias{define_entomology}
 \title{Defines entomology setting and writes it baseList file}
 \usage{
-defineEntomology(baseList, MosquitoParameters, append = TRUE)
+defineEntomology(
+  baseList,
+  seasonalityParameters,
+  mosquitoParameters,
+  verbose = FALSE,
+  append = TRUE
+)
 
-define_entomology(baseList, MosquitoParameters, append = TRUE)
+define_entomology(
+  baseList,
+  seasonalityParameters,
+  mosquitoParameters,
+  verbose = FALSE,
+  append = TRUE
+)
 }
 \arguments{
 \item{baseList}{List with experiment data.}
 
-\item{MosquitoParameters}{Mosquito bionomics parameterization list of
+\item{seasonalityParameters}{Seasonality parameterization.}
+
+\item{mosquitoParameters}{Mosquito bionomics parameterization list of
 different mosquito species as obtained from AnophelesModel package
 function get_OM_ento_snippet}
+
+\item{verbose}{If TRUE, print detailed output.}
 
 \item{append}{If TRUE, then append to existing baseList, otherwise overwrite}
 }
 \description{
 Defines entomology setting and writes it baseList file
+}
+\examples{
+ mosquitoParameters=list("Anopheles gambiae"=list(
+  mosqRestDuration=list(value="2"),
+  extrinsicIncubationPeriod=list(value="10"),
+  mosqLaidEggsSameDayProportion=list(value="0.589"),
+  mosqSeekingDuration=list(value="3"),
+  mosqSurvivalFeedingCycleProbability=list(value="0.75"),
+  mosqProbBiting=list(mean="0.95",
+                      variance="0"),
+  mosqProbFindRestSite=list(mean="0.95",
+                            variance="0"),
+  mosqProbResting=list(mean="0.99",
+                       variance="0"),
+   mosqProbOvipositing=list(mean="0.88"),
+  mosqHumanBloodIndex=list(mean="0.6243")))
 }
