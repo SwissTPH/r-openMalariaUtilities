@@ -66,7 +66,8 @@
   return(placeholderseq)
 }
 
-##' TODO cumulative=TRUE && is.null(subpop)
+## TODO cumulative=TRUE && is.null(subpop)
+
 ##' @title Writes the deployment of an intervention.
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
@@ -146,84 +147,94 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     placeholderseq = placeholderseq
   )
 
-
   ## Generate output list
   outlist <- list()
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL,
     entry = NULL,
     input = list(
-      name = if (grepl("^@.*@",component)){
-        gsub("@","",component)} else {
-          component}
+      name = if (grepl("^@.*@", component)) {
+        gsub("@", "", component)
+      } else {
+        component
+      }
     )
   )
 
-  ## 'component' can have multiple entries, thus if effects is a vector
-  ## containing strings, we need to generate one entry for each string.
-  ## component id is concatenation component+'-'+effects[1] etc.
-  ## Furthermore, if subpop is not NULL, deployment to subpopulation with 
-  ## restrictToSubPop id concatenation component+'-'+subpop' is defined
   ## TODO !is.null(effects) && (cumulative == TRUE || !is.null(subpop))
+
+  ## 'component' can have multiple entries, thus if effects is not NULL, we need
+  ## to generate one entry for each string. This is done by creating the string
+  ## COMPONENT-EFFECT.
+  ## Furthermore, if subpop is not NULL, the deployment will be done to a
+  ## subpopulation, thus setting restrictToSubPop/id to COMPONENT-SUBPOP.
   if (!is.null(effects) && is.null(subpop) && cumulative == FALSE) {
     for (eff in effects) {
       outlist <- append(
-        outlist, list(component = list(id = if (!grepl("^@.*@",component)){
-          paste0(component, "-", eff)} else {
-            paste0(gsub(".{1}$","",component),"-",eff,"@")}))
+        outlist, list(component = list(id = if (!grepl("^@.*@", component)) {
+          paste0(component, "-", eff)
+        } else {
+          paste0(gsub(".{1}$", "", component), "-", eff, "@")
+        }))
       )
     }
   }
-  
+
   if (is.null(effects) && is.null(subpop) && cumulative == FALSE) {
     outlist <- append(
       outlist, list(component = list(id = component))
     )
   }
-  
-  
+
   if (is.null(effects) && cumulative == TRUE) {
     outlist <- append(
       outlist, list(component = list(id = component))
     )
-    
-    cumulativeCoverage_component<-ifelse(is.null(subpop),"",paste0("-",subpop))
+
+    cumulativeCoverage_component <- ifelse(
+      is.null(subpop), "", paste0("-", subpop))
     temp <- list()
-    if(!is.null(subpop))  {
+    if (!is.null(subpop)) {
       temp <- append(temp, list(
         restrictToSubPop = list(
-          id = if (!grepl("^@.*@",component)){
-            paste0(component, "-", subpop)} else {
-              paste0(gsub(".{1}$","",component),"-",subpop,"@")}
+          id = if (!grepl("^@.*@", component)) {
+            paste0(component, "-", subpop)
+          } else {
+            paste0(gsub(".{1}$", "", component), "-", subpop, "@")
+          }
         )
-      )) 
+      ))
     }
     temp <- append(temp, list(
       cumulativeCoverage = list(
-        component = if (!grepl("^@.*@",component)){
-          paste0(component,cumulativeCoverage_component)} else {
-            paste0(gsub(".{1}$","",component),cumulativeCoverage_component,"@")}
+        component = if (!grepl("^@.*@", component)) {
+          paste0(component, cumulativeCoverage_component)
+        } else {
+          paste0(gsub(".{1}$", "", component), cumulativeCoverage_component, "@")
+        }
       )
     ))
-    
+
     outlist <- .xmlAddList(
       data = outlist, sublist = NULL,
       entry = "timed",
       input = temp
     )
   }
-  
+
   if (is.null(effects) && cumulative == FALSE && !is.null(subpop)) {
     outlist <- append(
       outlist, list(component = list(id = component))
     )
-    
+
     temp <- list()
     temp <- append(temp, list(
       restrictToSubPop = list(
-        id = if (!grepl("^@.*@",component)){
-          paste0(component, "-", subpop)} else {
-            paste0(gsub(".{1}$","",component),"-",subpop,"@")}
+        id = if (!grepl("^@.*@", component)) {
+          paste0(component, "-", subpop)
+        } else {
+          paste0(gsub(".{1}$", "", component), "-", subpop, "@")
+        }
       )
     ))
     outlist <- .xmlAddList(
@@ -232,7 +243,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
       input = temp
     )
   }
-  
+
   ## Add deployments
   for (i in seq_len(length(dates))) {
     temp <- list(
