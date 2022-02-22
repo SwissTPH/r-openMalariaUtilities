@@ -153,62 +153,86 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     data = outlist, sublist = NULL,
     entry = NULL,
     input = list(
-      name = component
+      name = if (grepl("^@.*@",component)){
+        gsub("@","",component)} else {
+          component}
     )
   )
 
   ## 'component' can have multiple entries, thus if effects is a vector
   ## containing strings, we need to generate one entry for each string.
-  ## Component id is concatenation component+'-'+effects[1] etc.
-  ## Furthermore, if subpop is not NULL, deployment to subpopulation with
+  ## component id is concatenation component+'-'+effects[1] etc.
+  ## Furthermore, if subpop is not NULL, deployment to subpopulation with 
   ## restrictToSubPop id concatenation component+'-'+subpop' is defined
-  ## First: is effects NULL?
-  if (is.null(effects)) {
+  ## TODO !is.null(effects) && (cumulative == TRUE || !is.null(subpop))
+  if (!is.null(effects) && is.null(subpop) && cumulative == FALSE) {
+    for (eff in effects) {
+      outlist <- append(
+        outlist, list(component = list(id = if (!grepl("^@.*@",component)){
+          paste0(component, "-", eff)} else {
+            paste0(gsub(".{1}$","",component),"-",eff,"@")}))
+      )
+    }
+  }
+  
+  if (is.null(effects) && is.null(subpop) && cumulative == FALSE) {
     outlist <- append(
       outlist, list(component = list(id = component))
     )
-  } else {
-    for (eff in effects) {
-      outlist <- append(
-        outlist, list(component = list(id = paste0(component, "-", eff)))
-      )
-    }
   }
-
-  ## Use temporary list to add possible entries for subpop and cumulative
-  temp <- list()
-  ## Second: is subpop NULL?
-  if (!is.null(subpop)) {
+  
+  
+  if (is.null(effects) && cumulative == TRUE) {
+    outlist <- append(
+      outlist, list(component = list(id = component))
+    )
+    
+    cumulativeCoverage_component<-ifelse(is.null(subpop),"",paste0("-",subpop))
+    temp <- list()
+    if(!is.null(subpop))  {
+      temp <- append(temp, list(
+        restrictToSubPop = list(
+          id = if (!grepl("^@.*@",component)){
+            paste0(component, "-", subpop)} else {
+              paste0(gsub(".{1}$","",component),"-",subpop,"@")}
+        )
+      )) 
+    }
     temp <- append(temp, list(
-      restrictToSubPop = list(
-        id = paste0(component, "-", subpop)
+      cumulativeCoverage = list(
+        component = if (!grepl("^@.*@",component)){
+          paste0(component,cumulativeCoverage_component)} else {
+            paste0(gsub(".{1}$","",component),cumulativeCoverage_component,"@")}
       )
     ))
-    ## Third: is cumulative TRUE?
-    if (cumulative == TRUE) {
-      temp <- append(temp, list(
-        cumulativeCoverage = list(
-          component = paste0(component, "-", subpop)
-        )
-      ))
-    }
-  } else {
-    ## Third: is cumulative TRUE?
-    if (cumulative == TRUE) {
-      temp <- append(temp, list(
-        cumulativeCoverage = list(
-          component = component
-        )
-      ))
-    }
+    
+    outlist <- .xmlAddList(
+      data = outlist, sublist = NULL,
+      entry = "timed",
+      input = temp
+    )
   }
-
-  outlist <- .xmlAddList(
-    data = outlist, sublist = NULL,
-    entry = "timed",
-    input = temp
-  )
-
+  
+  if (is.null(effects) && cumulative == FALSE && !is.null(subpop)) {
+    outlist <- append(
+      outlist, list(component = list(id = component))
+    )
+    
+    temp <- list()
+    temp <- append(temp, list(
+      restrictToSubPop = list(
+        id = if (!grepl("^@.*@",component)){
+          paste0(component, "-", subpop)} else {
+            paste0(gsub(".{1}$","",component),"-",subpop,"@")}
+      )
+    ))
+    outlist <- .xmlAddList(
+      data = outlist, sublist = NULL,
+      entry = "timed",
+      input = temp
+    )
+  }
+  
   ## Add deployments
   for (i in seq_len(length(dates))) {
     temp <- list(
