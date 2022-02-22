@@ -69,5 +69,5 @@ be id in subpopulation intervention should be restricted to (see
 restrictToSubPop in OpenMalaria)}
 }
 \description{
-TODO cumulative=TRUE && is.null(subpop)
+Writes the deployment of an intervention.
 }
