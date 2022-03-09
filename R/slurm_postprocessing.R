@@ -201,7 +201,7 @@ slurmRunPostprocess <- function() {
     command = paste0(
       "sbatch ", file.path(
         get("experimentDir", envir = .pkgcache),
-        "slurm_run_postprocess.R"
+        "slurm_postprocess.sh"
       )
     )
   )
