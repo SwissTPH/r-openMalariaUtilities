@@ -3,8 +3,16 @@ test_that("slurmPrepareScenarios works", {
   assign(x = "experimentDir", dir, envir = openMalariaUtilities:::.pkgcache)
   assign(x = "baseDir", dir, envir = openMalariaUtilities:::.pkgcache)
   assign(x = "logsDir", file.path(dir, "logs"), envir = openMalariaUtilities:::.pkgcache)
-  scenarios <- data.frame(setting = c(1:450))
-  full <- list(foo = c(1:450))
+  scenarios <- data.frame(
+    futITNcov = c(.65),
+    futIRScov = c(0, .8),
+    EIR = c(5, 25),
+    setting = c("alpha"),
+    pop = c(1:10),
+    seed = 1,
+    setting = c(1:450)
+  )
+  full <- .create_test_full()
 
   ## Bash submission script created with correct content
   slurmPrepareScenarios(expName = "test", scenarios = scenarios, full = full)

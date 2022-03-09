@@ -4,7 +4,7 @@
 \alias{storeScenarios}
 \title{Store scenarios and full object in cache folder}
 \usage{
-storeScenarios(scenarios, full)
+storeScenarios(scenarios, full, prefix = NULL, csv = TRUE)
 }
 \arguments{
 \item{scenarios}{Data frame containing the values for the placeholders. One
@@ -12,6 +12,10 @@ row per scenario, placeholders in columns. Column names correspond to the
 placeholder names.}
 
 \item{full}{List of experiment variables and values.}
+
+\item{prefix}{Filename prefix.}
+
+\item{csv}{Save scenarios as .csv file.}
 }
 \description{
 Store scenarios and full object in cache folder

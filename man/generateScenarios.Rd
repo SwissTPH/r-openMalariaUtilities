@@ -8,6 +8,7 @@ generateScenarios(
   baseFile = NULL,
   prefix = NULL,
   scenarios,
+  csv = TRUE,
   full = NULL,
   rowStart = NULL,
   rowEnd = NULL
@@ -21,6 +22,8 @@ generateScenarios(
 \item{scenarios}{Data frame containing the values for the placeholders. One
 row per scenario, placeholders in columns. Column names correspond to the
 placeholder names.}
+
+\item{csv}{Save scenarios as .csv file.}
 
 \item{full}{List of experiment variables and values.}
 

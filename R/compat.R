@@ -567,6 +567,8 @@ assign_value <- function(variable = "futIRScov",
   return(scens)
 }
 
+## DEPRECATED
+## FIXME THIS IS JUST PLAIN SHIT!
 ##' Description: Function to write scenario data
 ##' @param scens Dataset of scenarios
 ##' @param full List of experiment variables and values
@@ -578,21 +580,24 @@ assign_value <- function(variable = "futIRScov",
 ##' @importFrom utils write.csv
 write_scen_data <- function(scens, full, nameExperiment,
                             startnum = 1, saveit = TRUE, ...) {
-  ## set_experiment(nameExperiment)
+  print("'write_scen_data' has been deprecated. Please use 'storeScenarios' or 'generateScenarios'.")
   ## If scens and full are NULL, loading the saved dataset?
   experimentDir <- get("experimentDir", envir = .pkgcache)
   if (is.null(scens)) {
-    load(file.path(experimentDir, "scens.RData"))
+    load(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"))
   }
 
   ## Writing scenarios.csv and saving scens.RData
   colnames(scens) <- gsub("@", "", colnames(scens))
 
-  scens <- .add_file_column_to_scens(scens, nameExperiment, startnum)
+  prefix <- get(x = "experimentName", envir = .pkgcache)
+  scens <- .scenariosFilenames(scenarios = scens, prefix = prefix)
+
+  ## FIXME SUPER SHIT!
   scens <- add_idvars(scens, full, confirm = FALSE, overwrite = FALSE)
 
   ## Saving full, scens
-  scenfile <- file.path(experimentDir, "scens.RData")
+  scenfile <- file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")
 
   if (!is.logical(saveit)) saveit <- TRUE
   if (saveit) {

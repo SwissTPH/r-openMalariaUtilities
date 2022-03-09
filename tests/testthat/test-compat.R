@@ -161,6 +161,8 @@ test_that(".add_file_column_to_scens works", {
 
 test_that("write_scen_data works", {
   assign(x = "experimentDir", value = tempdir(), envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "cacheDir", value = tempdir(), envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "experimentName", value = "test", envir = openMalariaUtilities:::.pkgcache)
 
   scens <- .create_test_scens()
   full <- .create_test_full()

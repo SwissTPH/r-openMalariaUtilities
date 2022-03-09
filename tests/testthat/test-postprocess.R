@@ -197,7 +197,7 @@ test_that("do_post_processing integration test", {
   full$futITNcov <- c("none", "high")
   full$seed <- 1:2
 
-  storeScenarios(scenarios = scens, full = full)
+  save(full, scens, file = file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData"))
 
   #-- create base
   base <- .create_test_base()

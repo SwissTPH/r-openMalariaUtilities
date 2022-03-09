@@ -17,10 +17,30 @@
 ##'   row per scenario, placeholders in columns. Column names correspond to the
 ##'   placeholder names.
 ##' @param full List of experiment variables and values.
+##' @param prefix Filename prefix.
+##' @param csv Save scenarios as .csv file.
 ##' @export
-storeScenarios <- function(scenarios, full) {
-  ## Compatibility
+storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
+  ## DEPRECATED The following is done for compatibility reasons. In the end, we
+  ##            need to get rid of the 'full' object and ONLY store the
+  ##            scenarios.
+  ## Store filenames of each scenario in column
+  if (is.null(prefix)) {
+    prefix <- get(x = "experimentName", envir = .pkgcache)
+  }
+  scenarios <- .scenariosFilenames(scenarios = scenarios, prefix = prefix)
+  scenarios <- add_idvars(scenarios, full, confirm = FALSE, overwrite = FALSE)
   scens <- scenarios
+
+  ## Write csv if requested
+  if (csv == TRUE) {
+    utils::write.csv(
+      x = scens,
+      file = file.path(get("experimentDir", envir = .pkgcache), "scenarios.csv")
+    )
+  }
+
+  ## Save RData file
   save(scenarios, full, scens,
     file = file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")
   )
@@ -51,11 +71,13 @@ storeScenarios <- function(scenarios, full) {
 ##' @param prefix Filename prefix
 ##' @keywords internal
 .scenariosFilenames <- function(scenarios, prefix) {
-  ## Store filenames of each scenario in column
-  scenarios$file <- vapply(seq_len(nrow(scenarios)), function(row) {
-    filename <- paste(prefix, "_", row, ".xml", sep = "")
-    return(filename)
-  }, FUN.VALUE = character(1), USE.NAMES = FALSE)
+  ## Store filenames of each scenario in column, if not already present
+  if (is.null(scenarios$file)) {
+    scenarios$file <- vapply(seq_len(nrow(scenarios)), function(row) {
+      filename <- paste(prefix, "_", row, ".xml", sep = "")
+      return(filename)
+    }, FUN.VALUE = character(1), USE.NAMES = FALSE)
+  }
   return(scenarios)
 }
 
@@ -153,9 +175,11 @@ storeScenarios <- function(scenarios, full) {
 ##' @param full List of experiment variables and values.
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
+##' @param csv Save scenarios as .csv file.
 ##' @export
 generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
-                              full = NULL, rowStart = NULL, rowEnd = NULL) {
+                              csv = TRUE, full, rowStart = NULL,
+                              rowEnd = NULL) {
   ## Get values from cache if not given
   if (is.null(baseFile)) {
     baseFile <- get(x = "baseXml", envir = .pkgcache)
@@ -195,6 +219,6 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
   ## Cache scenarios
   storeScenarios(
     scenarios = get(x = "scenarios", envir = .pkgcache),
-    full = full
+    full = full, prefix = prefix, csv = csv
   )
 }
