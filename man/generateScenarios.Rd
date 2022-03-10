@@ -9,7 +9,7 @@ generateScenarios(
   prefix = NULL,
   scenarios,
   csv = TRUE,
-  full = NULL,
+  full,
   rowStart = NULL,
   rowEnd = NULL
 )
