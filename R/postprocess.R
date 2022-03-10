@@ -237,9 +237,9 @@ do_post_processing <- function(nameExperiment,
   # this loop creates text files containing those outputs from the text files
   ## setting_number = 2; setting = "setting"; setting_number = 1; number_loops = 1;
   temp <- .loop_over_output_files(scens,
-                                  setting = setting, files,
-                                  setting_number, number_loops
-                                  )
+    setting = setting, files,
+    setting_number, number_loops
+  )
   subset_of_files <- temp$subset_of_files
   short_filename <- temp$short_filename
   one_setting <- temp$one_setting
@@ -269,20 +269,20 @@ do_post_processing <- function(nameExperiment,
 
   ### --- merging with relevant scenarios.csv column names
   walle <- .merge_scens_with_outputs(walle, short_filename, scens,
-                                     ignore = ignores
-                                     )
+    ignore = ignores
+  )
   rm(alle)
 
   ## -- extracting parameter names
   # placeholder = NULL; include = NULL; seed_as_hist_param = T; fut = "fut"
   temp <- .extract_param_names(full, scens,
-                               models = "models",
-                               seed = "seed",
-                               fut = fut,
-                               seed_as_hist_param = seed_as_hist_param,
-                               placeholder = placeholder,
-                               include = include
-                               )
+    models = "models",
+    seed = "seed",
+    fut = fut,
+    seed_as_hist_param = seed_as_hist_param,
+    placeholder = placeholder,
+    include = include
+  )
 
   #### --- saving it the first time, then loading it whenever needed
   if (!debugg) saveRDS(object = temp, file = file.path(get(x = "experimentDir", envir = .pkgcache), "param_names.RDS"))
@@ -304,12 +304,12 @@ do_post_processing <- function(nameExperiment,
 
   ### calculating incidence information (using population size from Factorial)
   temp <- .define_outcome_variables(rawdat,
-                                    units_of = 1e3,
-                                    age_variables = c("age_group", "age_category"),
-                                    model_variables = c("models", "seed", "scenario"),
-                                    time_variables = c("survey", "Timestep", "Date", "year"),
-                                    outVars = selectedOutVars
-                                    )
+    units_of = 1e3,
+    age_variables = c("age_group", "age_category"),
+    model_variables = c("models", "seed", "scenario"),
+    time_variables = c("survey", "Timestep", "Date", "year"),
+    outVars = selectedOutVars
+  )
 
   rawdat <- temp$rawdat
   outcome_variables <- temp$outcome_variables
@@ -321,11 +321,11 @@ do_post_processing <- function(nameExperiment,
   ## -- saving rawdat
   if (!debugg) {
     save(rawdat,
-         file = file.path(
-           get(x = "combinedDir", envir = .pkgcache),
-           paste0("raw", loop_id, "_", ifelse(sets, one_setting, setting_number), ".RData")
-         )
-         )
+      file = file.path(
+        get(x = "combinedDir", envir = .pkgcache),
+        paste0("raw", loop_id, "_", ifelse(sets, one_setting, setting_number), ".RData")
+      )
+    )
   }
 
   if (debugg) message("After saving rawdat")
@@ -342,12 +342,12 @@ do_post_processing <- function(nameExperiment,
   ### --- redoing the calculations of age-specific variables
   ### --- since they should not simply be summed over different age-groups
   temp <- .define_outcome_variables(CombinedDat,
-                                    units_of = 1e3,
-                                    age_variables = "age",
-                                    model_variables = c("models", "seed", "scenario"),
-                                    time_variables = c("survey", "Timestep", "Date", "year"),
-                                    outVars = selectedOutVars
-                                    )
+    units_of = 1e3,
+    age_variables = "age",
+    model_variables = c("models", "seed", "scenario"),
+    time_variables = c("survey", "Timestep", "Date", "year"),
+    outVars = selectedOutVars
+  )
 
   # debugg checks (these should be different)
   CombinedDat[1:5, c("age", "nHost_0", "nPatent_3", "incidence_999", "nSevere_15", "nUncomp_14")] %>% print()
@@ -363,10 +363,10 @@ do_post_processing <- function(nameExperiment,
 
   ## -- adding identifiers to it (if not already done before)
   CombinedDat <- .assign_id_variables(CombinedDat,
-                                      unique_variables = unique_variables,
-                                      historical_variables = historical_variables,
-                                      future_variables = future_variables
-                                      )
+    unique_variables = unique_variables,
+    historical_variables = historical_variables,
+    future_variables = future_variables
+  )
 
   if (!debugg) {
     save(CombinedDat, file = file.path(
@@ -431,11 +431,11 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat_wide,
-         file = file.path(
-           get(x = "combinedDir", envir = .pkgcache),
-           paste0(setting_number, "_", loop_id, widename)
-         )
-         )
+      file = file.path(
+        get(x = "combinedDir", envir = .pkgcache),
+        paste0(setting_number, "_", loop_id, widename)
+      )
+    )
   }
 
   ## -- creating CombinedDat_month
@@ -462,17 +462,17 @@ do_post_processing <- function(nameExperiment,
       ## -- new, saving wide dataset by month
       if (!debugg) {
         save(CombinedDat_month,
-             file = file.path(
-               get(x = "combinedDir", envir = .pkgcache),
-               paste0(setting_number, "_", loop_id, monthname)
-             )
-             )
+          file = file.path(
+            get(x = "combinedDir", envir = .pkgcache),
+            paste0(setting_number, "_", loop_id, monthname)
+          )
+        )
       }
     } else {
       warning(paste(
         "CombinedDat_month not written, because monthyears specified are not available.
      You specified:", paste0(monthyears, collapse = ", ")
-     ))
+      ))
     }
   } # end aggregate_to_year
   return(TRUE)
@@ -491,7 +491,7 @@ do_post_processing <- function(nameExperiment,
 ##' @param setting Variable name that specifies the setting to run (default
 ##'   'setting')
 ##' @param setting_number Loop index for setting 1:N
-##' @param monthname Name of dataframe (i.e. "_CombinedDat_month.Rdata")
+##' @param monthname Name of dataframe (i.e. "_CombinedDat_month.RData")
 ##' @param make_month If TRUE, writes CombinedDat_month files
 ##' @param seed_as_hist_param If TRUE, each seed has a different past value
 ##' @param debugg If TRUE, then runs only 30 files from each setting

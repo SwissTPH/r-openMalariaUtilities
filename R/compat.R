@@ -698,7 +698,6 @@ cluster_status <- function(AnalysisDir = getwd(),
                            username = as.character((Sys.info()["user"])),
                            stime = "00:00:00",
                            sdate = Sys.Date()) {
-
   JobName <- State <- batch <- NULL
 
   message(paste0("Writing job status in:\n", AnalysisDir, "/jobs.txt"))

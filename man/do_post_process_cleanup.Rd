@@ -30,7 +30,7 @@ do_post_process_cleanup(
 
 \item{aggname}{Name convention for CombinedDat_Aggr files}
 
-\item{monthname}{Name of dataframe (i.e. "_CombinedDat_month.Rdata")}
+\item{monthname}{Name of dataframe (i.e. "_CombinedDat_month.RData")}
 
 \item{fut}{Name of future prefix, default is 'fut'}
 

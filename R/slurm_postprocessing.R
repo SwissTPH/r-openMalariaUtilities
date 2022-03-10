@@ -298,7 +298,7 @@ temp <- openMalariaUtilities::do_post_process_cleanup(
   removefiles = ", FALSE, ",
   make_month  = ", create_monthly_dataset, ",
   monthname   = ", enclose("_CombinedDat_month.RData"), ",
-  widename    = ", enclose("_CombinedDat_wide.Rdata"), ",
+  widename    = ", enclose("_CombinedDat_wide.RData"), ",
   fut         = ", enclose("fut"), ",
   setting_number = setting_number,
   seed_as_hist_param =", seed_as_hist_param, ",
