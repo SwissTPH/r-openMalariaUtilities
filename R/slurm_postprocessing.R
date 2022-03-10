@@ -90,7 +90,7 @@ slurmPreparePostprocess <- function(expName, scenarios,
                                       "scaled_down_flag"
                                     ),
                                     setting = "setting") {
-  widename <- "_CombinedDat_wide.Rdata"
+  widename <- "_CombinedDat_wide.RData"
 
   fsize <- files_per_job
   scens <- scenarios
@@ -181,7 +181,7 @@ temp <- openMalariaUtilities::do_post_processing(
   seed_as_hist_param = ", seed_as_hist_param, ",
   monthvars = ", enclose(variable_in_monthly_dataset), ",
   monthname = ", enclose("_CombinedDat_month.RData"), ",
-  monthyears = ",  enclose_numeric(years_in_monthly_dataset), ",
+  monthyears = ", enclose_numeric(years_in_monthly_dataset), ",
   debugg = ", FALSE, ",
   placeholder = ", enclose(NULL), ",
   include = ", enclose(NULL), "
@@ -202,6 +202,125 @@ slurmRunPostprocess <- function() {
       "sbatch ", file.path(
         get("experimentDir", envir = .pkgcache),
         "slurm_postprocess.sh"
+      )
+    )
+  )
+}
+
+##' @title Run preparations for SLURM submission of postprocessing cleanup
+##' @param expName Name of experiment
+##' @param scenarios Scenario data frame
+##' @param basename Name of base xml file
+##' @param files_per_job Number of scenario files to have in each dataset (too
+##'   many, and it will be slow)
+##' @param seed_as_hist_param If true, then each seed is a different historical
+##'   parameter
+##' @param create_monthly_dataset If true, creates a CombinedDat_month, where
+##'   each month and outcome is a column
+##' @param mem_clean Memory for process script
+##' @param time_clean Time for process script
+##' @param qos_clean Queue for process script
+##' @param setting "setting"
+##' @export
+slurmPrepareCleanup <- function(expName, scenarios,
+                                basename,
+                                files_per_job = 200,
+                                seed_as_hist_param = TRUE,
+                                create_monthly_dataset = FALSE,
+                                mem_clean = "2GB",
+                                time_clean = "00:10:00",
+                                qos_clean = "30min",
+                                setting = "setting") {
+  widename <- "_CombinedDat_wide.RData"
+
+  fsize <- files_per_job
+  scens <- scenarios
+  sets <- (length(which(colnames(scenarios) == setting)) > 0)
+
+  out <- .calculate_postprocess_loops(scens, fsize)
+  many <- out$many
+  loops <- out$loops
+
+  ## Create a postprocess job
+  filename <- file.path(
+    get(x = "experimentDir", envir = .pkgcache), "slurm_cleanup.sh"
+  )
+  .writeSlurm(
+    jobName = paste0(expName, "_cleanup"),
+    ntasks = 1,
+    memCPU = mem_clean,
+    array = many,
+    time = time_clean,
+    qos = qos_clean,
+    output = file.path(
+      get(x = "logsDir", envir = .pkgcache),
+      paste0(expName, "_cleanup")
+    ),
+    error = file.path(
+      get(x = "logsDir", envir = .pkgcache),
+      paste0(expName, "_cleanup")
+    ),
+    pre = list(
+      "module purge",
+      "module load R/4.1.2-foss-2018b-Python-3.6.6"
+    ),
+    cmd = list(paste("Rscript", file.path(
+      get(x = "experimentDir", envir = .pkgcache), "slurm_run_cleanup.R"
+    ), "$ID")),
+    file = filename
+  )
+
+  ## Create R script
+  cat(
+    "#!/usr/bin/env Rscript
+
+## Get arguments
+args <- commandArgs(trailingOnly = TRUE)
+
+## Set correct working directory\n",
+    "setwd(dir = \"", paste0(get(x = "baseDir", envir = .pkgcache)), "\")
+
+## Load library
+library(openMalariaUtilities)
+
+## Load cached data
+loadExperiment(\"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+load(file.path(get(x = \"cacheDir\", envir = openMalariaUtilities:::.pkgcache), \"scens.RData\"))
+
+## Set variables
+setting_number <- as.numeric(args[1])
+
+## Do the cleanup
+temp <- openMalariaUtilities::do_post_process_cleanup(
+  nameExperiment = ", expName, ",
+  make_aggr   = ", TRUE, ",
+  make_wide   = ", TRUE, ",
+  removefiles = ", FALSE, ",
+  make_month  = ", create_monthly_dataset, ",
+  monthname   = ", enclose("_CombinedDat_month.RData"), ",
+  widename    = ", enclose("_CombinedDat_wide.Rdata"), ",
+  fut         = ", enclose("fut"), ",
+  setting_number = setting_number,
+  seed_as_hist_param =", seed_as_hist_param, ",
+  placeholder = ", enclose(NULL), ",
+  include = ", enclose(NULL), "
+)
+",
+    file = file.path(
+      get(x = "experimentDir", envir = .pkgcache), "slurm_run_cleanup.R"
+    ),
+    sep = ""
+  )
+}
+
+##' @title Submit postprocessing job to SLURM
+##' @export
+slurmRunCleanup <- function() {
+  system(
+    command = paste0(
+      "sbatch ", file.path(
+        get("experimentDir", envir = .pkgcache),
+        "slurm_cleanup.sh"
       )
     )
   )

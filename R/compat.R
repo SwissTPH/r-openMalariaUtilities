@@ -627,3 +627,112 @@ make_mosquito_name <- function(mosq = c("gambiaess", "funestuss"),
   }
   return(mosq)
 }
+
+## DEPRECATED
+##' @title Internal warning funtion
+##' @inheritParams write_JAGSmodel
+##' @param scens scens object
+##' @param seed_as_hist_param if TRUE, each seed has a different past value
+.seed_warning <- function(scens, seed_as_hist_param) {
+  nseed <- length(unique(scens$seed))
+
+  if (nseed > 1 & !seed_as_hist_param) {
+    warning(
+      paste("NOTE: Your experiment has", nseed, "seeds, but seed_as_hist_param = F.
+          This may cause problems.")
+    )
+  }
+
+  return(TRUE)
+}
+
+## DEPRECATED
+##' @title Helper function in do_post_process_cleanup
+##' @importFrom magrittr %>%
+##' @note internal function
+##' @inheritParams .apply_weights_to_combined_dat
+##' @param widename "CombinedDat_wide.RData"
+##' @param CombinedDir folder with CombinedDat_wide files in it
+##' @param setting_number setting number (1, 2, 3, ..., 11)
+##' @importFrom tidyr separate
+.identify_files_to_join <- function(CombinedDir, setting_number = 1,
+                                    widename = "_CombinedDat_wide.RData") {
+  full_path <- NULL
+  list_of_files <- list.files(path = CombinedDir, pattern = widename, full.names = FALSE)
+  wides <- list.files(path = CombinedDir, pattern = widename, full.names = FALSE)
+
+  if (length(list_of_files) > 0) {
+    ## -- which ones do we merge together?
+    wide_list <- data.frame(list_of_files) %>%
+      tidyr::separate(
+        col = "list_of_files", sep = "_",
+        into = c("setting_number", "loop", "name")
+      )
+
+    ## ---
+    tempname <- file.path(CombinedDir, paste0(setting_number, widename))
+    full_path <- file.path(
+      CombinedDir, wides[wide_list$ setting_number == setting_number &
+        !is.na(as.numeric(wide_list$ loop))]
+    )
+  } else {
+    warning("no files found")
+  }
+
+  return(list(these = full_path, tempname = tempname))
+}
+
+## DEPRECATED
+##' @title writes a file of all job status and writes a table showing categories (failed, completed)
+##' @param stime start time 00:00:00 for checking jobs ("hh:mm:ss")
+##' @param sdate start date for checking jobs "yyyy-mm-dd"
+##' @param AnalysisDir analysis directory folder
+##' @param username slurm username
+##' @importFrom magrittr %>%
+##' @importFrom utils askYesNo write.csv
+##' @importFrom tidyr separate
+##' @importFrom dplyr filter arrange
+##' @export
+##' @return table of status of jobs on cluster
+cluster_status <- function(AnalysisDir = getwd(),
+                           username = as.character((Sys.info()["user"])),
+                           stime = "00:00:00",
+                           sdate = Sys.Date()) {
+
+  JobName <- State <- batch <- NULL
+
+  message(paste0("Writing job status in:\n", AnalysisDir, "/jobs.txt"))
+  system(
+    paste0(
+      "sacct -S ", sdate, "-", stime, " -u ", username,
+      " --format=JobID%30,Jobname%30,state,elapsed > ",
+      file.path(AnalysisDir, "jobs.txt")
+    )
+  )
+
+  message(paste("Outputting Jobs Submitted after", sdate, stime))
+
+  jobtxt <- data.frame(utils::read.table(file.path(AnalysisDir, "jobs.txt"), header = T))
+  unlink(file.path(AnalysisDir, "jobs.txt"))
+
+  tt2 <- suppressWarnings(
+    jobtxt %>%
+      tidyr::separate(col = "JobID", sep = "_", into = c("batch", "id")) %>%
+      dplyr::filter(
+        !(JobName %in% c("batch", "dependency", "extern")) &
+          !(State %in% c("CANCELLED+", "----------"))
+      )
+  ) # no warning
+  utils::write.csv(tt2, file.path(AnalysisDir, "jobs.csv"))
+
+  job_status <- data.frame(table(tt2[, c("batch", "State", "JobName")]))
+
+  if (nrow(job_status) > 0) {
+    job_status <- job_status[job_status$ Freq > 0, ] %>%
+      dplyr::arrange(as.numeric(batch)) %>%
+      dplyr::mutate(State = tolower(State))
+    colnames(job_status) <- c("batch number", "status", "job name", "jobs")
+  }
+
+  return(job_status)
+}

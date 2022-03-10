@@ -83,7 +83,7 @@ temp <- openMalariaUtilities::do_post_processing(
   agecats = c('2to10','0to5','All'),
   ignores = c('propOut','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec','scaled_down_flag'),
   selectedOutVars = c('PR','nUncomp','nHost','nSevere','incidence','ddeath','edeath','edirdeath','expectedDirectDeaths','nTreatments1','nTreatments2','nTreatments3','nHospitalSeqs','nHospitalRecovs','expectedHospitalDeaths','tUncomp','tSevere'),
-  widename = c('_CombinedDat_wide.Rdata'),
+  widename = c('_CombinedDat_wide.RData'),
   seed_as_hist_param = TRUE,
   monthvars = c('PR'),
   monthname = c('_CombinedDat_month.RData'),
@@ -101,6 +101,103 @@ temp <- openMalariaUtilities::do_post_processing(
       cat(
         readLines(
           file.path(dir, "slurm_run_postprocess.R")
+        ),
+        sep = "\n"
+      )
+    ),
+    sep = "", collapse = "\n"
+  )
+
+  expect_equal(actual, expected)
+})
+
+
+test_that("slurmPrepareCleanup works", {
+  dir <- tempdir()
+  assign(x = "experimentDir", dir, envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "baseDir", dir, envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "logsDir", file.path(dir, "logs"), envir = openMalariaUtilities:::.pkgcache)
+  scenarios <- data.frame(setting = c(1:450))
+
+  ## Bash submission script created with correct content
+  slurmPrepareCleanup(
+    expName = "test", scenarios = scenarios, basename = "base.xml"
+  )
+
+  expected <- paste(capture.output(cat("#!/bin/bash
+#SBATCH --job-name=test_cleanup
+#SBATCH --ntasks=1
+#SBATCH --mem-per-cpu=2GB
+#SBATCH --output=", dir, "/logs/test_cleanup_%A_%a.log
+#SBATCH --error=", dir, "/logs/test_cleanup_%A_%a_error.log
+#SBATCH --array=1-450
+#SBATCH --time=00:10:00
+#SBATCH --qos=30min
+ID=$(expr ${SLURM_ARRAY_TASK_ID} - 0)
+
+module purge
+module load R/4.1.2-foss-2018b-Python-3.6.6
+
+Rscript ", dir, "/slurm_run_cleanup.R $ID
+
+", sep = "")), sep = "", collapse = "\n")
+
+  actual <- paste(
+    capture.output(
+      cat(
+        readLines(file.path(dir, "slurm_cleanup.sh")),
+        sep = "\n"
+      )
+    ),
+    sep = "", collapse = "\n"
+  )
+
+  expect_equal(actual, expected)
+
+  ## Rscript created with correct content
+  expected <- paste(capture.output(cat(
+    "#!/usr/bin/env Rscript
+
+## Get arguments
+args <- commandArgs(trailingOnly = TRUE)
+
+## Set correct working directory
+setwd(dir = \"", dir, "\")
+
+## Load library
+library(openMalariaUtilities)
+
+## Load cached data
+loadExperiment(\"", dir, "\")
+load(file.path(get(x = \"cacheDir\", envir = openMalariaUtilities:::.pkgcache), \"scens.RData\"))
+
+## Set variables
+setting_number <- as.numeric(args[1])
+
+## Do the cleanup
+temp <- openMalariaUtilities::do_post_process_cleanup(
+  nameExperiment = test,
+  make_aggr   = TRUE,
+  make_wide   = TRUE,
+  removefiles = FALSE,
+  make_month  = FALSE,
+  monthname   = c('_CombinedDat_month.RData'),
+  widename    = c('_CombinedDat_wide.Rdata'),
+  fut         = c('fut'),
+  setting_number = setting_number,
+  seed_as_hist_param =TRUE,
+  placeholder = NULL,
+  include = NULL
+)
+",
+    sep = ""
+  )), sep = "", collapse = "\n")
+
+  actual <- paste(
+    capture.output(
+      cat(
+        readLines(
+          file.path(dir, "slurm_run_cleanup.R")
         ),
         sep = "\n"
       )

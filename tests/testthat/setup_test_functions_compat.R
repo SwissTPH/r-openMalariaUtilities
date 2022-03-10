@@ -563,3 +563,23 @@ wucase_12	3	1-2	2	206	111	6	3", sep = "\t")
   CombinedDat$X <- NULL
   return(CombinedDat)
 }
+
+.create_test_CombinedDat_wide <- function() {
+  CombinedDat_wide <- data.frame(
+    setting = "alpha", pop = 500,
+    seed = 1,
+    PR_0to5_2000 = c(.1, .5, .6, .8),
+    PR_0to5_2001 = c(.08, .35, .6, .8),
+    PR_0to5_2002 = c(.05, .25, .6, .76),
+    PR_All_2000 = c(.2, .3, .6, .75),
+    PR_All_2001 = c(.15, .2, .61, .72),
+    PR_All_2002 = c(.1, .15, .59, .63),
+    HistScen_nr = c(1:2, 1:2),
+    EIR = c(5, 25, 5, 25),
+    fut = c(1, 1, 2, 2),
+    futITNcov = .65,
+    futIRScov = c(.8, .8, 0, 0)
+  )
+
+  return(CombinedDat_wide)
+}

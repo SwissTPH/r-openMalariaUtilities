@@ -178,3 +178,26 @@ test_that("make_mosquito_name works", {
   out <- make_mosquito_name(mosq = c("one", "two"), inout = TRUE)
   expect_equal(out, c("one_indoor", "two_indoor", "one_outdoor", "two_outdoor"))
 })
+
+test_that(".seed_warning works", {
+  scens <- data.frame(seed = 1:2, setting = "alpha")
+  expect_warning(.seed_warning(scens, seed_as_hist_param = F))
+
+  scens <- data.frame(seed = 1:2, setting = "alpha")
+  expect_true(.seed_warning(scens, seed_as_hist_param = T))
+})
+
+test_that(".identify_files_to_join works", {
+  dir <- file.path(tempdir(), "test_identify_files_to_join")
+  dir.create(dir, showWarnings = FALSE, recursive = TRUE)
+  CombinedDat_wide <- .create_test_CombinedDat_wide()
+  save(CombinedDat_wide, file = file.path(dir, "1_1_CombinedDat_wide.RData"))
+  save(CombinedDat_wide, file = file.path(dir, "1_2_CombinedDat_wide.RData"))
+
+  out <- .identify_files_to_join(dir,
+    setting_number = 1,
+    widename = "_CombinedDat_wide.RData"
+  )
+
+  expect_equal(out$tempname, file.path(dir, "1_CombinedDat_wide.RData"))
+})
