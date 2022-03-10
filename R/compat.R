@@ -656,7 +656,7 @@ make_mosquito_name <- function(mosq = c("gambiaess", "funestuss"),
 ##' @param setting_number setting number (1, 2, 3, ..., 11)
 ##' @importFrom tidyr separate
 .identify_files_to_join <- function(CombinedDir, setting_number = 1,
-                                    widename = "_CombinedDat_wide.RData") {
+                                    widename = "_CombinedDat_wide.[rR][dD]ata") {
   full_path <- NULL
   list_of_files <- list.files(path = CombinedDir, pattern = widename, full.names = FALSE)
   wides <- list.files(path = CombinedDir, pattern = widename, full.names = FALSE)

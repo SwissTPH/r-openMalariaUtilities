@@ -260,9 +260,9 @@ test_that("do_post_process_cleanup works", {
   CombinedDat_Aggr <- .create_test_CombinedDat_Aggr()
 
   save(CombinedDat_wide, file = file.path(combinedDir, "1_1_CombinedDat_wide.RData"))
-  save(CombinedDat_wide, file = file.path(combinedDir, "1_2_CombinedDat_wide.RData"))
+  save(CombinedDat_wide, file = file.path(combinedDir, "1_2_CombinedDat_wide.Rdata"))
   save(CombinedDat_Aggr, file = file.path(combinedDir, "1_1_CombinedDat_Aggr.RData"))
-  save(CombinedDat_Aggr, file = file.path(combinedDir, "1_2_CombinedDat_Aggr.RData"))
+  save(CombinedDat_Aggr, file = file.path(combinedDir, "1_2_CombinedDat_Aggr.Rdata"))
 
   wide_file <- file.path(combinedDir, "1_CombinedDat_wide.RData")
   aggr_file <- file.path(combinedDir, "1_CombinedDat_Aggr.RData")

@@ -7,7 +7,7 @@
 .identify_files_to_join(
   CombinedDir,
   setting_number = 1,
-  widename = "_CombinedDat_wide.RData"
+  widename = "_CombinedDat_wide.[rR][dD]ata"
 )
 }
 \arguments{

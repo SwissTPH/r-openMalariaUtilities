@@ -192,7 +192,7 @@ test_that(".identify_files_to_join works", {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   CombinedDat_wide <- .create_test_CombinedDat_wide()
   save(CombinedDat_wide, file = file.path(dir, "1_1_CombinedDat_wide.RData"))
-  save(CombinedDat_wide, file = file.path(dir, "1_2_CombinedDat_wide.RData"))
+  save(CombinedDat_wide, file = file.path(dir, "1_2_CombinedDat_wide.Rdata"))
 
   out <- .identify_files_to_join(dir,
     setting_number = 1,
