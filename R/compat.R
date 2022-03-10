@@ -735,3 +735,76 @@ cluster_status <- function(AnalysisDir = getwd(),
 
   return(job_status)
 }
+
+##' run_script is a wrapper function that runs other function with pre-defined options
+##' @note this can run multiple scripts in a dependency
+##' @param submit if TRUE, then submits the script
+##' @param ... not used
+##' @param scripts specifies the process to run. Options are: "all", "scen", "malaria", "post", "jag", "sub", "clean", "fit"
+##' @export
+run_script <- function(scripts = c(
+                         "slurm_scenarios.sh", "slurm_simulation.sh",
+                         "slurm_postprocess.sh", "slurm_cleanup.sh"
+                       ),
+                       submit = TRUE, ...) {
+
+  ### --- if just one script specified
+  if (length(scripts) == 1 && submit == TRUE) {
+    system(command = paste0(
+      "sbatch ", file.path(
+        get("experimentDir", envir = .pkgcache),
+        scripts
+      )
+    ))
+  }
+
+  if (length(scripts) > 1) {
+    jobs <- length(scripts)
+
+    #--- name of the first script to be submitted
+    txt <- paste0("job", 1, "=$(sbatch ", file.path(get("experimentDir", envir = .pkgcache), scripts[1]), ")")
+
+    if (jobs >= 2) {
+      for (j in 2:jobs) {
+        txt <- paste(txt,
+          paste0(
+            "job", j
+            ### --- syntax for dependency code
+            , "=$(sbatch --dependency=afterok:${job", j - 1, ":20} ",
+            file.path(get("experimentDir", envir = .pkgcache), scripts[j]), ")\n"
+          ),
+          sep = "\n"
+        )
+      } # end dependency code
+    } # end more than 1 job
+
+    cat(
+      "#!/bin/bash
+#SBATCH --job-name=dependency
+#SBATCH --ntasks=1
+#SBATCH --qos=1week
+#SBATCH --mem-per-cpu=15MB
+#SBATCH --time=00:02:00
+#SBATCH --output=", file.path(get(x = "logsDir", envir = .pkgcache), "dependency.log"), "
+#SBATCH --error=", file.path(get(x = "logsDir", envir = .pkgcache), "dependency_error.log"), "
+##---
+cd ", get("experimentDir", envir = .pkgcache), "
+## running scripts in sequence\n", txt,
+      sep = "",
+      file = file.path(get("experimentDir", envir = .pkgcache), "dependency.sh")
+    )
+
+    if (submit == TRUE) {
+      system(
+        command = paste0(
+          "sbatch ", file.path(
+            get("experimentDir", envir = .pkgcache),
+            "dependency.sh"
+          )
+        )
+      )
+    }
+  }
+
+  return(TRUE)
+}
