@@ -137,12 +137,22 @@
     invisible(
       lapply(
         c(
+          ## Project root
           get(x = "baseDir", envir = .pkgcache),
-          get(x = "cacheDir", envir = .pkgcache),
+          ## Experiment directory
           get(x = "experimentDir", envir = .pkgcache),
+          ## Cache directory
+          get(x = "cacheDir", envir = .pkgcache),
+          ## Scenarios directory
           get(x = "scenariosDir", envir = .pkgcache),
+          ## Log directory
           get(x = "logsDir", envir = .pkgcache),
+          file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
+          file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
+          file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+          ## Open Malaria output directory
           get(x = "outputsDir", envir = .pkgcache),
+          ## Combined outputs directory
           get(x = "combinedDir", envir = .pkgcache)
         ),
         function(x) {

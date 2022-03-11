@@ -14,8 +14,8 @@ test_that("slurmPreparePostprocess works", {
 #SBATCH --job-name=test_postprocess
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=2GB
-#SBATCH --output=", dir, "/logs/test_postprocess_%A_%a.log
-#SBATCH --error=", dir, "/logs/test_postprocess_%A_%a_error.log
+#SBATCH --output=", dir, "/logs/postprocessing/test_postprocess_%A_%a.log
+#SBATCH --error=", dir, "/logs/postprocessing/test_postprocess_%A_%a_error.log
 #SBATCH --array=1-450
 #SBATCH --time=00:06:00
 #SBATCH --qos=6hours
@@ -128,8 +128,8 @@ test_that("slurmPrepareCleanup works", {
 #SBATCH --job-name=test_cleanup
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=2GB
-#SBATCH --output=", dir, "/logs/test_cleanup_%A_%a.log
-#SBATCH --error=", dir, "/logs/test_cleanup_%A_%a_error.log
+#SBATCH --output=", dir, "/logs/postprocessing/test_cleanup_%A_%a.log
+#SBATCH --error=", dir, "/logs/postprocessing/test_cleanup_%A_%a_error.log
 #SBATCH --array=1-450
 #SBATCH --time=00:10:00
 #SBATCH --qos=30min

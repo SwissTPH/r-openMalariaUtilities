@@ -117,11 +117,11 @@ slurmPreparePostprocess <- function(expName, scenarios,
     time = time_process,
     qos = qos_process,
     output = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
       paste0(expName, "_postprocess")
     ),
     error = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
       paste0(expName, "_postprocess")
     ),
     pre = list(
@@ -253,11 +253,11 @@ slurmPrepareCleanup <- function(expName, scenarios,
     time = time_clean,
     qos = qos_clean,
     output = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
       paste0(expName, "_cleanup")
     ),
     error = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
       paste0(expName, "_cleanup")
     ),
     pre = list(

@@ -11,8 +11,8 @@ test_that("slurmPrepareRunScenarios works", {
   expected <- paste(capture.output(cat("#!/bin/bash
 #SBATCH --job-name=test_simulation
 #SBATCH --ntasks=1
-#SBATCH --output=", dir, "/logs/test_simulation_%A_%a.log
-#SBATCH --error=", dir, "/logs/test_simulation_%A_%a_error.log
+#SBATCH --output=", dir, "/logs/simulation/test_simulation_%A_%a.log
+#SBATCH --error=", dir, "/logs/simulation/test_simulation_%A_%a_error.log
 #SBATCH --array=1-450
 #SBATCH --time=06:00:00
 #SBATCH --qos=6hours

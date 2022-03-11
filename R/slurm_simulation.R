@@ -38,11 +38,11 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
     time = time,
     qos = qos,
     output = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
       paste0(expName, "_simulation")
     ),
     error = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
       paste0(expName, "_simulation")
     ),
     pre = list(
