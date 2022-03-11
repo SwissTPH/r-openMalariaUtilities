@@ -29,31 +29,31 @@
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(experimentName, add = assertCol)
   checkmate::assert(checkmate::checkNull(rootDir),
-    checkmate::checkCharacter(rootDir),
-    add = assertCol
+                    checkmate::checkCharacter(rootDir),
+                    add = assertCol
   )
   checkmate::assert(checkmate::checkNull(scenariosDir),
-    checkmate::checkCharacter(scenariosDir),
-    add = assertCol
+                    checkmate::checkCharacter(scenariosDir),
+                    add = assertCol
   )
   checkmate::assert(checkmate::checkNull(logsDir),
-    checkmate::checkCharacter(logsDir),
-    add = assertCol
+                    checkmate::checkCharacter(logsDir),
+                    add = assertCol
   )
   checkmate::assert(checkmate::checkLogical(replace),
-    checkmate::checkCharacter(replace, pattern = "ask"),
-    add = assertCol
+                    checkmate::checkCharacter(replace, pattern = "ask"),
+                    add = assertCol
   )
   checkmate::reportAssertions(collection = assertCol)
-
+  
   ## Generate paths and cache them
   ## Unless rootDir is given, use current working directory
   if (is.null(rootDir)) {
     rootDir <- getwd()
   }
   assign(x = "baseDir", value = file.path(rootDir), envir = .pkgcache)
-
-
+  
+  
   ## Experiment directory
   if (is.null(experimentName)) {
     experimentName <- format(Sys.time(), "%Y%m%d_%H%M%S")
@@ -62,50 +62,50 @@
     x = "experimentDir", value = file.path(rootDir, experimentName),
     envir = .pkgcache
   )
-
+  
   ## Cache directory
   assign(x = "cacheDir", value = file.path(get(
     x = "experimentDir",
     envir = .pkgcache
   ), "cache"), envir = .pkgcache)
-
+  
   ## Scenario directory
   if (is.null(scenariosDir)) {
     scenariosDir <- "scenarios"
   }
-
+  
   assign(x = "scenariosDir", value = file.path(
     rootDir,
     experimentName,
     scenariosDir
   ), envir = .pkgcache)
-
-
+  
+  
   ## Logs directory
   if (is.null(logsDir)) {
     logsDir <- "logs"
   }
-
+  
   assign(x = "logsDir", value = file.path(
     rootDir,
     experimentName,
     logsDir
   ), envir = .pkgcache)
-
+  
   ## Output directory
   assign(x = "outputsDir", value = file.path(
     rootDir,
     experimentName,
     "outputs"
   ), envir = .pkgcache)
-
-  ## Postprocessing directory
+  
+  ## postprocessing outputs directory
   assign(x = "postprocessingDir", value = file.path(
     rootDir,
     experimentName,
     "postprocessing"
   ), envir = .pkgcache)
-
+  
   ## Check if directories are already present and crete them if necessary
   createDir <- NULL
   if (dir.exists(get(x = "experimentDir", envir = .pkgcache))) {
@@ -131,18 +131,28 @@
   } else {
     createDir <- TRUE
   }
-
+  
   ## Create directories, silently
   if (createDir == TRUE) {
     invisible(
       lapply(
         c(
+          ## Project root
           get(x = "baseDir", envir = .pkgcache),
-          get(x = "cacheDir", envir = .pkgcache),
+          ## Experiment directory
           get(x = "experimentDir", envir = .pkgcache),
+          ## Cache directory
+          get(x = "cacheDir", envir = .pkgcache),
+          ## Scenarios directory
           get(x = "scenariosDir", envir = .pkgcache),
+          ## Log directory
           get(x = "logsDir", envir = .pkgcache),
+          file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
+          file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
+          file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+          ## Open Malaria output directory
           get(x = "outputsDir", envir = .pkgcache),
+          ## postprocessing outputs directory
           get(x = "postprocessingDir", envir = .pkgcache)
         ),
         function(x) {
