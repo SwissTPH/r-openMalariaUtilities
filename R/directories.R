@@ -99,11 +99,11 @@
     "outputs"
   ), envir = .pkgcache)
 
-  ## Combined outputs directory
-  assign(x = "combinedDir", value = file.path(
+  ## Postprocessing directory
+  assign(x = "postprocessingDir", value = file.path(
     rootDir,
     experimentName,
-    "combined"
+    "postprocessing"
   ), envir = .pkgcache)
 
   ## Check if directories are already present and crete them if necessary
@@ -143,7 +143,7 @@
           get(x = "scenariosDir", envir = .pkgcache),
           get(x = "logsDir", envir = .pkgcache),
           get(x = "outputsDir", envir = .pkgcache),
-          get(x = "combinedDir", envir = .pkgcache)
+          get(x = "postprocessingDir", envir = .pkgcache)
         ),
         function(x) {
           if (!dir.exists(x)) {

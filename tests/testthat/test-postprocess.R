@@ -181,7 +181,7 @@ test_that("do_post_processing integration test", {
   ExperimentDir <- get(x = "experimentDir", envir = openMalariaUtilities:::.pkgcache)
   MainDir <- tempdir()
   MalariaDir <- get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache)
-  CombinedDir <- get(x = "combinedDir", envir = openMalariaUtilities:::.pkgcache)
+  CombinedDir <- get(x = "postprocessingDir", envir = openMalariaUtilities:::.pkgcache)
 
   #-- create scens and full
   #-- EIR does not need to be a column, but 'pop' must be

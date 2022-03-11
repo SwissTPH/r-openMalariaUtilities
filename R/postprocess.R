@@ -322,7 +322,7 @@ do_post_processing <- function(nameExperiment,
   if (!debugg) {
     save(rawdat,
       file = file.path(
-        get(x = "combinedDir", envir = .pkgcache),
+        get(x = "postprocessingDir", envir = .pkgcache),
         paste0("raw", loop_id, "_", ifelse(sets, one_setting, setting_number), ".RData")
       )
     )
@@ -370,7 +370,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat, file = file.path(
-      get(x = "combinedDir", envir = .pkgcache),
+      get(x = "postprocessingDir", envir = .pkgcache),
       paste0(setting_number, "_", loop_id, "_CombinedDat.RData")
     ))
   }
@@ -413,7 +413,7 @@ do_post_processing <- function(nameExperiment,
 
   if (!debugg) {
     save(CombinedDat_Aggr, file = file.path(
-      get(x = "combinedDir", envir = .pkgcache),
+      get(x = "postprocessingDir", envir = .pkgcache),
       paste0(setting_number, "_", loop_id, "_CombinedDat_Aggr.RData")
     ))
   }
@@ -432,7 +432,7 @@ do_post_processing <- function(nameExperiment,
   if (!debugg) {
     save(CombinedDat_wide,
       file = file.path(
-        get(x = "combinedDir", envir = .pkgcache),
+        get(x = "postprocessingDir", envir = .pkgcache),
         paste0(setting_number, "_", loop_id, widename)
       )
     )
@@ -463,7 +463,7 @@ do_post_processing <- function(nameExperiment,
       if (!debugg) {
         save(CombinedDat_month,
           file = file.path(
-            get(x = "combinedDir", envir = .pkgcache),
+            get(x = "postprocessingDir", envir = .pkgcache),
             paste0(setting_number, "_", loop_id, monthname)
           )
         )
