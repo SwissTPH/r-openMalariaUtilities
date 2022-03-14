@@ -468,11 +468,13 @@ defineTreatSimple <- function(baseList, component = "MDA",
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(component, add = assertCol)
   checkmate::assert(
+    checkmate::checkCharacter(durationBlood, pattern = "@(.*?)@"),
     checkmate::checkCharacter(durationBlood, pattern = "[0-9]+d{1}\\b"),
     checkmate::checkNumber(durationBlood, lower = -1),
     add = assertCol
   )
   checkmate::assert(
+    checkmate::checkCharacter(durationLiver, pattern = "@(.*?)@"),
     checkmate::checkCharacter(durationLiver, pattern = "[0-9]+d{1}\\b"),
     checkmate::checkNumber(durationLiver, lower = -1),
     add = assertCol
