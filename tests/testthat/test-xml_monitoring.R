@@ -99,14 +99,14 @@ test_that("write_monitoring_compat works", {
         option = list(name = "expectedHospitalDeaths", value = "true"),
         option = list(name = "expectedIndirectDeaths", value = "true"),
         option = list(name = "expectedSevere", value = "true"),
-        option = list(name = "simulatedEIR", value = "false"),
+        option = list(name = "simulatedEIR", value = "true"),
         option = list(name = "inputEIR", value = "false"),
         option = list(name = "nMDAs", value = "false"),
         option = list(name = "nMassGVI", value = "false"),
         option = list(name = "nEPIVaccinations", value = "false"),
         option = list(name = "nMassIRS", value = "false"),
         option = list(name = "nMassITNs", value = "false"),
-        option = list(name = "nMassVaccinations", value = "true")
+        option = list(name = "nMassVaccinations", value = "false")
       ),
       surveys = list(
         detectionLimit = 200,

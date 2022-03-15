@@ -430,7 +430,16 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
             "inputEIR", "nMDAs", "nMassGVI", "nEPIVaccinations", "nMassIRS",
             "nMassITNs", "nMassVaccinations"
           ),
-          value = c(unlist(cout))
+          value = c(
+            cout$nHost, cout$nPatent, cout$nUncomp, cout$nSevere, cout$totalInfs,
+            cout$totalPatentInf, cout$nNewInfections, cout$nTreatments1, cout$nTreatments2,
+            cout$nTreatments3, cout$nTreatDeployments, cout$nHospitalSeqs,
+            cout$nHospitalRecovs, cout$nHospitalDeaths, cout$nIndDeaths, cout$nDirDeaths,
+            cout$expectedDirectDeaths, cout$expectedHospitalDeaths,
+            cout$expectedIndirectDeaths, cout$expectedSevere, cout$simEIR,
+            cout$inputEIR, cout$nMDAs, cout$nMassGVI, cout$nEPIVaccinations, cout$nMassIRS,
+            cout$nMassITNs, cout$nMassVaccinations
+          )
         )
       )
     )
