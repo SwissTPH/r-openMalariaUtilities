@@ -32,7 +32,7 @@ test_that("monitoringCohortsGen works", {
 actual <- monitoringSurveyTimesGen("2001-01-01", "2002-01-01", "1 quarter")
 expected <- list(surveyTime = list(
   repeatStep = "90d",
-  repeatEnd = as.Date("2002-12-21"),
+  repeatEnd = as.Date("2002-12-26"),
   "0d"
 ))
 
@@ -112,8 +112,8 @@ test_that("write_monitoring_compat works", {
         detectionLimit = 200,
         surveyTime = list(
           repeatStep = "30d",
-          repeatEnd = as.Date("2036-12-26"),
-          "0d"
+          repeatEnd = as.Date("2036-12-11"),
+          "29940d"
         )
       ),
       ageGroup = list(

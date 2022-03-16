@@ -99,13 +99,16 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ##'   string are day(s), week(s), month(s) and quarter(s). Setting the days in
 ##'   the list to 31 will always use the last day of the corresponding month
 ##'   (e.g. 28 for February, 31 for July).
+##' @param simStart Start date of the simulation. A good idea is to put this 100
+##'   years in before your first survey date.
 ##' @param detectionLimit Deprecated in openMalaria. Double, limit above which a
 ##'   human's infection is reported as patent.
 ##' @param diagnostic Name of a parameterised diagnostic to use in surveys. See
 ##'   openMalaria documentation.
 ##' @export
 monitoringSurveyTimesGen <- function(startDate, endDate, interval,
-                                     detectionLimit = NULL, diagnostic = NULL) {
+                                     simStart = NULL, detectionLimit = NULL,
+                                     diagnostic = NULL) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(
@@ -114,12 +117,20 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     add = assertCol
   )
   checkmate::reportAssertions(collection = assertCol)
+
+  ## Sanity check
+  ## if (!is.null(simStart) && !is.null(startDate) && as.Date(startDate) < as.Date(simStart)) {
+  ##   stop("startDate needs to be after simStart.")
+  ## }
+
+  ## Flag if days should be used for the repeatStep entry
+  useDays <- FALSE
+
   ## The generated sequence is either based on regular intervals and thus,
   ## specified via a string (e.g. "2 weeks") or as a list, which specifies the
   ## intervals
   ## REVIEW We increase the end year by so we can make sure that all surveys
   ##        were done and have been measured
-  useDays <- FALSE
   if (is.character(interval)) {
     endDate <- as.character(
       as.Date(paste(as.numeric(strsplit(endDate, split = "-")[[1]][1]) + 1,
@@ -193,11 +204,17 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     ## we are calculating the number of days between time points. Instead, we
     ## need to generate our own 365 days long years and extract the dates we
     ## need.
+    ## Furthermore, if simStart is not NULL, use this as a starting date.
     dates <- .xmlMonitoringTimeRegularSeq(
-      startDate = startDate,
+      startDate = ifelse(is.null(simStart), startDate, simStart),
       endDate = endDate,
       daysFilter = every
     )
+
+    ## Remove dates which are before the requested startDate
+    if (!is.null(simStart)) {
+      dates <- dates[which.min(abs(as.Date(dates[, c("date")]) - as.Date(startDate))):nrow(dates), ]
+    }
 
     ## Store the information in the cache
     assign(x = "surveyTimes", value = dates, envir = .pkgcache)
@@ -210,10 +227,26 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     interval[["years"]] <- c(
       min(interval[["years"]]):(max(interval[["years"]]) + 1)
     )
+
+    ## Furthermore, if simStart is not NULL, adjust start year
+    if (!is.null(simStart)) {
+      origStartDate <- paste(
+        min(interval[["years"]]),
+        min(interval[["months"]]),
+        min(interval[["days"]]),
+        sep = "-"
+      )
+
+      interval[["years"]] <- c(
+        as.numeric(strsplit(simStart, split = "-")[[1]][1]):max(interval[["years"]])
+      )
+    }
+
     dates <- .xmlTimeBlockSeq(interval)
+
     ## As above, adjust dates so they are multiples of 5 day timesteps
     validDates <- .xmlMonitoringTimeRegularSeq(
-      startDate = dates[1],
+      startDate = ifelse(is.null(simStart), dates[1], simStart),
       endDate = dates[length(dates)],
       daysFilter = 5
     )
@@ -223,6 +256,11 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       return(as.character(validDates$date[which.min(abs(x - validDates$date))]))
     }, FUN.VALUE = character(1), USE.NAMES = FALSE))
     dates <- validDates[as.character(validDates$date) %in% dates, ]
+
+    ## Remove dates which are before the requested startDate
+    if (!is.null(simStart)) {
+      dates <- dates[which.min(abs(as.Date(dates[, c("date")]) - as.Date(origStartDate))):nrow(dates), ]
+    }
 
     ## Store the information in the cache
     assign(x = "surveyTimes", value = dates, envir = .pkgcache)
@@ -234,6 +272,7 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
       )
     )
     days <- days$daysDiff
+
     ## Extract the dates of the final year
     endDates <- subset(
       dates, format(as.Date(dates$date), "%Y") == max(
@@ -242,6 +281,18 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     )
     endDates <- endDates$date
   }
+
+  ## Add 1 timestep = 5 days to the endDates which are used for repeatEnd. We do
+  ## this to make sure that the very last survey is actually recorded.
+  ## To quote the Open Malaria developer:
+  ## The most important thing is that a survey will report events since the
+  ## beginning of the time-step of the last survey.
+  ## And from the schema definition:
+  ## If present, the survey is repeated every repeatStep timesteps .... ending
+  ## before repeatEnd (final repetition is the one before repeatEnd).
+  ## https://swisstph.github.io/openmalaria/schema-43.html#end-of-repetition-exclusive
+  endDates <- endDates + 5
+
   ## Construct output list
   outlist <- list()
   if (!is.null(detectionLimit)) {
@@ -261,7 +312,7 @@ monitoringSurveyTimesGen <- function(startDate, endDate, interval,
     entry <- append(
       entry,
       if (useDays == TRUE) {
-        as.character(paste0(0, "d"))
+        as.character(paste0(dates$daysDiff[1], "d"))
       } else {
         paste0(x, "d")
       }
@@ -449,7 +500,8 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
     data = outlist, sublist = NULL, entry = "surveys",
     input = monitoringSurveyTimesGen(
       detectionLimit = detect, startDate = paste(y1, m1, d1, sep = "-"),
-      endDate = paste(y2, m2, d2, sep = "-"), interval = paste0("1 ", interval)
+      endDate = paste(y2, m2, d2, sep = "-"), interval = paste0("1 ", interval),
+      simStart = SIMSTART
     )
   )
 
@@ -459,11 +511,11 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       lowerbound = 0, ageGroups = data.frame(upperbound = upperbounds)
     )
   )
-  
+
   baseList <- .xmlAddList(
     data = baseList, sublist = NULL, entry = "monitoring",
     input = outlist, append = FALSE
   )
-  
+
   return(baseList)
 }

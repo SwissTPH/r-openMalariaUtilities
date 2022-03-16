@@ -8,6 +8,7 @@ monitoringSurveyTimesGen(
   startDate,
   endDate,
   interval,
+  simStart = NULL,
   detectionLimit = NULL,
   diagnostic = NULL
 )
@@ -22,6 +23,9 @@ e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Accepted
 string are day(s), week(s), month(s) and quarter(s). Setting the days in
 the list to 31 will always use the last day of the corresponding month
 (e.g. 28 for February, 31 for July).}
+
+\item{simStart}{Start date of the simulation. A good idea is to put this 100
+years in before your first survey date.}
 
 \item{detectionLimit}{Deprecated in openMalaria. Double, limit above which a
 human's infection is reported as patent.}
