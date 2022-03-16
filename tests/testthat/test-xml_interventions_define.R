@@ -23,9 +23,9 @@ test_that("defineIRS works", {
             anophelesParams = list(
               mosquito = "gam_outdoor",
               propActive = 0,
-              deterrency = list(value = -0.28),
-              preprandialKillingEffect = list(value = 0.23),
-              postprandialKillingEffect = list(value = 0.38)
+              deterrency = list(value = 0),
+              preprandialKillingEffect = list(value = 0),
+              postprandialKillingEffect = list(value = 0)
             )
           )
         )
@@ -51,9 +51,9 @@ test_that("defineIRS works", {
     anophelesParams = list(
       mosquito = "gam_indoor",
       propActive = 0,
-      deterrency = list(value = -0.28),
-      preprandialKillingEffect = list(value = 0.23),
-      postprandialKillingEffect = list(value = 0.38)
+      deterrency = list(value = 0),
+      preprandialKillingEffect = list(value = 0),
+      postprandialKillingEffect = list(value = 0)
     ),
     anophelesParams = list(
       mosquito = "gam_outdoor",

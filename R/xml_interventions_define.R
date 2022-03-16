@@ -404,12 +404,20 @@ defineIRS <- function(baseList, mosquitos, component = c(
       input = list(
         mosquito = mosquitos[[i]],
         propActive = propActive[[i]],
-        deterrency = list(value = componentData[[component]][["vals"]][[1]]),
+        deterrency = list(
+          value = ifelse(
+            propActive[[i]] == 0, 0, componentData[[component]][["vals"]][[1]]
+          )
+        ),
         preprandialKillingEffect = list(
-          value = componentData[[component]][["vals"]][[2]]
+          value = ifelse(
+            propActive[[i]] == 0, 0, componentData[[component]][["vals"]][[2]]
+          )
         ),
         postprandialKillingEffect = list(
-          value = componentData[[component]][["vals"]][[3]]
+          value = ifelse(
+            propActive[[i]] == 0, 0, componentData[[component]][["vals"]][[3]]
+          )
         )
       )
     )
