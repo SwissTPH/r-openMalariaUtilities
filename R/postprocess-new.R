@@ -78,9 +78,9 @@ readSurveyOutput <- function(outputFile, filterBySurveyMeasure=NULL) {
   
   ## Translate survey number to time, we remove first index since we want (n-1,n]
   timeDF <- data.table(
-    survey_point = c(1:length(get(x = "surveyTimes", envir = .pkgcache)$timestep)),
-    timestep = get(x = "surveyTimes", envir = .pkgcache)$timestep,
-    survey_date = as.Date(get(x = "surveyTimes", envir = .pkgcache)$date)
+    survey_point = c(1:length(get(x = "surveyTimes", envir = openMalariaUtilities:::.pkgcache)$timestep)),
+    timestep = get(x = "surveyTimes", envir = openMalariaUtilities:::.pkgcache)$timestep,
+    survey_date = as.Date(get(x = "surveyTimes", envir = openMalariaUtilities:::.pkgcache)$date)
   )
   ## Join to get survey date, last timeDF has no outputDF index, na produced
   outputDF<-outputDF[timeDF,on="survey_point"][,-c("timestep","survey_point")]%>%na.omit()
@@ -101,7 +101,7 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   
   ## Read stacked survey output
   if(is.null(rawdata)){
-    rawdata<-file.path(get(x = "postprocessingDir", envir = .pkgcache),"stackedSurveyOutput.dat")
+    rawdata<-file.path(get(x = "postprocessingDir", envir = openMalariaUtilities:::.pkgcache),"stackedSurveyOutput.dat")
     if (file.exists(rawdata) == TRUE) {
       outputs<-read.table(rawdata,sep=",",header=T,stringsAsFactors = T)%>%as.data.table
     } else {
@@ -113,20 +113,25 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   
   ## Read metadata (aka scens)
   if(is.null(metadata)){
-    if (file.exists(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")) == TRUE) {
-      load(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"))
+    if (file.exists(file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData")) == TRUE) {
+      load(file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData"))
     } else {
-        stop(paste0("File ", file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"), " not found."))
+        stop(paste0("File ", file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData"), " not found."))
       }
   }else{
     load(metadata)
   }
   metadata<-scens%>%as.data.table;rm(scens)
-  metadata$file<-get(x = "outputsDir", envir = .pkgcache)%>%list.files(pattern="*_out.txt",full.names=T)
+  metadata$file<-get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache)%>%list.files(pattern="*_out.txt",full.names=T)
   metadata$scenario_file_index<-as.numeric(gsub(".*_(\\d+)_out.txt","\\1",basename(metadata$file)))
   if(!is.null(metadataFeatures)){
-    metadataFeatures<-unique(c(metadataFeatures,c("scenario_file_index","ageGroups")))
-  metadata<-metadata[,metadataFeatures]
+    metadataFeatures<-lapply(metadataFeatures,function(x) colnames(metadata)[grepl(x,colnames(metadata))])%>%unlist%>%unique
+    if(length(metadataFeatures)==0){
+      warning("None of your metadata features or patterns where found. 
+              Only default features (scenario_file_index, ageGroups, seed) will be added.")
+    }
+    metadataFeatures<-unique(c(metadataFeatures,c("scenario_file_index","ageGroups","seed")))
+  metadata<-metadata[,..metadataFeatures]
   }
   
   ## Recode age groups
@@ -136,6 +141,9 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   outputs[,age_group:=as.factor(age_group)]
   levels(outputs$age_group)<-age_group
   metadata[,ageGroups:=NULL]
+  }else{
+    stop("You need a column named 'ageGroups' from monitoring$ageGroup in the 
+         metadata to proceed with postprocessing.")
   }
   
   ## Check if we have all measures needed for postprocessing
@@ -195,6 +203,13 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   if ("ddeath" %in% indicators) {
     outputs[,ddeathPerHundredThousand:=(nIndDeaths+nDirDeaths)/nHost/1e5]
   } 
+  
+  outputs<-outputs[,-..requiredMeasures]
+  outputs[,survey_date:=as.Date(survey_date)]
+  outputs[,age_group:=as.factor(age_group)]
+  outputs[,scenario_file_index:=as.factor(scenario_file_index)]
+  outputs[,setting:=as.factor(setting)]
+  outputs[,seed:=as.factor(seed)]
   
   return(outputs)
 }
