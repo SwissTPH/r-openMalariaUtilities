@@ -5,8 +5,8 @@
 \title{Generate list for 'monitoring/surveys/surveyTime'}
 \usage{
 monitoringSurveyTimesGen(
-  startDate,
-  endDate,
+  startDate = NULL,
+  endDate = NULL,
   interval,
   simStart = NULL,
   detectionLimit = NULL,

@@ -29,12 +29,33 @@ test_that("monitoringCohortsGen works", {
   expect_equal(actual, expected)
 })
 
-actual <- monitoringSurveyTimesGen("2001-01-01", "2002-01-01", "1 quarter")
-expected <- list(surveyTime = list(
-  repeatStep = "90d",
-  repeatEnd = as.Date("2002-12-26"),
-  "0d"
-))
+actual <- monitoringSurveyTimesGen("2001-01-01", "2001-12-31", "monthly")
+expected <- list(
+  surveyTime = list("15d"),
+  surveyTime = list("45d"),
+  surveyTime = list("75d"),
+  surveyTime = list("105d"),
+  surveyTime = list("135d"),
+  surveyTime = list("165d"),
+  surveyTime = list("195d"),
+  surveyTime = list("225d"),
+  surveyTime = list("255d"),
+  surveyTime = list("285d"),
+  surveyTime = list("320d"),
+  surveyTime = list("350d"),
+  surveyTime = list("380d"),
+  surveyTime = list("410d"),
+  surveyTime = list("440d"),
+  surveyTime = list("470d"),
+  surveyTime = list("500d"),
+  surveyTime = list("530d"),
+  surveyTime = list("560d"),
+  surveyTime = list("590d"),
+  surveyTime = list("620d"),
+  surveyTime = list("650d"),
+  surveyTime = list("685d"),
+  surveyTime = list("715d")
+)
 
 test_that("monitoringSurveyTimesGen works (regular interval)", {
   expect_equal(actual, expected)
@@ -110,11 +131,31 @@ test_that("write_monitoring_compat works", {
       ),
       surveys = list(
         detectionLimit = 200,
-        surveyTime = list(
-          repeatStep = "30d",
-          repeatEnd = as.Date("2036-12-11"),
-          "29940d"
-        )
+        surveyTime = list("29915d"),
+        surveyTime = list("29945d"),
+        surveyTime = list("29975d"),
+        surveyTime = list("30005d"),
+        surveyTime = list("30035d"),
+        surveyTime = list("30065d"),
+        surveyTime = list("30095d"),
+        surveyTime = list("30125d"),
+        surveyTime = list("30155d"),
+        surveyTime = list("30185d"),
+        surveyTime = list("30215d"),
+        surveyTime = list("30250d"),
+        surveyTime = list("30280d"),
+        surveyTime = list("30310d"),
+        surveyTime = list("30340d"),
+        surveyTime = list("30370d"),
+        surveyTime = list("30400d"),
+        surveyTime = list("30430d"),
+        surveyTime = list("30460d"),
+        surveyTime = list("30490d"),
+        surveyTime = list("30520d"),
+        surveyTime = list("30550d"),
+        surveyTime = list("30580d"),
+        surveyTime = list("30615d"),
+        surveyTime = list("30645d")
       ),
       ageGroup = list(
         lowerbound = 0,
@@ -129,7 +170,7 @@ test_that("write_monitoring_compat works", {
     )
   )
 
-  actual <- write_monitoring_compat(baseList = testlist)
+  actual <- write_monitoring_compat(baseList = testlist, y2 = 2001)
 
   expect_equal(actual, expected)
 })
