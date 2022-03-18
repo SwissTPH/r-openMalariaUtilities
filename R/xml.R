@@ -200,3 +200,69 @@ recXML <- function(x, data, errCol, recLevel = list()) {
     return(data)
   }
 }
+
+##' @title Reads base xml file and creates list to be edited with 
+##' openMalariaUtilities
+##' @param filename Name of OpenMalaria base xml file
+##' @export
+readXML<-function(filename){
+  
+  ## Remove reserved attributes specific to R
+  remove_reserved <- function(this_attr) {
+    reserved_attr <- c("class", "comment", "dim", "dimnames", "names", "row.names", "tsp")
+    if (!any(reserved_attr %in% names(this_attr))) {
+      return(this_attr)
+    }
+    for (reserved in reserved_attr) {
+      if (!is.null(this_attr[[reserved]])) this_attr[[reserved]] <- NULL
+    }
+    this_attr
+  }
+  
+  ## Promote attribute
+  promote_attr <- function(ll) {
+    this_attr <- attributes(ll)
+    this_attr <- remove_reserved(this_attr)
+    if (is.list(ll)) {
+      # recursive case, some exceptions 
+      c(this_attr, ll%>%
+          purrr::imap(~if(!.y%in%c("value","surveyTime")){
+            .x%>%promote_attr
+          }else{
+            .x
+          }))
+    }
+    else {
+      # base case (no sub-items)
+      this_attr
+    }
+  }
+  
+  ## Read xml file and parse as list and promote attributes
+  outList<-file.path(filename)%>%
+    xml2::read_xml(.)%>%
+    xml2::as_list(.)%>%
+    .[["scenario"]]%>%
+    promote_attr%>%
+    rlist::list.clean(.,recursive=T)
+  
+  ## Add list items that are mandatory for openMalariaUtilities
+  outList$OMVersion<-as.integer(outList$schemaVersion)
+  
+  if(!is.null(outList$name)){
+    outList$expName<-outList$name
+  }else{
+    warning("You need to provide a name for $expName before using 
+            openMalariaUtilities")
+  }
+  if(is.null(outList$monitoring$startDate)){
+    warning("You need to provide a start date ('YYYY-MM-DD') for $monitoring$startDate 
+            before using openMalariaUtilities")
+  }
+  
+  
+  return(outList)
+}
+
+
+
