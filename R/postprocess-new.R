@@ -126,7 +126,7 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   output_index<-as.numeric(gsub(".*_(\\d+)_out.txt","\\1",output_filenames))
   
   if(length(output_filenames)<nrow(metadata)){
-    warning("Less output files than scenarios in metadata!")
+    warning("Fewer output files than scenarios in metadata!")
     warning("We assume that row number in metadata corresponds to output file index!")
     metadata[,scenario_file_index:=1:nrow(metadata)]
     metadata<-merge(metadata,
@@ -144,7 +144,7 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
       warning("None of your metadata features or patterns where found. 
               Only default features (scenario_file_index, ageGroups, seed) will be added.")
     }
-    metadataFeatures<-unique(c(metadataFeatures,c("scenario_file_index","ageGroups","seed")))
+    metadataFeatures<-unique(c(metadataFeatures,c("scenario_file_index","ageGroups","seed","pop")))
   metadata<-metadata[,..metadataFeatures]
   }
   
