@@ -122,8 +122,22 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
     load(metadata)
   }
   metadata<-scens%>%as.data.table;rm(scens)
-  metadata$file<-get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache)%>%list.files(pattern="*_out.txt",full.names=T)
-  metadata$scenario_file_index<-as.numeric(gsub(".*_(\\d+)_out.txt","\\1",basename(metadata$file)))
+  output_filenames<-get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache)%>%list.files(pattern="*_out.txt",full.names=T)
+  output_index<-as.numeric(gsub(".*_(\\d+)_out.txt","\\1",output_filenames))
+  
+  if(length(output_filenames)<nrow(metadata)){
+    warning("Less output files than scenarios in metadata!")
+    warning("We assume that row number in metadata corresponds to output file index!")
+    metadata[,scenario_file_index:=1:nrow(metadata)]
+    metadata<-merge(metadata,
+                    data.frame(file=output_filenames,scenario_file_index=output_index),
+                    by="scenario_file_index")
+  }else{
+    metadata$file<-output_filenames
+    metadata$scenario_file_index<-output_index
+  }
+  
+  
   if(!is.null(metadataFeatures)){
     metadataFeatures<-lapply(metadataFeatures,function(x) colnames(metadata)[grepl(x,colnames(metadata))])%>%unlist%>%unique
     if(length(metadataFeatures)==0){
@@ -194,14 +208,20 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   
   if ("edeath" %in% indicators) {
     outputs[,edeathPerHundredThousand:=(expectedDirectDeaths+expectedIndirectDeaths)/nHost/1e5]
+    outputs[,edeath:=expectedDirectDeaths+expectedIndirectDeaths]
+    
   } 
   
   if ("edirdeath" %in% indicators) {
     outputs[,edirdeathPerHundredThousand:=expectedDirectDeaths/nHost/1e5]
+    outputs[,edirdeathPerHundredThousand:=expectedDirectDeaths]
+    
   } 
   
   if ("ddeath" %in% indicators) {
     outputs[,ddeathPerHundredThousand:=(nIndDeaths+nDirDeaths)/nHost/1e5]
+    outputs[,ddeathPerHundredThousand:=nIndDeaths+nDirDeaths]
+    
   } 
   
   outputs<-outputs[,-..requiredMeasures]
