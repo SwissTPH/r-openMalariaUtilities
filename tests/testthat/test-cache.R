@@ -44,3 +44,53 @@ test_that("loadExperiment works", {
 
   expect_equal(actual, expected)
 })
+
+test_that("putCache works", {
+  putCache(x = "foo", value = c(1, 2, 3))
+  actual <- get(x = "foo", envir = openMalariaUtilities:::.pkgcache)
+  expected <- c(1, 2, 3)
+
+  expect_equal(actual, expected)
+})
+
+test_that("getCache works", {
+  assign(
+    x = "foo", value = c(1, 2, 3),
+    envir = openMalariaUtilities:::.pkgcache
+  )
+
+  actual <- getCache(x = "foo")
+  expected <- c(1, 2, 3)
+
+  expect_equal(actual, expected)
+})
+
+test_that("clearCache works", {
+  ## Have at least one object in cache.
+  assign(
+    x = "foo", value = c(1, 2, 3),
+    envir = openMalariaUtilities:::.pkgcache
+  )
+
+  clearCache()
+
+  actual <- ls(all.names = TRUE, envir = openMalariaUtilities:::.pkgcache)
+  expected <- character(0)
+
+  expect_equal(actual, expected)
+})
+
+test_that("listCache works", {
+  ## Clear cache
+  clearCache()
+
+  assign(
+    x = "foo", value = c(1, 2, 3),
+    envir = openMalariaUtilities:::.pkgcache
+  )
+
+  actual <- listCache()
+  expected <- c("foo")
+
+  expect_equal(actual, expected)
+})

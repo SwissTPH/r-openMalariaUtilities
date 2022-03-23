@@ -137,6 +137,7 @@ test_that("enclose yields a vector of text", {
 })
 
 test_that("add_idvars works", {
+  assign(x = "experimentDir", value = tempdir(), envir = openMalariaUtilities:::.pkgcache)
   scens <- .create_test_scens()
   full <- .create_test_full()
   out <- add_idvars(scens, full, overwrite = T, save = F, confirm = TRUE)
