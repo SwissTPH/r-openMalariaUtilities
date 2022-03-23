@@ -21,7 +21,7 @@ ID=$(expr ${SLURM_ARRAY_TASK_ID} - 0)
 export LMOD_DISABLE_SAME_NAME_AUTOSWAP=\"no\"
 module purge
 module load R/4.1.2-foss-2018b-Python-3.6.6
-module load OpenMalaria/43.0-iomkl-2019.01
+module load OpenMalaria/44.0-iomkl-2019.01
 cd ", dir, "
 
 Rscript ", dir, "/slurm_run_simulation.R $ID
@@ -92,7 +92,7 @@ ctsout <- file.path(
 print(paste0(\"Running scenario [\", ID, \"/\", length(scenarios), \"]\"))
 fullCmd <- paste0(
   cmd, \" --resource-path \", resources, \" --scenario \",
-  scenario, \" --output \", output, \" --ctsout \", ctsout
+  scenario, \" --output \", output, \" --ctsout \", ctsout, \" --verbose\"
 )
 system(command = fullCmd)
 ",
