@@ -8,7 +8,8 @@ calculateEpidemiologicalIndicators(
   rawdata = NULL,
   metadata = NULL,
   metadataFeatures = NULL,
-  indicators = c("incidence", "prevalence")
+  indicators = c("incidence", "prevalence"),
+  keepMeasuresForIndicators = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ calculateEpidemiologicalIndicators(
 \item{metadataFeatures}{Character vector of metadata features to keep, if null keep all}
 
 \item{indicators}{Character vector of epidemiological indicators to calculate}
+
+\item{keepMeasures}{Character vector of indicators whose measures you want to keep in the function output, if null keep none}
 }
 \description{
 Calculate epidemiological indicators from stacked raw data
