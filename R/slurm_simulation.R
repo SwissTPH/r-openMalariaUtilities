@@ -114,7 +114,7 @@ ctsout <- file.path(
 print(paste0(\"Running scenario [\", ID, \"/\", length(scenarios), \"]\"))
 fullCmd <- paste0(
   cmd, \" --resource-path \", resources, \" --scenario \",
-  scenario, \" --output \", output, \" --ctsout \", ctsout
+  scenario, \" --output \", output, \" --ctsout \", ctsout, \" --verbose\"
 )
 system(command = fullCmd)
 ",
