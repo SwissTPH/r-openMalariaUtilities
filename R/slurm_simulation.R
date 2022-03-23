@@ -51,7 +51,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
       "export LMOD_DISABLE_SAME_NAME_AUTOSWAP=\"no\"",
       "module purge",
       "module load R/4.1.2-foss-2018b-Python-3.6.6",
-      "module load OpenMalaria/43.0-iomkl-2019.01",
+      "module load OpenMalaria/44.0-iomkl-2019.01",
       ## This is quiet important, otherwise OpenMalaria cannot find the
       ## supporting files (*.xsd, etc)
       paste0("cd ", get(x = "experimentDir", envir = .pkgcache))
