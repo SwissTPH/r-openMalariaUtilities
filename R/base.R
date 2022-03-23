@@ -37,6 +37,8 @@ createBaseXml <- function(data = NULL, replace = "ask") {
     name = get(x = "experimentName", envir = .pkgcache),
     analysisNo = data[["analysisNo"]]
   )
+  assign(x = "OMVersion", value = data[["OMVersion"]], envir = .pkgcache)
+
   ## Construct xml document
   .xmlMakeDocRec(baseXML = baseXml, data = data)
   ## Create folders
@@ -64,15 +66,16 @@ create_base_xml <- createBaseXml
 
 
 ##' @title Download required Open Malaria files
-##' @param version Major schema version. Supported: 43
+##' @param version Major schema version. Supported: 44.
 ##' @param dir Target directory. Defaults to experiment directory.
 ##' @export
-setupOM <- function(version = 43, dir = NULL) {
+setupOM <- function(version = 44, dir = NULL) {
   ## Check for supported version and select correct subversion
-  suppVers <- c(43)
+  suppVers <- c(44)
   if (version %in% suppVers) {
     major <- version
-    version <- ifelse(version == 43, 43.1, version)
+    ## Assigning supported minor version. Should always be the latest.
+    version <- ifelse(version == 44, "44.0")
 
     ## Download files into experiment folder if not already present
     if (is.null(dir)) {
@@ -111,7 +114,7 @@ setupOM <- function(version = 43, dir = NULL) {
     }
   } else {
     stop(paste0(
-      "Only the following versions of Open Malaria are supported: ",
+      "Only the following major versions of Open Malaria are supported: ",
       suppVers
     ))
   }

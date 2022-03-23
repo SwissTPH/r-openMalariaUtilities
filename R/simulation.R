@@ -67,7 +67,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
     print(paste0("Running scenario [", i, "/", length(scenarios), "]"))
     fullCmd <- paste0(
       cmd, " --resource-path ", resources, " --scenario ",
-      scenario, " --output ", output, " --ctsout ", ctsout
+      scenario, " --output ", output, " --ctsout ", ctsout, " --verbose"
     )
     if (dryRun == TRUE) {
       print(fullCmd)
