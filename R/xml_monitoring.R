@@ -116,7 +116,6 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     ## be a bit irregular, e.g. 5, 5, 5, 10 and so forth.
     ## Also remove the week column
     dateDF <- dateDF[!duplicated(dateDF$week), ][, week := NULL]
-    return(dateDF)
   } else if (dateFilter == "monthly") {
     ## We assume that the 15th of each month is the middle of the month. Then we
     ## calculate the difference of days for each date in relation to the 15th.
@@ -132,7 +131,6 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
       by = data.table::month(dateDF$date)
     ]$V1][, month := NULL][order(date)]
 
-    return(dateDF)
   } else if (dateFilter == "quarterly") {
     ## Similar to above, generate a date sequence and only keep dates
     ## corresponding to the end of quarters.
@@ -159,7 +157,6 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     ## Make it pretty and set expected names
     dateDF <- dateDF[, c("roll_date", "quarter_date") := NULL]
 
-    return(dateDF)
   } else if (dateFilter == "yearly") {
     ## Similar to above, generate a date sequence and only keep dates
     ## corresponding to the end of a year.
@@ -179,15 +176,14 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     dateDF <- dateDF[yearDF, roll = Inf]
     ## Make it pretty and set expected names
     dateDF <- dateDF[, c("roll_date", "year_date") := NULL]
-
-    return(dateDF)
-  } else {
-    ## No modifications, just return the dates.
-    return(dateDF)
   }
+  ## All modifications done, return data. Also, if dateFilter = "none", jump
+  ## directly here.
+  return(dateDF)
 }
 
-## TODO Add 'reported' option
+## TODO Add 'reported' option.
+## TODO Correct documentation for interval
 
 ##' @title Generate list for 'monitoring/surveys/surveyTime'
 ##' @param startDate Start date as character "YYYY-MM-DD".
