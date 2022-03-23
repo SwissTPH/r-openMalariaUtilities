@@ -782,7 +782,6 @@ run_script <- function(scripts = c(
       "#!/bin/bash
 #SBATCH --job-name=dependency
 #SBATCH --ntasks=1
-#SBATCH --qos=1week
 #SBATCH --mem-per-cpu=15MB
 #SBATCH --time=00:02:00
 #SBATCH --output=", file.path(get(x = "logsDir", envir = .pkgcache), "dependency.log"), "
