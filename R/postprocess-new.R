@@ -94,10 +94,12 @@ readSurveyOutput <- function(outputFile, filterBySurveyMeasure=NULL) {
 ##' @param metadata Experiment metadata file location, by default scens object from cache
 ##' @param metadataFeatures Character vector of metadata features to keep, if null keep all
 ##' @param indicators Character vector of epidemiological indicators to calculate
+##' @param keepMeasures Character vector of indicators whose measures you want to keep in the function output, if null keep none
 ##' @export
 calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
                                              metadataFeatures=NULL,
-                                             indicators=c("incidence","prevalence")){
+                                             indicators=c("incidence","prevalence"),
+                                             keepMeasuresForIndicators=NULL){
   
   ## Read stacked survey output
   if(is.null(rawdata)){
@@ -224,7 +226,13 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
     
   } 
   
-  outputs<-outputs[,-..requiredMeasures]
+  if(is.null(keepMeasuresForIndicators)){
+    keepMeasures<-NULL}else{
+    keepMeasures<-measuresNeededForPostprocessing[keepMeasuresForIndicators]%>%unlist%>%unique()
+    }
+  removeMeasures<-setdiff(requiredMeasures,keepMeasures)
+  
+  outputs<-outputs[,-..removeMeasures]
   outputs[,survey_date:=as.Date(survey_date)]
   outputs[,age_group:=as.factor(age_group)]
   outputs[,scenario_file_index:=as.factor(scenario_file_index)]
