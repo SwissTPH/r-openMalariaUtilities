@@ -115,30 +115,20 @@ calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
   
   ## Read metadata (aka scens)
   if(is.null(metadata)){
-    if (file.exists(file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData")) == TRUE) {
-      load(file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData"))
+    scens_cache<-file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData")
+    if (file.exists(scens_cache) == TRUE) {
+      load(scens_cache)
     } else {
-        stop(paste0("File ", file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData"), " not found."))
+        stop(paste0("File ", scens_cache, " not found."))
       }
   }else{
     load(metadata)
   }
   metadata<-scens%>%as.data.table;rm(scens)
+  metadata$scenario_file_index<-as.numeric(gsub(".*_(\\d+).xml","\\1",basename(metadata$file)))
+  
   output_filenames<-get(x = "outputsDir", envir = openMalariaUtilities:::.pkgcache)%>%list.files(pattern="*_out.txt",full.names=T)
   output_index<-as.numeric(gsub(".*_(\\d+)_out.txt","\\1",output_filenames))
-  
-  if(length(output_filenames)<nrow(metadata)){
-    warning("Fewer output files than scenarios in metadata!")
-    warning("We assume that row number in metadata corresponds to output file index!")
-    metadata[,scenario_file_index:=1:nrow(metadata)]
-    metadata<-merge(metadata,
-                    data.frame(file=output_filenames,scenario_file_index=output_index),
-                    by="scenario_file_index")
-  }else{
-    metadata$file<-output_filenames
-    metadata$scenario_file_index<-output_index
-  }
-  
   
   if(!is.null(metadataFeatures)){
     metadataFeatures<-lapply(metadataFeatures,function(x) colnames(metadata)[grepl(x,colnames(metadata))])%>%unlist%>%unique
