@@ -11,6 +11,7 @@ test_that("slurmPrepareRunScenarios works", {
   expected <- paste(capture.output(cat("#!/bin/bash
 #SBATCH --job-name=test_simulation
 #SBATCH --ntasks=1
+#SBATCH --dependency=singleton --job-name=test_scenarios
 #SBATCH --output=", dir, "/logs/simulation/test_simulation_%A_%a.log
 #SBATCH --error=", dir, "/logs/simulation/test_simulation_%A_%a_error.log
 #SBATCH --array=1-450

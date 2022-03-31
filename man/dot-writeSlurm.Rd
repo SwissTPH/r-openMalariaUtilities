@@ -7,6 +7,7 @@
 .writeSlurm(
   jobName,
   ntasks = NULL,
+  dependency = NULL,
   memCPU = NULL,
   output = NULL,
   error = NULL,
@@ -24,6 +25,8 @@
 
 \item{ntasks}{Number of tasks}
 
+\item{dependency}{Job ids completed after which execution should start}
+
 \item{memCPU}{RAM per CPU}
 
 \item{output}{Output file}
@@ -40,7 +43,7 @@
 
 \item{cmd}{Main command}
 
-\item{post}{List of commands after mein command}
+\item{post}{List of commands after main command}
 
 \item{file}{Filename}
 }
