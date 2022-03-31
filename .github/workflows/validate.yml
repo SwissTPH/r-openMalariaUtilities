@@ -8,27 +8,31 @@ on:
         - master
         - develop
 
-name: Validate example run with OpenMalaria
+name: OpenMalaria validation
 
 jobs:
   job_1:
-    name: Setup OpenMalaria and run example
+    name: OpenMalaria example
     runs-on: ubuntu-latest
     steps:
-      - shell: bash
+      - name: Setup OpenMalaria
+        shell: bash
         run : |
           wget https://github.com/SwissTPH/openmalaria/releases/download/schema-44.0/openMalaria-ubuntu-20.04.tar.gz -O openMalaria-ubuntu-20.04.tar.gz
           tar -xf openMalaria-ubuntu-20.04.tar.gz && rm openMalaria-ubuntu-20.04.tar.gz
           sudo apt-get install -y libxerces-c3.2
+      - name: Run OpenMalaria example xml
+        shell: bash
+        run : |
           cd openMalaria-ubuntu-20.04/
           ./openMalaria -s example_scenario.xml --verbose 
-      - name: Store OM output
+      - name: Store OpenMalaria output
         uses: actions/upload-artifact@v3
         with:
           name: output-OM
           path: openMalaria-ubuntu-20.04/output.txt
   job_2:
-    name: Run openMalariaUtilities generated example
+    name: openMalariaUtilities example
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -53,9 +57,13 @@ jobs:
         with:
           extra-packages: devtools
 
-      - run: |
-          echo "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04" >> $GITHUB_PATH
+      - name: Setup OpenMalaria
+        shell: bash
+        run : |
+          wget https://github.com/SwissTPH/openmalaria/releases/download/schema-44.0/openMalaria-ubuntu-20.04.tar.gz -O openMalaria-ubuntu-20.04.tar.gz
+          tar -xf openMalaria-ubuntu-20.04.tar.gz && rm openMalaria-ubuntu-20.04.tar.gz
           sudo apt-get install -y libxerces-c3.2
+          echo "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04" >> $GITHUB_PATH
 
       - name: Run OMU script in R
         run: |
@@ -446,14 +454,22 @@ jobs:
           path: exp_test/outputs/exp_test_1_out.txt
 
   job_3:
-    name: Display results
+    name: Compare results
     needs: [job_1, job_2]
     runs-on: ubuntu-latest
     steps:
-      - name: Print the final result
+      - name: Download result from job 1
+        uses: actions/download-artifact@v3
+        with:
+          name: output-OM
+      - name: Download result from job 2
+        uses: actions/download-artifact@v3
+        with:
+          name: output-package
+      - name: Compare results
         shell: bash
         run: |
-          if cmp --silent -- "$GITHUB_WORKSPACE/exp_test/outputs/exp_test_1_out.txt" "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04/output.txt"; then
+          if cmp --silent -- exp_test_1_out.txt output.txt; then
             echo "### SUCCESS: Output files are identical! ###"
             exit 0
           else
