@@ -8,7 +8,7 @@ slurmPrepareRunScenarios(
   expName,
   scenarios = NULL,
   ntasks = 1,
-  dep = T,
+  dep = TRUE,
   memCPU = "250MB",
   time = "06:00:00",
   qos = "6hours"

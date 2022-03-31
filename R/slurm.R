@@ -16,8 +16,8 @@
 ##' @param time Maximum time
 ##' @param qos Quality of service
 ##' @keywords internal
-.slurmOptions <- function(jobName, ntasks = NULL, dependency = NULL, memCPU = NULL, 
-                          output = NULL, error = NULL, array = NULL, time = NULL, 
+.slurmOptions <- function(jobName, ntasks = NULL, dependency = NULL, memCPU = NULL,
+                          output = NULL, error = NULL, array = NULL, time = NULL,
                           qos = NULL) {
   ## Header and job name
   paste0(
@@ -73,9 +73,9 @@
 ##' @param post List of commands after main command
 ##' @param file Filename
 ##' @keywords internal
-.writeSlurm <- function(jobName, ntasks = NULL, dependency =NULL, memCPU = NULL, 
-                        output = NULL, error = NULL, array = NULL, time = NULL, 
-                        qos = NULL, pre = NULL, cmd = NULL, post = NULL, 
+.writeSlurm <- function(jobName, ntasks = NULL, dependency = NULL, memCPU = NULL,
+                        output = NULL, error = NULL, array = NULL, time = NULL,
+                        qos = NULL, pre = NULL, cmd = NULL, post = NULL,
                         file = NULL) {
   cat(
     .slurmOptions(jobName, ntasks, dependency, memCPU, output, error, array, time, qos),
