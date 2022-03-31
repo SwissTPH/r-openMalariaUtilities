@@ -126,6 +126,7 @@
       ## Directory present, replace
     } else {
       createDir <- TRUE
+      unlink(get(x = "experimentDir", envir = .pkgcache), recursive = TRUE)
     }
     ## Directory not present
   } else {
