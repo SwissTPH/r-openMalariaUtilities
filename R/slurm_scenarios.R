@@ -28,6 +28,7 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
 
   ## Store into cache
   temp <- list(
+    expName = expName,
     scen_batches = batches,
     scen_nbatches = nbatches
   )
