@@ -11,7 +11,8 @@ test_that("defineIRS works", {
           GVI = list(
             decay = list(
               L = 0.299,
-              "function" = "weibull"
+              "function" = "weibull",
+              k = 1.51
             ),
             anophelesParams = list(
               mosquito = "gam_indoor",
@@ -46,7 +47,8 @@ test_that("defineIRS works", {
   expected$interventions$human$component$GVI <- list(
     decay = list(
       L = 0.299,
-      "function" = "weibull"
+      "function" = "weibull",
+      k = 1.51
     ),
     anophelesParams = list(
       mosquito = "gam_indoor",
@@ -77,7 +79,8 @@ test_that("defineIRS works", {
   expected$interventions$human$component$GVI <- list(
     decay = list(
       L = 0.299,
-      "function" = "weibull"
+      "function" = "weibull",
+      k = 1.51
     ),
     anophelesParams = list(
       mosquito = "gam_indoor",

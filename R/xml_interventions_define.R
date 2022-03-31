@@ -376,9 +376,14 @@ defineIRS <- function(baseList, mosquitos, component = c(
       id = component,
       name = component,
       GVI = list(
-        decay = list(
-          L = componentData[[component]][["decayL"]],
-          "function" = componentData[[component]][["function"]]
+        decay = append(
+          list(
+            L = componentData[[component]][["decayL"]],
+            "function" = componentData[[component]][["function"]]
+          ),
+          if (!is.null(componentData[[component]][["k"]])) {
+            list(k = componentData[[component]][["k"]])
+          }
         )
       )
     )
