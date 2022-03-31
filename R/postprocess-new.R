@@ -94,7 +94,7 @@ readSurveyOutput <- function(outputFile, filterBySurveyMeasure=NULL) {
 ##' @param metadata Experiment metadata file location, by default scens object from cache
 ##' @param metadataFeatures Character vector of metadata features to keep, if null keep all
 ##' @param indicators Character vector of epidemiological indicators to calculate
-##' @param keepMeasures Character vector of indicators whose measures you want to keep in the function output, if null keep none
+##' @param keepMeasuresForIndicators Character vector of indicators whose measures you want to keep in the function output, if null keep none
 ##' @export
 calculateEpidemiologicalIndicators<-function(rawdata=NULL,metadata=NULL,
                                              metadataFeatures=NULL,
