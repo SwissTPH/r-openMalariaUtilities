@@ -36,7 +36,8 @@ jobs:
       - name: Run OpenMalaria example xml
         shell: bash
         run : |
-          openMalaria -s openMalaria-ubuntu-20.04/example_scenario.xml --verbose
+          cd openMalaria-ubuntu-20.04
+          openMalaria -s example_scenario.xml --verbose
 
       - name: Store OpenMalaria output
         uses: actions/upload-artifact@v3
