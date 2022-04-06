@@ -22,13 +22,20 @@
 ##'   mosqHumanBloodIndex=list(mean="0.6243")))
 ##' @export
 defineEntomology <- function(baseList, seasonalityParameters,
-                             mosquitoParameters, verbose = FALSE,
-                             append = TRUE) {
+                             mosquitoParameters, mode="dynamic", 
+                             name="Namawala", scaledAnnualEIR=NULL,
+                             verbose = FALSE, append = TRUE) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertList(mosquitoParameters)
   checkmate::assertList(seasonalityParameters)
+  checkmate::assertSubset(mode,
+                          choices = c("dynamic","static"),
+                          add = assertCol
+  )
+  checkmate::assertCharacter(name)
+  checkmate::assertNumeric(scaledAnnualEIR)
   checkmate::assertSubset(verbose,
     choices = c(TRUE, FALSE),
     add = assertCol
@@ -39,6 +46,30 @@ defineEntomology <- function(baseList, seasonalityParameters,
   )
   checkmate::reportAssertions(assertCol)
 
+  
+  
+  ## Setup, add scaledAnnualEIR if specified
+  setupList<-list(mode=mode,
+                  name=name)
+  if(!is.null(scaledAnnualEIR)){
+    setupList$scaledAnnualEIR<-as.character(scaledAnnualEIR)
+    if (verbose) {
+      message(
+        paste0(
+          "Adding scaledAnnualEIR ",
+          scaledAnnualEIR, " to baseXML file..."
+        )
+      )
+    }
+  }
+  baseList <- .xmlAddList(
+    data = baseList, sublist = "entomology",
+    entry = NULL,
+    append = append,
+    input = setupList
+  )
+  
+  ## Writing mosquito bionomics and seasonality data per vector species
   for (k in names(mosquitoParameters)) {
     if (verbose) {
       message(
@@ -141,7 +172,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
         )
       )
     }
-
+    
     ## Add mosq part
     inputList <- .xmlAddList(
       data = inputList, sublist = NULL, entry = "mosq",
@@ -205,6 +236,10 @@ defineEntomology <- function(baseList, seasonalityParameters,
     )
   }
 
+  
+
+
+  
   ## Add non-human hosts
   baseList <- .xmlAddList(
     data = baseList, sublist = c("entomology", "vector"),
