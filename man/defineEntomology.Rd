@@ -9,6 +9,9 @@ defineEntomology(
   baseList,
   seasonalityParameters,
   mosquitoParameters,
+  mode = "dynamic",
+  name = "Namawala",
+  scaledAnnualEIR = NULL,
   verbose = FALSE,
   append = TRUE
 )
@@ -17,6 +20,9 @@ define_entomology(
   baseList,
   seasonalityParameters,
   mosquitoParameters,
+  mode = "dynamic",
+  name = "Namawala",
+  scaledAnnualEIR = NULL,
   verbose = FALSE,
   append = TRUE
 )
@@ -29,6 +35,12 @@ define_entomology(
 \item{mosquitoParameters}{Mosquito bionomics parameterization list of
 different mosquito species as obtained from AnophelesModel package
 function get_OM_ento_snippet}
+
+\item{mode}{dynamic or static}
+
+\item{name}{name of your setting}
+
+\item{scaledAnnualEIR}{If not NULL, annualEIR will be rescaled by numeric}
 
 \item{verbose}{If TRUE, print detailed output.}
 
