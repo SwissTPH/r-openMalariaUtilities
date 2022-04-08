@@ -1,11 +1,11 @@
-##' Defines entomology setting and writes it baseList file
+##' Defines entomology setting
 ##' @param baseList List with experiment data.
 ##' @param seasonalityParameters Seasonality parameterization.
 ##' @param mosquitoParameters Mosquito bionomics parameterization list of
 ##'   different mosquito species as obtained from AnophelesModel package
 ##'   function get_OM_ento_snippet
-##' @param mode dynamic or static
-##' @param name name of your setting
+##' @param mode Dynamic or static
+##' @param name Name of your setting
 ##' @param scaledAnnualEIR If not NULL, annualEIR will be rescaled by numeric
 ##' @param verbose If TRUE, print detailed output.
 ##' @param append If TRUE, then append to existing baseList, otherwise overwrite
@@ -25,8 +25,8 @@
 ##'   mosqHumanBloodIndex=list(mean="0.6243")))
 ##' @export
 defineEntomology <- function(baseList, seasonalityParameters,
-                             mosquitoParameters, mode="dynamic", 
-                             name="Namawala", scaledAnnualEIR=NULL,
+                             mosquitoParameters, mode = "dynamic",
+                             name = "Namawala", scaledAnnualEIR = NULL,
                              verbose = FALSE, append = TRUE) {
 
   ## Verify input
@@ -34,8 +34,8 @@ defineEntomology <- function(baseList, seasonalityParameters,
   checkmate::assertList(mosquitoParameters)
   checkmate::assertList(seasonalityParameters)
   checkmate::assertSubset(mode,
-                          choices = c("dynamic","static"),
-                          add = assertCol
+    choices = c("dynamic", "static"),
+    add = assertCol
   )
   checkmate::assertCharacter(name)
   checkmate::assertNumeric(scaledAnnualEIR)
@@ -49,13 +49,14 @@ defineEntomology <- function(baseList, seasonalityParameters,
   )
   checkmate::reportAssertions(assertCol)
 
-  
-  
   ## Setup, add scaledAnnualEIR if specified
-  setupList<-list(mode=mode,
-                  name=name)
-  if(!is.null(scaledAnnualEIR)){
-    setupList$scaledAnnualEIR<-as.character(scaledAnnualEIR)
+  setupList <- list(
+    mode = mode,
+    name = name
+  )
+
+  if (!is.null(scaledAnnualEIR)) {
+    setupList$scaledAnnualEIR <- as.character(scaledAnnualEIR)
     if (verbose) {
       message(
         paste0(
@@ -65,13 +66,14 @@ defineEntomology <- function(baseList, seasonalityParameters,
       )
     }
   }
+
   baseList <- .xmlAddList(
     data = baseList, sublist = "entomology",
     entry = NULL,
     append = append,
     input = setupList
   )
-  
+
   ## Writing mosquito bionomics and seasonality data per vector species
   for (k in names(mosquitoParameters)) {
     if (verbose) {
@@ -91,27 +93,26 @@ defineEntomology <- function(baseList, seasonalityParameters,
       propInfectious = seasData$propInfectious
     )
 
-
     ## Add seasonality part
     if (length(seasData$seasonality) == 1) {
-      if (seasData$seasonality == "fourierSeries" ){
-      inputList <- append(
-        inputList,
-        list(seasonality = list(
-          annualEIR = seasData$annualEIR,
-          input = "EIR",
-          fourierSeries = list(
-            EIRRotateAngle = "0",
-            coeffic = list(a = "0.8968", b = "2.678"),
-            coeffic = list(a = "-0.4551", b = "2.599")
-          )
-        ))
-      )
+      if (seasData$seasonality == "fourierSeries") {
+        inputList <- append(
+          inputList,
+          list(seasonality = list(
+            annualEIR = seasData$annualEIR,
+            input = "EIR",
+            fourierSeries = list(
+              EIRRotateAngle = "0",
+              coeffic = list(a = "0.8968", b = "2.678"),
+              coeffic = list(a = "-0.4551", b = "2.599")
+            )
+          ))
+        )
       }
     } else if (
-      (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 12) || 
-       (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 12)
-       ) {
+      (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 12) ||
+        (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 12)
+    ) {
       tmp <- list()
       tmp <- .xmlAddList(
         data = tmp, sublist = NULL,
@@ -120,27 +121,27 @@ defineEntomology <- function(baseList, seasonalityParameters,
           smoothing = "fourier"
         )
       )
-        
-        for (mo in seasData$seasonality) {
-          tmp <- .xmlAddList(
-            data = tmp, sublist = NULL,
-            entry = "value",
-            input = list(mo)
-          )
-        }
-          
-          inputList <- .xmlAddList(
-            data = inputList, sublist = "seasonality", entry = NULL,
-            input = list(
-              annualEIR = seasData$annualEIR,
-              input = "EIR",
-              monthlyValues = tmp
-            )
-          )
-        } else if (
-          (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 365) || 
-           (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 365)
-          ) {
+
+      for (mo in seasData$seasonality) {
+        tmp <- .xmlAddList(
+          data = tmp, sublist = NULL,
+          entry = "value",
+          input = list(mo)
+        )
+      }
+
+      inputList <- .xmlAddList(
+        data = inputList, sublist = "seasonality", entry = NULL,
+        input = list(
+          annualEIR = seasData$annualEIR,
+          input = "EIR",
+          monthlyValues = tmp
+        )
+      )
+    } else if (
+      (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 365) ||
+        (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 365)
+    ) {
       tmp <- list()
       tmp <- .xmlAddList(
         data = tmp, sublist = NULL,
@@ -149,7 +150,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
           smoothing = "fourier"
         )
       )
-      
+
       for (da in seasData$seasonality) {
         tmp <- .xmlAddList(
           data = tmp, sublist = NULL,
@@ -157,8 +158,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
           input = list(da)
         )
       }
-      
-      
+
       inputList <- .xmlAddList(
         data = inputList, sublist = "seasonality", entry = NULL,
         input = list(
@@ -171,7 +171,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
       stop("Seasonality needs to be either 'fourierSeries', a numeric vector or
            a vector of placeholders '@foo@' of length 12 or 365")
     }
-    
+
     ## Add mosq part
     inputList <- .xmlAddList(
       data = inputList, sublist = NULL, entry = "mosq",
@@ -235,10 +235,6 @@ defineEntomology <- function(baseList, seasonalityParameters,
     )
   }
 
-  
-
-
-  
   ## Add non-human hosts
   baseList <- .xmlAddList(
     data = baseList, sublist = c("entomology", "vector"),
