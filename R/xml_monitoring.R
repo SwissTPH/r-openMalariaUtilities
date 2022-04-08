@@ -72,7 +72,8 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ##'   "yearly")
 ##' @keywords internal
 ##' @importFrom data.table ':=' .I
-.xmlMonitoringTimeRegularSeq <- function(startDate, endDate, daysFilter, dateFilter = "none") {
+.xmlMonitoringTimeRegularSeq <- function(startDate, endDate, daysFilter,
+                                         dateFilter = "none") {
   ## Appease NSE notes in R CMD check
   week <- month <- roll_date <- quarter_date <- year_date <- NULL
 
@@ -92,7 +93,7 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
   ## Add sequence to data frame
   dateDF <- data.table::data.table(date = as.Date(sequence))
   ## Add number of days since startDate
-  dateDF$daysDiff <- seq(from = 0, length.out = nrow(dateDF))
+  dateDF$day <- seq(from = 0, length.out = nrow(dateDF))
   ## If weeks are requested, generate a column identifying the number of week a
   ## date is.
   if (dateFilter == "weekly") {
@@ -103,11 +104,11 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
   ## of 5 and then 2) we might want to have 20 days steps. Could be more
   ## elegant.
   ## Keep only dates which are divisible by 5
-  dateDF <- dateDF[dateDF$daysDiff %% 5 == 0 | dateDF$daysDiff == 0, ]
+  dateDF <- dateDF[dateDF$day %% 5 == 0 | dateDF$day == 0, ]
   ## Keep only dates which are divisible by daysFilter
-  dateDF <- dateDF[dateDF$daysDiff %% daysFilter == 0 | dateDF$daysDiff == 0, ]
+  dateDF <- dateDF[dateDF$day %% daysFilter == 0 | dateDF$day == 0, ]
   ## Add number of time steps since startDate
-  dateDF$timestep <- dateDF$daysDiff / 5
+  dateDF$timestep <- dateDF$day / 5
 
   ## Mofify output data according to arguments
   if (dateFilter == "weekly") {
@@ -188,11 +189,11 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ##' @title Generate list for 'monitoring/surveys/surveyTime'
 ##' @param startDate Start date as character "YYYY-MM-DD".
 ##' @param endDate End date as character "YYYY-MM-DD".
-##' @param interval Time interval. Either a string, e.g. "1 week", or a list,
-##'   e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Accepted
-##'   string are day(s), week(s), month(s) and quarter(s). Setting the days in
-##'   the list to 31 will always use the last day of the corresponding month
-##'   (e.g. 28 for February, 31 for July).
+##' @param interval Time interval. Either a string ("daily", "weekly",
+##'   "monthly", "quarterly", "yearly"), "X days" (e.g. "15 days"), or a list,
+##'   e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Setting the
+##'   days in the list to 31 will always use the last day of the corresponding
+##'   month (e.g. 28 for February, 31 for July).
 ##' @param simStart Start date of the simulation. A good idea is to put this 100
 ##'   years in before your first survey date.
 ##' @param detectionLimit Deprecated in openMalaria. Double, limit above which a
@@ -276,7 +277,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
         }
 
         ## Get values for the xml entries
-        days <- dates$daysDiff
+        days <- dates$day
         ## endDates is not used for these entries but mapply expects the same
         ## length of the inputs
         endDates <- rep(1, length.out = length(days))
@@ -317,7 +318,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
           }
 
           ## Get values for the xml entries
-          days <- dates$daysDiff[1]
+          days <- dates$day[1]
           endDates <- dates$date[length(dates$date)]
           repeatUnit <- "d"
           repeatStepsize <- every
@@ -378,7 +379,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
         format(as.Date(dates$date), "%Y")
       )
     )
-    days <- days$daysDiff
+    days <- days$day
 
     ## Extract the dates of the final year
     endDates <- subset(
@@ -407,6 +408,11 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     ## https://swisstph.github.io/openmalaria/schema-43.html#end-of-repetition-exclusive
     endDates <- endDates + 5
   }
+
+  ## Adjust entries so they correspond to inclusive dates. By default,
+  ## OpenMalaria handles survey dates exclusively; the survey ends before the
+  ## given date.
+  days <- days + 5
 
   ## Construct output list
   outlist <- list()
