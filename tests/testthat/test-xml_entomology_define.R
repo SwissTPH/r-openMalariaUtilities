@@ -107,7 +107,7 @@ test_that("defineEntomology works", {
     entomology = list(
       mode = "dynamic",
       name = "Namawala",
-      scaledAnnualEIR = "23",
+      scaledAnnualEIR = 23,
       vector = list(
         anopheles = list(
           mosquito = "gambiae_ss",
