@@ -844,3 +844,29 @@ cd ", get("experimentDir", envir = .pkgcache), "
 
   return(TRUE)
 }
+
+##' Removes log files
+##' @export
+remove_errorfiles <- function() {
+  logDir <- get(x = "logsDir", envir = .pkgcache)
+  unlink(file.path(logDir, "*.log"))
+
+  ## Remove scenario generation logs
+  if (dir.exists(file.path(logDir, "scenarios"))) {
+    unlink(file.path(logDir, "scenarios/*.log"))
+  }
+  ## Remove simulation logs
+  if (dir.exists(file.path(logDir, "simulation"))) {
+    unlink(file.path(logDir, "simulation/*.log"))
+  }
+  ## Remove simulation logs
+  if (dir.exists(file.path(logDir, "postprocessing"))) {
+    unlink(file.path(logDir, "postprocessing/*.log"))
+  }
+
+  if (length(dir(file.path(logDir, ""))) == 0
+  ) {
+    print("Log files removed")
+  }
+  return(TRUE)
+}
