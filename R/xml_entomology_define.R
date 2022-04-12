@@ -57,7 +57,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
   setupList<-list(mode=mode,
                   name=name)
   if(!is.null(scaledAnnualEIR)){
-    setupList$scaledAnnualEIR<-as.character(scaledAnnualEIR)
+    setupList$scaledAnnualEIR<-scaledAnnualEIR
     if (verbose) {
       message(
         paste0(
