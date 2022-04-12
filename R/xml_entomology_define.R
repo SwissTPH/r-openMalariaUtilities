@@ -39,8 +39,9 @@ defineEntomology <- function(baseList, seasonalityParameters,
   )
   checkmate::assertCharacter(name)
   checkmate::assert(
-    checkmate::checkCharacter(scaledAnnualEIR, pattern = "@(.*?)@",null.ok=T),
-    checkmate::checkNumber(scaledAnnualEIR,null.ok=T))
+    checkmate::checkCharacter(scaledAnnualEIR, pattern = "@(.*?)@", null.ok = TRUE),
+    checkmate::checkNumber(scaledAnnualEIR, null.ok = TRUE)
+  )
   checkmate::assertSubset(verbose,
     choices = c(TRUE, FALSE),
     add = assertCol
