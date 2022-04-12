@@ -200,10 +200,14 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ##'   human's infection is reported as patent.
 ##' @param diagnostic Name of a parameterised diagnostic to use in surveys. See
 ##'   openMalaria documentation.
+##' @param compatSurveys If survey times should be compatible to legacy
+##'   versions. By default, surveys exclude the timestep of the survey date.
+##'   Setting this to TRUE, one timestep will be added to each survey date so
+##'   they include the dates of the survey itself.
 ##' @export
 monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
                                      simStart = NULL, detectionLimit = NULL,
-                                     diagnostic = NULL) {
+                                     diagnostic = NULL, compatSurveys = FALSE) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(
@@ -409,10 +413,12 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     endDates <- endDates + 5
   }
 
-  ## Adjust entries so they correspond to inclusive dates. By default,
-  ## OpenMalaria handles survey dates exclusively; the survey ends before the
-  ## given date.
-  days <- days + 5
+  if (compatSurveys == TRUE) {
+    ## Adjust entries so they correspond to inclusive dates. By default,
+    ## OpenMalaria handles survey dates exclusively; the survey ends before the
+    ## given date.
+    days <- days + 5
+  }
 
   ## Construct output list
   outlist <- list()
@@ -630,7 +636,7 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
     input = monitoringSurveyTimesGen(
       detectionLimit = detect, startDate = paste(y1, m1, d1, sep = "-"),
       endDate = paste(y2, m2, d2, sep = "-"), interval = paste0(interval, "ly"),
-      simStart = SIMSTART
+      simStart = SIMSTART, compatSurveys = TRUE
     )
   )
 

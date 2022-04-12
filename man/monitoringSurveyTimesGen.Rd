@@ -10,7 +10,8 @@ monitoringSurveyTimesGen(
   interval,
   simStart = NULL,
   detectionLimit = NULL,
-  diagnostic = NULL
+  diagnostic = NULL,
+  compatSurveys = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,11 @@ human's infection is reported as patent.}
 
 \item{diagnostic}{Name of a parameterised diagnostic to use in surveys. See
 openMalaria documentation.}
+
+\item{compatSurveys}{If survey times should be compatible to legacy
+versions. By default, surveys exclude the timestep of the survey date.
+Setting this to TRUE, one timestep will be added to each survey date so
+they include the dates of the survey itself.}
 }
 \description{
 Generate list for 'monitoring/surveys/surveyTime'
