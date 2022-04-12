@@ -6,7 +6,7 @@
 ## input data is a list having a distinct structure resembling the openMalaria
 ## xml files. Attribute and element names should be the same as in openMalaria.
 
-##' @title Create a base xml file
+##' @title Create a base xml file and folder structure
 ##' @description Processes a list as containing the required information to
 ##'   generate a base xml file for OpenMalaria. This file is used to generate
 ##'   the scenarios for simulation.
@@ -15,6 +15,10 @@
 ##'   OpenMalaria's schema documentation. Some attributes are not part of the
 ##'   official schema, like 'expName'. More details can be found in the
 ##'   vignette.
+##'   The function also creates the folder structure for the experiment. By
+##'   default, the experiment is created in the current working directory. This
+##'   behavior can be changed by modifying or setting 'rootDir', 'scenariosDir'
+##'   and 'logsDir' in the input list.
 ##' @param data List containing all information
 ##' @param replace Overwrite experiment directory if it is already present.
 ##'   Possible values are TRUE, FALSE, or "ask".
