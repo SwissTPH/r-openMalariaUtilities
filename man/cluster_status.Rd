@@ -2,6 +2,7 @@
 % Please edit documentation in R/compat.R
 \name{cluster_status}
 \alias{cluster_status}
+\alias{who_failed}
 \title{writes a file of all job status and writes a table showing categories (failed, completed)}
 \usage{
 cluster_status(
@@ -10,9 +11,11 @@ cluster_status(
   stime = "00:00:00",
   sdate = Sys.Date()
 )
+
+who_failed(AnalysisDir = getwd())
 }
 \arguments{
-\item{AnalysisDir}{analysis directory folder}
+\item{AnalysisDir}{analysis directory}
 
 \item{username}{slurm username}
 
@@ -22,7 +25,14 @@ cluster_status(
 }
 \value{
 table of status of jobs on cluster
+
+jobs
 }
 \description{
 writes a file of all job status and writes a table showing categories (failed, completed)
+
+Determine which jobs failed, after running cluster_status
+}
+\note{
+run cluster_status() to create the jobs.csv file in AnalysisDir
 }

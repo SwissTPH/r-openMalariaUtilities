@@ -736,6 +736,43 @@ cluster_status <- function(AnalysisDir = getwd(),
   return(job_status)
 }
 
+
+## DEPRECATED
+##' Cancels jobs on cluster
+##' @export
+cancel_jobs <- function() {
+  system(
+    paste0("scancel -u ", as.character((Sys.info()["user"]))),
+    intern = TRUE
+  )
+  message("Jobs cancelled.")
+  return(TRUE)
+}
+
+## DEPRECATED
+##' Determine which jobs failed, after running cluster_status
+##' @param AnalysisDir analysis directory
+##' @rdname cluster_status
+##' @export
+##' @importFrom magrittr %>%
+##' @importFrom utils read.csv
+##' @importFrom dplyr filter select
+##' @note run cluster_status() to create the jobs.csv file in AnalysisDir
+##' @return jobs
+who_failed <- function(AnalysisDir = getwd()) {
+  State <- X <- NULL
+  filename <- file.path(AnalysisDir, "jobs.csv")
+  if (file.exists(filename)) {
+    jobs <- utils::read.csv(filename) %>%
+      dplyr::filter(State %in% c("FAILED", "TIMEOUT")) %>%
+      dplyr::select(-X)
+  } else {
+    stop("Run cluster_status(AnalysisDir) first,
+          to create a jobs.csv file in the AnalysisDir folder.")
+  }
+  return(jobs)
+}
+
 ##' run_script is a wrapper function that runs other function with pre-defined options
 ##' @note this can run multiple scripts in a dependency
 ##' @param submit if TRUE, then submits the script
