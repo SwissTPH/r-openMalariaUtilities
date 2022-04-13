@@ -11,7 +11,8 @@ slurmPrepareRunScenarios(
   dep = TRUE,
   memCPU = "250MB",
   time = "06:00:00",
-  qos = "6hours"
+  qos = "6hours",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ slurm_scenarios.sh has been completed}
 \item{time}{Maximum time}
 
 \item{qos}{Quality of service}
+
+\item{verbose}{If TRUE, use OpenMalaria's verbose output.}
 }
 \description{
 Run preparations for SLURM submission

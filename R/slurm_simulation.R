@@ -15,10 +15,12 @@
 ##' @param memCPU Memory per CPU
 ##' @param time Maximum time
 ##' @param qos Quality of service
+##' @param verbose If TRUE, use OpenMalaria's verbose output.
 ##' @export
 slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
                                      dep = TRUE, memCPU = "250MB",
-                                     time = "06:00:00", qos = "6hours") {
+                                     time = "06:00:00", qos = "6hours",
+                                     verbose = FALSE) {
   ## Appease NSE notes in R CMD check
   scens <- NULL
 
@@ -76,6 +78,9 @@ args <- commandArgs(trailingOnly = TRUE)
 ## Set correct working directory\n",
     "setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
 
+## Verbose output
+verbose <- ", ifelse(verbose == TRUE, paste0("\" --verbose \""), paste0("NULL")), "
+
 ## Load library
 library(openMalariaUtilities)
 
@@ -118,7 +123,7 @@ ctsout <- file.path(
 print(paste0(\"Running scenario [\", ID, \"/\", length(scenarios), \"]\"))
 fullCmd <- paste0(
   cmd, \" --resource-path \", resources, \" --scenario \",
-  scenario, \" --output \", output, \" --ctsout \", ctsout, \" --verbose\"
+  scenario, \" --output \", output, \" --ctsout \", ctsout, verbose
 )
 system(command = fullCmd)
 ",
