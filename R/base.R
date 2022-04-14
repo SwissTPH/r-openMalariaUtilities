@@ -6,7 +6,7 @@
 ## input data is a list having a distinct structure resembling the openMalaria
 ## xml files. Attribute and element names should be the same as in openMalaria.
 
-##' @title Create a base xml file
+##' @title Create a base xml file and folder structure
 ##' @description Processes a list as containing the required information to
 ##'   generate a base xml file for OpenMalaria. This file is used to generate
 ##'   the scenarios for simulation.
@@ -15,6 +15,10 @@
 ##'   OpenMalaria's schema documentation. Some attributes are not part of the
 ##'   official schema, like 'expName'. More details can be found in the
 ##'   vignette.
+##'   The function also creates the folder structure for the experiment. By
+##'   default, the experiment is created in the current working directory. This
+##'   behavior can be changed by modifying or setting 'rootDir', 'scenariosDir'
+##'   and 'logsDir' in the input list.
 ##' @param data List containing all information
 ##' @param replace Overwrite experiment directory if it is already present.
 ##'   Possible values are TRUE, FALSE, or "ask".
@@ -37,6 +41,8 @@ createBaseXml <- function(data = NULL, replace = "ask") {
     name = get(x = "experimentName", envir = .pkgcache),
     analysisNo = data[["analysisNo"]]
   )
+  assign(x = "OMVersion", value = data[["OMVersion"]], envir = .pkgcache)
+
   ## Construct xml document
   .xmlMakeDocRec(baseXML = baseXml, data = data)
   ## Create folders
@@ -64,15 +70,16 @@ create_base_xml <- createBaseXml
 
 
 ##' @title Download required Open Malaria files
-##' @param version Major schema version. Supported: 43
+##' @param version Major schema version. Supported: 44.
 ##' @param dir Target directory. Defaults to experiment directory.
 ##' @export
-setupOM <- function(version = 43, dir = NULL) {
+setupOM <- function(version = 44, dir = NULL) {
   ## Check for supported version and select correct subversion
-  suppVers <- c(43)
+  suppVers <- c(44)
   if (version %in% suppVers) {
     major <- version
-    version <- ifelse(version == 43, 43.1, version)
+    ## Assigning supported minor version. Should always be the latest.
+    version <- ifelse(version == 44, "44.0")
 
     ## Download files into experiment folder if not already present
     if (is.null(dir)) {
@@ -111,7 +118,7 @@ setupOM <- function(version = 43, dir = NULL) {
     }
   } else {
     stop(paste0(
-      "Only the following versions of Open Malaria are supported: ",
+      "Only the following major versions of Open Malaria are supported: ",
       suppVers
     ))
   }

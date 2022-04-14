@@ -3,12 +3,15 @@
 \name{defineEntomology}
 \alias{defineEntomology}
 \alias{define_entomology}
-\title{Defines entomology setting and writes it baseList file}
+\title{Defines entomology setting}
 \usage{
 defineEntomology(
   baseList,
   seasonalityParameters,
   mosquitoParameters,
+  mode = "dynamic",
+  name = "Namawala",
+  scaledAnnualEIR = NULL,
   verbose = FALSE,
   append = TRUE
 )
@@ -17,6 +20,9 @@ define_entomology(
   baseList,
   seasonalityParameters,
   mosquitoParameters,
+  mode = "dynamic",
+  name = "Namawala",
+  scaledAnnualEIR = NULL,
   verbose = FALSE,
   append = TRUE
 )
@@ -30,12 +36,18 @@ define_entomology(
 different mosquito species as obtained from AnophelesModel package
 function get_OM_ento_snippet}
 
+\item{mode}{Dynamic or static}
+
+\item{name}{Name of your setting}
+
+\item{scaledAnnualEIR}{If not NULL, annualEIR will be rescaled by numeric}
+
 \item{verbose}{If TRUE, print detailed output.}
 
 \item{append}{If TRUE, then append to existing baseList, otherwise overwrite}
 }
 \description{
-Defines entomology setting and writes it baseList file
+Defines entomology setting
 }
 \examples{
  mosquitoParameters=list("Anopheles gambiae"=list(

@@ -66,6 +66,7 @@ test_that("defineHealthSystem works", {
         group = list(lowerbound = 15, value = 0.1378378)
       ),
       pSequelaeInpatient = list(
+        interpolation = "none",
         group = list(lowerbound = 0.0, value = 0.0132),
         group = list(lowerbound = 5.0, value = 0.005)
       )
@@ -150,6 +151,7 @@ test_that("write_healthsys_compat works", {
         group = list(lowerbound = 15, value = 0.1378378)
       ),
       pSequelaeInpatient = list(
+        interpolation = "none",
         group = list(lowerbound = 0.0, value = 0.0132),
         group = list(lowerbound = 5.0, value = 0.005)
       )

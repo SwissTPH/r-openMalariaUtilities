@@ -5,11 +5,13 @@
 \title{Generate list for 'monitoring/surveys/surveyTime'}
 \usage{
 monitoringSurveyTimesGen(
-  startDate,
-  endDate,
+  startDate = NULL,
+  endDate = NULL,
   interval,
+  simStart = NULL,
   detectionLimit = NULL,
-  diagnostic = NULL
+  diagnostic = NULL,
+  compatSurveys = FALSE
 )
 }
 \arguments{
@@ -17,17 +19,25 @@ monitoringSurveyTimesGen(
 
 \item{endDate}{End date as character "YYYY-MM-DD".}
 
-\item{interval}{Time interval. Either a string, e.g. "1 week", or a list,
-e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Accepted
-string are day(s), week(s), month(s) and quarter(s). Setting the days in
-the list to 31 will always use the last day of the corresponding month
-(e.g. 28 for February, 31 for July).}
+\item{interval}{Time interval. Either a string ("daily", "weekly",
+"monthly", "quarterly", "yearly"), "X days" (e.g. "15 days"), or a list,
+e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Setting the
+days in the list to 31 will always use the last day of the corresponding
+month (e.g. 28 for February, 31 for July).}
+
+\item{simStart}{Start date of the simulation. A good idea is to put this 100
+years in before your first survey date.}
 
 \item{detectionLimit}{Deprecated in openMalaria. Double, limit above which a
 human's infection is reported as patent.}
 
 \item{diagnostic}{Name of a parameterised diagnostic to use in surveys. See
 openMalaria documentation.}
+
+\item{compatSurveys}{If survey times should be compatible to legacy
+versions. By default, surveys exclude the timestep of the survey date.
+Setting this to TRUE, one timestep will be added to each survey date so
+they include the dates of the survey itself.}
 }
 \description{
 Generate list for 'monitoring/surveys/surveyTime'

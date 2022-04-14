@@ -33,9 +33,16 @@ test_that("runScenarios works (dry run)", {
     envir = openMalariaUtilities:::.pkgcache
   )
 
-  scenarios <- data.frame(pop = c(1:10))
-  scen <- scenarios
-  full <- "foo"
+  scenarios <- data.frame(
+    futITNcov = c(.65),
+    futIRScov = c(0, .8),
+    EIR = c(5, 25),
+    setting = c("alpha"),
+    pop = c(1:10),
+    seed = 1
+  )
+  scens <- scenarios
+  full <- .create_test_full()
 
   unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
     recursive = TRUE

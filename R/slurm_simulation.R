@@ -10,13 +10,17 @@
 ##' @param expName Name of experiment
 ##' @param scenarios Scenario data frame
 ##' @param ntasks Number of tasks per CPU
+##' @param dep Should slurm_simulation.sh be launched only once
+##' slurm_scenarios.sh has been completed
 ##' @param memCPU Memory per CPU
 ##' @param time Maximum time
 ##' @param qos Quality of service
+##' @param verbose If TRUE, use OpenMalaria's verbose output.
 ##' @export
 slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
-                                     memCPU = "250MB", time = "06:00:00",
-                                     qos = "6hours") {
+                                     dep = TRUE, memCPU = "250MB",
+                                     time = "06:00:00", qos = "6hours",
+                                     verbose = FALSE) {
   ## Appease NSE notes in R CMD check
   scens <- NULL
 
@@ -27,6 +31,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
     scenarios <- scens
   }
 
+
   ## Create a submission script
   filename <- file.path(
     get(x = "experimentDir", envir = .pkgcache), "slurm_simulation.sh"
@@ -34,15 +39,16 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
   .writeSlurm(
     jobName = paste0(expName, "_simulation"),
     ntasks = ntasks,
+    dependency = ifelse(dep, paste0(expName, "_scenarios"), NULL),
     array = nrow(scenarios),
     time = time,
     qos = qos,
     output = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
       paste0(expName, "_simulation")
     ),
     error = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
       paste0(expName, "_simulation")
     ),
     pre = list(
@@ -51,7 +57,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
       "export LMOD_DISABLE_SAME_NAME_AUTOSWAP=\"no\"",
       "module purge",
       "module load R/4.1.2-foss-2018b-Python-3.6.6",
-      "module load OpenMalaria/43.0-iomkl-2019.01",
+      "module load OpenMalaria/44.0-iomkl-2019.01",
       ## This is quiet important, otherwise OpenMalaria cannot find the
       ## supporting files (*.xsd, etc)
       paste0("cd ", get(x = "experimentDir", envir = .pkgcache))
@@ -71,6 +77,9 @@ args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
     "setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+
+## Verbose output
+verbose <- ", ifelse(verbose == TRUE, paste0("\" --verbose \""), paste0("NULL")), "
 
 ## Load library
 library(openMalariaUtilities)
@@ -114,7 +123,7 @@ ctsout <- file.path(
 print(paste0(\"Running scenario [\", ID, \"/\", length(scenarios), \"]\"))
 fullCmd <- paste0(
   cmd, \" --resource-path \", resources, \" --scenario \",
-  scenario, \" --output \", output, \" --ctsout \", ctsout
+  scenario, \" --output \", output, \" --ctsout \", ctsout, verbose
 )
 system(command = fullCmd)
 ",

@@ -376,9 +376,14 @@ defineIRS <- function(baseList, mosquitos, component = c(
       id = component,
       name = component,
       GVI = list(
-        decay = list(
-          L = componentData[[component]][["decayL"]],
-          "function" = componentData[[component]][["function"]]
+        decay = append(
+          list(
+            L = componentData[[component]][["decayL"]],
+            "function" = componentData[[component]][["function"]]
+          ),
+          if (!is.null(componentData[[component]][["k"]])) {
+            list(k = componentData[[component]][["k"]])
+          }
         )
       )
     )
@@ -404,12 +409,20 @@ defineIRS <- function(baseList, mosquitos, component = c(
       input = list(
         mosquito = mosquitos[[i]],
         propActive = propActive[[i]],
-        deterrency = list(value = componentData[[component]][["vals"]][[1]]),
+        deterrency = list(
+          value = ifelse(
+            propActive[[i]] == 0, 0, componentData[[component]][["vals"]][[1]]
+          )
+        ),
         preprandialKillingEffect = list(
-          value = componentData[[component]][["vals"]][[2]]
+          value = ifelse(
+            propActive[[i]] == 0, 0, componentData[[component]][["vals"]][[2]]
+          )
         ),
         postprandialKillingEffect = list(
-          value = componentData[[component]][["vals"]][[3]]
+          value = ifelse(
+            propActive[[i]] == 0, 0, componentData[[component]][["vals"]][[3]]
+          )
         )
       )
     )
@@ -468,11 +481,13 @@ defineTreatSimple <- function(baseList, component = "MDA",
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(component, add = assertCol)
   checkmate::assert(
+    checkmate::checkCharacter(durationBlood, pattern = "@(.*?)@"),
     checkmate::checkCharacter(durationBlood, pattern = "[0-9]+d{1}\\b"),
     checkmate::checkNumber(durationBlood, lower = -1),
     add = assertCol
   )
   checkmate::assert(
+    checkmate::checkCharacter(durationLiver, pattern = "@(.*?)@"),
     checkmate::checkCharacter(durationLiver, pattern = "[0-9]+d{1}\\b"),
     checkmate::checkNumber(durationLiver, lower = -1),
     add = assertCol

@@ -11,7 +11,8 @@ test_that("defineIRS works", {
           GVI = list(
             decay = list(
               L = 0.299,
-              "function" = "weibull"
+              "function" = "weibull",
+              k = 1.51
             ),
             anophelesParams = list(
               mosquito = "gam_indoor",
@@ -23,9 +24,9 @@ test_that("defineIRS works", {
             anophelesParams = list(
               mosquito = "gam_outdoor",
               propActive = 0,
-              deterrency = list(value = -0.28),
-              preprandialKillingEffect = list(value = 0.23),
-              postprandialKillingEffect = list(value = 0.38)
+              deterrency = list(value = 0),
+              preprandialKillingEffect = list(value = 0),
+              postprandialKillingEffect = list(value = 0)
             )
           )
         )
@@ -46,14 +47,15 @@ test_that("defineIRS works", {
   expected$interventions$human$component$GVI <- list(
     decay = list(
       L = 0.299,
-      "function" = "weibull"
+      "function" = "weibull",
+      k = 1.51
     ),
     anophelesParams = list(
       mosquito = "gam_indoor",
       propActive = 0,
-      deterrency = list(value = -0.28),
-      preprandialKillingEffect = list(value = 0.23),
-      postprandialKillingEffect = list(value = 0.38)
+      deterrency = list(value = 0),
+      preprandialKillingEffect = list(value = 0),
+      postprandialKillingEffect = list(value = 0)
     ),
     anophelesParams = list(
       mosquito = "gam_outdoor",
@@ -77,7 +79,8 @@ test_that("defineIRS works", {
   expected$interventions$human$component$GVI <- list(
     decay = list(
       L = 0.299,
-      "function" = "weibull"
+      "function" = "weibull",
+      k = 1.51
     ),
     anophelesParams = list(
       mosquito = "gam_indoor",

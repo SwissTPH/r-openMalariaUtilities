@@ -1,6 +1,6 @@
 test_that("storeScenarios works", {
-  scenarios <- data.frame(pop = c(1:10))
-  full <- "foo"
+  scenarios <- .create_test_scens()
+  full <- .create_test_full()
   assign("cacheDir", file.path(tempdir(), "cache"),
     envir = openMalariaUtilities:::.pkgcache
   )
@@ -126,8 +126,15 @@ test_that("generateScenarios works", {
     envir = openMalariaUtilities:::.pkgcache
   )
   assign("placeholders", "pop", envir = openMalariaUtilities:::.pkgcache)
-  scenarios <- data.frame(pop = c(1:10))
-  full <- "foo"
+  scenarios <- data.frame(
+    futITNcov = c(.65),
+    futIRScov = c(0, .8),
+    EIR = c(5, 25),
+    setting = c("alpha"),
+    pop = c(1:10),
+    seed = 1
+  )
+  full <- .create_test_full()
 
   unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
     recursive = TRUE

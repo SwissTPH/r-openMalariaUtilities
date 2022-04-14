@@ -8,9 +8,11 @@ slurmPrepareRunScenarios(
   expName,
   scenarios = NULL,
   ntasks = 1,
+  dep = TRUE,
   memCPU = "250MB",
   time = "06:00:00",
-  qos = "6hours"
+  qos = "6hours",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -20,11 +22,16 @@ slurmPrepareRunScenarios(
 
 \item{ntasks}{Number of tasks per CPU}
 
+\item{dep}{Should slurm_simulation.sh be launched only once
+slurm_scenarios.sh has been completed}
+
 \item{memCPU}{Memory per CPU}
 
 \item{time}{Maximum time}
 
 \item{qos}{Quality of service}
+
+\item{verbose}{If TRUE, use OpenMalaria's verbose output.}
 }
 \description{
 Run preparations for SLURM submission

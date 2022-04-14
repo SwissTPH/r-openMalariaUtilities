@@ -255,6 +255,7 @@ defineChangeHS <- function(baseList, name = "Change in case management",
       ## REVIEW This is hardcoded for the time being. Should be accessible for
       ## the users
       pSequelaeInpatient = list(
+        interpolation = "none",
         group = list(lowerbound = 0.0, value = 0.0132),
         group = list(lowerbound = 5.0, value = 0.005)
       )

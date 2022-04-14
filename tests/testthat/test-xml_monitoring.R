@@ -29,12 +29,33 @@ test_that("monitoringCohortsGen works", {
   expect_equal(actual, expected)
 })
 
-actual <- monitoringSurveyTimesGen("2001-01-01", "2002-01-01", "1 quarter")
-expected <- list(surveyTime = list(
-  repeatStep = "90d",
-  repeatEnd = as.Date("2002-12-21"),
-  "0d"
-))
+actual <- monitoringSurveyTimesGen("2001-01-01", "2001-12-31", "monthly")
+expected <- list(
+  surveyTime = list("15d"),
+  surveyTime = list("45d"),
+  surveyTime = list("75d"),
+  surveyTime = list("105d"),
+  surveyTime = list("135d"),
+  surveyTime = list("165d"),
+  surveyTime = list("195d"),
+  surveyTime = list("225d"),
+  surveyTime = list("255d"),
+  surveyTime = list("285d"),
+  surveyTime = list("320d"),
+  surveyTime = list("350d"),
+  surveyTime = list("380d"),
+  surveyTime = list("410d"),
+  surveyTime = list("440d"),
+  surveyTime = list("470d"),
+  surveyTime = list("500d"),
+  surveyTime = list("530d"),
+  surveyTime = list("560d"),
+  surveyTime = list("590d"),
+  surveyTime = list("620d"),
+  surveyTime = list("650d"),
+  surveyTime = list("685d"),
+  surveyTime = list("715d")
+)
 
 test_that("monitoringSurveyTimesGen works (regular interval)", {
   expect_equal(actual, expected)
@@ -99,22 +120,42 @@ test_that("write_monitoring_compat works", {
         option = list(name = "expectedHospitalDeaths", value = "true"),
         option = list(name = "expectedIndirectDeaths", value = "true"),
         option = list(name = "expectedSevere", value = "true"),
-        option = list(name = "simulatedEIR", value = "false"),
+        option = list(name = "simulatedEIR", value = "true"),
         option = list(name = "inputEIR", value = "false"),
         option = list(name = "nMDAs", value = "false"),
         option = list(name = "nMassGVI", value = "false"),
         option = list(name = "nEPIVaccinations", value = "false"),
         option = list(name = "nMassIRS", value = "false"),
         option = list(name = "nMassITNs", value = "false"),
-        option = list(name = "nMassVaccinations", value = "true")
+        option = list(name = "nMassVaccinations", value = "false")
       ),
       surveys = list(
         detectionLimit = 200,
-        surveyTime = list(
-          repeatStep = "30d",
-          repeatEnd = as.Date("2036-12-26"),
-          "0d"
-        )
+        surveyTime = list("29920d"),
+        surveyTime = list("29950d"),
+        surveyTime = list("29980d"),
+        surveyTime = list("30010d"),
+        surveyTime = list("30040d"),
+        surveyTime = list("30070d"),
+        surveyTime = list("30100d"),
+        surveyTime = list("30130d"),
+        surveyTime = list("30160d"),
+        surveyTime = list("30190d"),
+        surveyTime = list("30220d"),
+        surveyTime = list("30255d"),
+        surveyTime = list("30285d"),
+        surveyTime = list("30315d"),
+        surveyTime = list("30345d"),
+        surveyTime = list("30375d"),
+        surveyTime = list("30405d"),
+        surveyTime = list("30435d"),
+        surveyTime = list("30465d"),
+        surveyTime = list("30495d"),
+        surveyTime = list("30525d"),
+        surveyTime = list("30555d"),
+        surveyTime = list("30585d"),
+        surveyTime = list("30620d"),
+        surveyTime = list("30650d")
       ),
       ageGroup = list(
         lowerbound = 0,
@@ -129,7 +170,7 @@ test_that("write_monitoring_compat works", {
     )
   )
 
-  actual <- write_monitoring_compat(baseList = testlist)
+  actual <- write_monitoring_compat(baseList = testlist, y2 = 2001)
 
   expect_equal(actual, expected)
 })

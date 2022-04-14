@@ -4,7 +4,12 @@
 \alias{.xmlMonitoringTimeRegularSeq}
 \title{Generate a date sequence}
 \usage{
-.xmlMonitoringTimeRegularSeq(startDate, endDate, daysFilter)
+.xmlMonitoringTimeRegularSeq(
+  startDate,
+  endDate,
+  daysFilter,
+  dateFilter = "none"
+)
 }
 \arguments{
 \item{startDate}{Start date in 'YYYY-MM-DD'}
@@ -12,6 +17,9 @@
 \item{endDate}{End date in 'YYYY-MM-DD'}
 
 \item{daysFilter}{Day differences to keep}
+
+\item{dateFilter}{Any of c("none", "weekly", "monthly", "quarterly",
+"yearly")}
 }
 \description{
 Generate a date sequence

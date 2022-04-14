@@ -8,12 +8,20 @@
 ##'   the cached scenario directory.
 ##' @param cmd Command to run openMalaria.
 ##' @param dryRun If TRUE, only the final command is printed but not executed.
+##' @param verbose If TRUE, use OpenMalaria's verbose output.
 ##' @export
 runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
-                         dryRun = FALSE) {
+                         dryRun = FALSE, verbose = FALSE) {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
     scenariosDir <- get(x = "scenariosDir", envir = .pkgcache)
+  }
+
+  ## Toggle verbose output of OpenMalaria
+  if (verbose == TRUE) {
+    verbose <- " --verbose "
+  } else {
+    verbose <- NULL
   }
 
   cmd <- Sys.which(cmd)
@@ -67,7 +75,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
     print(paste0("Running scenario [", i, "/", length(scenarios), "]"))
     fullCmd <- paste0(
       cmd, " --resource-path ", resources, " --scenario ",
-      scenario, " --output ", output, " --ctsout ", ctsout
+      scenario, " --output ", output, " --ctsout ", ctsout, verbose
     )
     if (dryRun == TRUE) {
       print(fullCmd)

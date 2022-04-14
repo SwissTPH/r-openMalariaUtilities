@@ -567,6 +567,8 @@ assign_value <- function(variable = "futIRScov",
   return(scens)
 }
 
+## DEPRECATED
+## FIXME THIS IS JUST PLAIN SHIT!
 ##' Description: Function to write scenario data
 ##' @param scens Dataset of scenarios
 ##' @param full List of experiment variables and values
@@ -578,21 +580,24 @@ assign_value <- function(variable = "futIRScov",
 ##' @importFrom utils write.csv
 write_scen_data <- function(scens, full, nameExperiment,
                             startnum = 1, saveit = TRUE, ...) {
-  ## set_experiment(nameExperiment)
+  print("'write_scen_data' has been deprecated. Please use 'storeScenarios' or 'generateScenarios'.")
   ## If scens and full are NULL, loading the saved dataset?
   experimentDir <- get("experimentDir", envir = .pkgcache)
   if (is.null(scens)) {
-    load(file.path(experimentDir, "scens.RData"))
+    load(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"))
   }
 
   ## Writing scenarios.csv and saving scens.RData
   colnames(scens) <- gsub("@", "", colnames(scens))
 
-  scens <- .add_file_column_to_scens(scens, nameExperiment, startnum)
+  prefix <- get(x = "experimentName", envir = .pkgcache)
+  scens <- .scenariosFilenames(scenarios = scens, prefix = prefix)
+
+  ## FIXME SUPER SHIT!
   scens <- add_idvars(scens, full, confirm = FALSE, overwrite = FALSE)
 
   ## Saving full, scens
-  scenfile <- file.path(experimentDir, "scens.RData")
+  scenfile <- file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")
 
   if (!is.logical(saveit)) saveit <- TRUE
   if (saveit) {
@@ -621,4 +626,247 @@ make_mosquito_name <- function(mosq = c("gambiaess", "funestuss"),
     mosq <- c(paste0(mosq, "_indoor"), paste0(mosq, "_outdoor"))
   }
   return(mosq)
+}
+
+## DEPRECATED
+##' @title Internal warning funtion
+##' @inheritParams write_JAGSmodel
+##' @param scens scens object
+##' @param seed_as_hist_param if TRUE, each seed has a different past value
+.seed_warning <- function(scens, seed_as_hist_param) {
+  nseed <- length(unique(scens$seed))
+
+  if (nseed > 1 & !seed_as_hist_param) {
+    warning(
+      paste("NOTE: Your experiment has", nseed, "seeds, but seed_as_hist_param = F.
+          This may cause problems.")
+    )
+  }
+
+  return(TRUE)
+}
+
+## DEPRECATED
+##' @title Helper function in do_post_process_cleanup
+##' @importFrom magrittr %>%
+##' @note internal function
+##' @inheritParams .apply_weights_to_combined_dat
+##' @param widename "CombinedDat_wide.RData"
+##' @param CombinedDir folder with CombinedDat_wide files in it
+##' @param setting_number setting number (1, 2, 3, ..., 11)
+##' @importFrom tidyr separate
+.identify_files_to_join <- function(CombinedDir, setting_number = 1,
+                                    widename = "_CombinedDat_wide.[rR][dD]ata") {
+  full_path <- NULL
+  list_of_files <- list.files(path = CombinedDir, pattern = widename, full.names = FALSE)
+  wides <- list.files(path = CombinedDir, pattern = widename, full.names = FALSE)
+
+  if (length(list_of_files) > 0) {
+    ## -- which ones do we merge together?
+    wide_list <- data.frame(list_of_files) %>%
+      tidyr::separate(
+        col = "list_of_files", sep = "_",
+        into = c("setting_number", "loop", "name")
+      )
+
+    ## ---
+    tempname <- file.path(CombinedDir, paste0(setting_number, widename))
+    full_path <- file.path(
+      CombinedDir, wides[wide_list$ setting_number == setting_number &
+        !is.na(as.numeric(wide_list$ loop))]
+    )
+  } else {
+    warning("no files found")
+  }
+
+  return(list(these = full_path, tempname = tempname))
+}
+
+## DEPRECATED
+##' @title writes a file of all job status and writes a table showing categories (failed, completed)
+##' @param stime start time 00:00:00 for checking jobs ("hh:mm:ss")
+##' @param sdate start date for checking jobs "yyyy-mm-dd"
+##' @param AnalysisDir analysis directory folder
+##' @param username slurm username
+##' @importFrom magrittr %>%
+##' @importFrom utils askYesNo write.csv
+##' @importFrom tidyr separate
+##' @importFrom dplyr filter arrange
+##' @export
+##' @return table of status of jobs on cluster
+cluster_status <- function(AnalysisDir = getwd(),
+                           username = as.character((Sys.info()["user"])),
+                           stime = "00:00:00",
+                           sdate = Sys.Date()) {
+  JobName <- State <- batch <- NULL
+
+  message(paste0("Writing job status in:\n", AnalysisDir, "/jobs.txt"))
+  system(
+    paste0(
+      "sacct -S ", sdate, "-", stime, " -u ", username,
+      " --format=JobID%30,Jobname%30,state,elapsed > ",
+      file.path(AnalysisDir, "jobs.txt")
+    )
+  )
+
+  message(paste("Outputting Jobs Submitted after", sdate, stime))
+
+  jobtxt <- data.frame(utils::read.table(file.path(AnalysisDir, "jobs.txt"), header = T))
+  unlink(file.path(AnalysisDir, "jobs.txt"))
+
+  tt2 <- suppressWarnings(
+    jobtxt %>%
+      tidyr::separate(col = "JobID", sep = "_", into = c("batch", "id")) %>%
+      dplyr::filter(
+        !(JobName %in% c("batch", "dependency", "extern")) &
+          !(State %in% c("CANCELLED+", "----------"))
+      )
+  ) # no warning
+  utils::write.csv(tt2, file.path(AnalysisDir, "jobs.csv"))
+
+  job_status <- data.frame(table(tt2[, c("batch", "State", "JobName")]))
+
+  if (nrow(job_status) > 0) {
+    job_status <- job_status[job_status$ Freq > 0, ] %>%
+      dplyr::arrange(as.numeric(batch)) %>%
+      dplyr::mutate(State = tolower(State))
+    colnames(job_status) <- c("batch number", "status", "job name", "jobs")
+  }
+
+  return(job_status)
+}
+
+
+## DEPRECATED
+##' Cancels jobs on cluster
+##' @export
+cancel_jobs <- function() {
+  system(
+    paste0("scancel -u ", as.character((Sys.info()["user"]))),
+    intern = TRUE
+  )
+  message("Jobs cancelled.")
+  return(TRUE)
+}
+
+## DEPRECATED
+##' Determine which jobs failed, after running cluster_status
+##' @param AnalysisDir analysis directory
+##' @rdname cluster_status
+##' @export
+##' @importFrom magrittr %>%
+##' @importFrom utils read.csv
+##' @importFrom dplyr filter select
+##' @note run cluster_status() to create the jobs.csv file in AnalysisDir
+##' @return jobs
+who_failed <- function(AnalysisDir = getwd()) {
+  State <- X <- NULL
+  filename <- file.path(AnalysisDir, "jobs.csv")
+  if (file.exists(filename)) {
+    jobs <- utils::read.csv(filename) %>%
+      dplyr::filter(State %in% c("FAILED", "TIMEOUT")) %>%
+      dplyr::select(-X)
+  } else {
+    stop("Run cluster_status(AnalysisDir) first,
+          to create a jobs.csv file in the AnalysisDir folder.")
+  }
+  return(jobs)
+}
+
+##' run_script is a wrapper function that runs other function with pre-defined options
+##' @note this can run multiple scripts in a dependency
+##' @param submit if TRUE, then submits the script
+##' @param ... not used
+##' @param scripts specifies the process to run. Options are: "all", "scen", "malaria", "post", "jag", "sub", "clean", "fit"
+##' @export
+run_script <- function(scripts = c(
+                         "slurm_scenarios.sh", "slurm_simulation.sh",
+                         "slurm_postprocess.sh", "slurm_cleanup.sh"
+                       ),
+                       submit = TRUE, ...) {
+
+  ### --- if just one script specified
+  if (length(scripts) == 1 && submit == TRUE) {
+    system(command = paste0(
+      "sbatch ", file.path(
+        get("experimentDir", envir = .pkgcache),
+        scripts
+      )
+    ))
+  }
+
+  if (length(scripts) > 1) {
+    jobs <- length(scripts)
+
+    #--- name of the first script to be submitted
+    txt <- paste0("job", 1, "=$(sbatch ", file.path(get("experimentDir", envir = .pkgcache), scripts[1]), ")")
+
+    if (jobs >= 2) {
+      for (j in 2:jobs) {
+        txt <- paste(txt,
+          paste0(
+            "job", j
+            ### --- syntax for dependency code
+            , "=$(sbatch --dependency=afterok:${job", j - 1, ":20} ",
+            file.path(get("experimentDir", envir = .pkgcache), scripts[j]), ")\n"
+          ),
+          sep = "\n"
+        )
+      } # end dependency code
+    } # end more than 1 job
+
+    cat(
+      "#!/bin/bash
+#SBATCH --job-name=dependency
+#SBATCH --ntasks=1
+#SBATCH --mem-per-cpu=15MB
+#SBATCH --time=00:02:00
+#SBATCH --output=", file.path(get(x = "logsDir", envir = .pkgcache), "dependency.log"), "
+#SBATCH --error=", file.path(get(x = "logsDir", envir = .pkgcache), "dependency_error.log"), "
+##---
+cd ", get("experimentDir", envir = .pkgcache), "
+## running scripts in sequence\n", txt,
+      sep = "",
+      file = file.path(get("experimentDir", envir = .pkgcache), "dependency.sh")
+    )
+
+    if (submit == TRUE) {
+      system(
+        command = paste0(
+          "sbatch ", file.path(
+            get("experimentDir", envir = .pkgcache),
+            "dependency.sh"
+          )
+        )
+      )
+    }
+  }
+
+  return(TRUE)
+}
+
+##' Removes log files
+##' @export
+remove_errorfiles <- function() {
+  logDir <- get(x = "logsDir", envir = .pkgcache)
+  unlink(file.path(logDir, "*.log"))
+
+  ## Remove scenario generation logs
+  if (dir.exists(file.path(logDir, "scenarios"))) {
+    unlink(file.path(logDir, "scenarios/*.log"))
+  }
+  ## Remove simulation logs
+  if (dir.exists(file.path(logDir, "simulation"))) {
+    unlink(file.path(logDir, "simulation/*.log"))
+  }
+  ## Remove simulation logs
+  if (dir.exists(file.path(logDir, "postprocessing"))) {
+    unlink(file.path(logDir, "postprocessing/*.log"))
+  }
+
+  if (length(dir(file.path(logDir, ""))) == 0
+  ) {
+    print("Log files removed")
+  }
+  return(TRUE)
 }

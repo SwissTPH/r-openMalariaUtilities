@@ -43,3 +43,33 @@
 loadExperiment <- function(path) {
   .readCache(path)
 }
+
+##' @title Store object in cache.
+##' @param x Object name to store in cache.
+##' @param value Object value to store in cache.
+##' @export
+putCache <- function(x, value) {
+  assign(x = as.character(x), value = value, envir = .pkgcache)
+}
+
+##' @title Get cached object from cache.
+##' @param x Object name to retrieve from cache.
+##' @export
+getCache <- function(x) {
+  get(x = as.character(x), envir = .pkgcache)
+}
+
+##' @title Remove all objects from cache.
+##' @export
+clearCache <- function() {
+  rm(
+    list = ls(all.names = TRUE, envir =.pkgcache),
+    envir = .pkgcache
+  )
+}
+
+##' @title List objects in cache.
+##' @export
+listCache <- function() {
+  return(ls(all.names = TRUE, envir = .pkgcache))
+}

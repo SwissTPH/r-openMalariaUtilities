@@ -477,3 +477,144 @@ do_post_processing <- function(nameExperiment,
   } # end aggregate_to_year
   return(TRUE)
 } # end .do_post_processing function
+
+
+##' @title Cleaning up the parallel version of CombinedDat_Aggr,
+##'   CombinedDat_wide
+##' @param nameExperiment name of the experiment (string)
+##' @param widename Name convention for CombinedDat_wide files
+##' @param aggname Name convention for CombinedDat_Aggr files
+##' @param removefiles Removes the temporary files
+##' @param make_aggr Combines the CombinedDat_Aggr files
+##' @param fut Name of future prefix, default is 'fut'
+##' @param make_wide If T, creates a wide dataset
+##' @param setting Variable name that specifies the setting to run (default
+##'   'setting')
+##' @param setting_number Loop index for setting 1:N
+##' @param monthname Name of dataframe (i.e. "_CombinedDat_month.RData")
+##' @param make_month If TRUE, writes CombinedDat_month files
+##' @param seed_as_hist_param If TRUE, each seed has a different past value
+##' @param debugg If TRUE, then runs only 30 files from each setting
+##' @param placeholder Variables that are neither historical nor future nor unique scenario identifiers
+##' @param include Variables that should be unique scenario identifiers, but are not in 'full'
+##' @inheritParams write_postprocess
+##' @note used often internally, never seen by user, easy to write, rarely
+##'   breaks
+##' @export
+do_post_process_cleanup <- function(nameExperiment,
+                                    widename = "_CombinedDat_wide.RData",
+                                    aggname = "_CombinedDat_Aggr.RData",
+                                    monthname = "_CombinedDat_month.RData",
+                                    fut = "fut",
+                                    removefiles = TRUE,
+                                    make_aggr = TRUE,
+                                    make_wide = TRUE,
+                                    make_month = TRUE,
+                                    setting = "setting",
+                                    setting_number = 1,
+                                    seed_as_hist_param = TRUE,
+                                    placeholder = NULL,
+                                    include = NULL,
+                                    debugg = FALSE) {
+
+
+  ## Appease NSE notes in R CMD check
+  full <- NULL
+
+  ### setup
+  experimentDir <- get("experimentDir", envir = .pkgcache)
+  scens <- NULL
+  load(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"))
+  CombinedDir <- file.path(get(x = "combinedDir", envir = .pkgcache))
+
+  ### --- checking if there are multiple seeds or not
+  .seed_warning(scens, seed_as_hist_param)
+
+  ### --- loading file with param_names
+  paramfile <- file.path(experimentDir, "param_names.RDS")
+  if (file.exists(paramfile)) {
+    message("Reading from 'param_names.RDS'")
+    temp <- readRDS(file = paramfile)
+  } else {
+    temp <- .extract_param_names( # seed_as_hist_param = T
+      full = full,
+      scens = scens,
+      models = "models",
+      seed = "seed",
+      fut = fut,
+      seed_as_hist_param = seed_as_hist_param,
+      placeholder = placeholder,
+      include = include
+    )
+  } # end file doesn't exist
+
+  unique_variables <- temp$unique_variables
+  historical_variables <- temp$historical_variables
+  future_variables <- temp$future_variables
+
+  Combo_wide <- Combo_Aggr <- Combo_month <- NULL
+
+  if (make_wide) {
+    # setting_number = 1
+    out <- .identify_files_to_join(CombinedDir, setting_number, widename)
+    files_wide <- out$these
+    for (jj in files_wide) { # jj = files_wide[1]
+      load(jj)
+      Combo_wide <- rbind(Combo_wide, CombinedDat_wide)
+    }
+
+    ### Adding historical, future scenario numbers
+    CombinedDat_wide <- .assign_id_variables(
+      Combo_wide, unique_variables, historical_variables, future_variables
+    )
+
+    ## --saving CombinedDat_wide and CombinedDat_Aggr
+    if (!debugg) save(CombinedDat_wide, file = out$ tempname)
+  } # end wide
+
+  ### _-repeating for Aggr datasets
+  if (make_aggr) {
+    out <- .identify_files_to_join(CombinedDir, setting_number, aggname)
+    files_aggr <- out$ these
+    Combo_Aggr <- NULL
+    for (jj in files_aggr) { # jj = those[1]
+      load(jj)
+      Combo_Aggr <- rbind(Combo_Aggr, CombinedDat_Aggr)
+    }
+
+    # CombinedDat_Aggr <- Combo_Aggr
+    ### Adding historical, future scenario numbers
+    CombinedDat_Aggr <- .assign_id_variables(
+      Combo_Aggr, unique_variables, historical_variables, future_variables
+    ) #
+
+    rm(Combo_Aggr)
+    if (!debugg) save(CombinedDat_Aggr, file = out$ tempname)
+  } # end aggr
+
+
+  if (make_month) {
+    out <- .identify_files_to_join(CombinedDir, setting_number, monthname)
+    files_month <- out$ these
+    for (jj in files_month) { # jj = these[1]
+      load(jj)
+      Combo_month <- rbind(Combo_month, CombinedDat_month)
+    }
+
+    ### Adding historical, future scenario numbers
+    CombinedDat_month <- .assign_id_variables(
+      Combo_month, unique_variables, historical_variables, future_variables
+    )
+
+    ## --saving CombinedDat_wide and CombinedDat_Aggr
+    if (!debugg) save(CombinedDat_month, file = out$ tempname)
+  } # end month
+
+  ## -- removing the temporary files
+  if (removefiles) {
+    if (make_wide) unlink(files_wide)
+    if (make_aggr) unlink(files_aggr)
+    if (make_month) unlink(files_month)
+  } # end remove files
+  return(TRUE)
+} # end function

@@ -3,7 +3,7 @@
 \name{createBaseXml}
 \alias{createBaseXml}
 \alias{create_base_xml}
-\title{Create a base xml file}
+\title{Create a base xml file and folder structure}
 \usage{
 createBaseXml(data = NULL, replace = "ask")
 
@@ -26,4 +26,8 @@ OpenMalaria. The attribute names and possible values can be found in
 OpenMalaria's schema documentation. Some attributes are not part of the
 official schema, like 'expName'. More details can be found in the
 vignette.
+The function also creates the folder structure for the experiment. By
+default, the experiment is created in the current working directory. This
+behavior can be changed by modifying or setting 'rootDir', 'scenariosDir'
+and 'logsDir' in the input list.
 }

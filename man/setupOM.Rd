@@ -5,12 +5,12 @@
 \alias{setup_om}
 \title{Download required Open Malaria files}
 \usage{
-setupOM(version = 43, dir = NULL)
+setupOM(version = 44, dir = NULL)
 
-setup_om(version = 43, dir = NULL)
+setup_om(version = 44, dir = NULL)
 }
 \arguments{
-\item{version}{Major schema version. Supported: 43}
+\item{version}{Major schema version. Supported: 44.}
 
 \item{dir}{Target directory. Defaults to experiment directory.}
 }

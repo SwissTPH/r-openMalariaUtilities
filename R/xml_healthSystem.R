@@ -109,6 +109,7 @@ defineHealthSystem <- function(baseList, name = "Tanzania ACT",
     input = list(
       ## REVIEW This is hardcoded for the time being. Should be accessible for
       ## the users
+      interpolation = "none",
       group = list(lowerbound = 0.0, value = 0.0132),
       group = list(lowerbound = 5.0, value = 0.005)
     ),

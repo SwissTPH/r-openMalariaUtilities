@@ -28,6 +28,7 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
 
   ## Store into cache
   temp <- list(
+    expName = expName,
     scen_batches = batches,
     scen_nbatches = nbatches
   )
@@ -45,11 +46,11 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
     time = time,
     qos = qos,
     output = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
       paste0(expName, "_scenarios")
     ),
     error = file.path(
-      get(x = "logsDir", envir = .pkgcache),
+      file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
       paste0(expName, "_scenarios")
     ),
     pre = list(

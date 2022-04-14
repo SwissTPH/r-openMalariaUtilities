@@ -197,7 +197,7 @@ test_that("do_post_processing integration test", {
   full$futITNcov <- c("none", "high")
   full$seed <- 1:2
 
-  storeScenarios(scenarios = scens, full = full)
+  save(full, scens, file = file.path(get(x = "cacheDir", envir = openMalariaUtilities:::.pkgcache), "scens.RData"))
 
   #-- create base
   base <- .create_test_base()
@@ -237,4 +237,54 @@ test_that("do_post_processing integration test", {
   unlink(file.path(CombinedDir, "1_1_CombinedDat_month.RData"))
   unlink(file.path(CombinedDir, "1_1_CombinedDat_wide.RData"))
   unlink(file.path(MalariaDir, "*_out.txt"))
+})
+
+test_that("do_post_process_cleanup works", {
+  rootDir <- file.path(tempdir(), "test_do_post_process_cleanup")
+  cacheDir <- file.path(rootDir, "cache")
+  combinedDir <- file.path(rootDir, "combined")
+  dir.create(rootDir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(cacheDir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(combinedDir, showWarnings = FALSE, recursive = TRUE)
+
+  assign(x = "cacheDir", cacheDir, envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "combinedDir", combinedDir, envir = openMalariaUtilities:::.pkgcache)
+
+  #-- load scens
+  scens <- .create_test_scens()
+  full <- .create_test_full()
+  save(scens, full, file = file.path(cacheDir, "scens.RData"))
+
+  #-- create fake files to append together
+  CombinedDat_wide <- .create_test_CombinedDat_wide()
+  CombinedDat_Aggr <- .create_test_CombinedDat_Aggr()
+
+  save(CombinedDat_wide, file = file.path(combinedDir, "1_1_CombinedDat_wide.RData"))
+  save(CombinedDat_wide, file = file.path(combinedDir, "1_2_CombinedDat_wide.Rdata"))
+  save(CombinedDat_Aggr, file = file.path(combinedDir, "1_1_CombinedDat_Aggr.RData"))
+  save(CombinedDat_Aggr, file = file.path(combinedDir, "1_2_CombinedDat_Aggr.Rdata"))
+
+  wide_file <- file.path(combinedDir, "1_CombinedDat_wide.RData")
+  aggr_file <- file.path(combinedDir, "1_CombinedDat_Aggr.RData")
+  unlink(wide_file)
+  unlink(aggr_file)
+
+  out <- do_post_process_cleanup("test",
+    make_aggr = TRUE,
+    make_wide = TRUE,
+    make_month = FALSE,
+    setting_number = 1,
+    seed_as_hist_param = TRUE,
+    removefiles = FALSE
+  )
+  expect_true(out)
+
+  #-- expect files to be written
+  out <- load(wide_file)
+  expect_equal(out, "CombinedDat_wide")
+  ## unlink(wide_file)
+
+  out <- load(aggr_file)
+  expect_equal(out, "CombinedDat_Aggr")
+  ## unlink(aggr_file)
 })

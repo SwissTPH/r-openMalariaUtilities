@@ -4,7 +4,12 @@
 \alias{runScenarios}
 \title{Run openMalaria scenarios}
 \usage{
-runScenarios(scenariosDir = NULL, cmd = "openMalaria", dryRun = FALSE)
+runScenarios(
+  scenariosDir = NULL,
+  cmd = "openMalaria",
+  dryRun = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{scenariosDir}{Directory containing the scenario xml files. Defaults to
@@ -13,6 +18,8 @@ the cached scenario directory.}
 \item{cmd}{Command to run openMalaria.}
 
 \item{dryRun}{If TRUE, only the final command is printed but not executed.}
+
+\item{verbose}{If TRUE, use OpenMalaria's verbose output.}
 }
 \description{
 Generates a system call to launch OpenMalaria with the correct
