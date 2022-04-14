@@ -7,14 +7,16 @@
 
 Helper functions to provide easier usage of Open Malaria from R
 
-**WARNING** This package is still under heavy development and should be
-considered beta quality. Documentation and convenience functions are still
-missing and will be added over time. Feel free to use it and report encountered
-issues.
-
 # Install instructions
 
-A CRAN release is currently not available. For the time being, please use
+A CRAN release is currently not available. The latest stable version can be
+found on the `V2-stable` branch and installed via
+
+``` R
+devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = "V2-stable")
+```
+
+If you want to use the latest version on `master`, please use
 
 ``` R
 devtools::install_github("SwissTPH/r-openMalariaUtilities")
