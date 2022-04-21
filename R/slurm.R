@@ -8,7 +8,6 @@
 ##' @title Generate top section of SLURM script
 ##' @param jobName Name of the job
 ##' @param ntasks Number of tasks
-##' @param dependency Job ids completed after which execution should start
 ##' @param memCPU RAM per CPU
 ##' @param output Output file
 ##' @param error Error log file
@@ -16,9 +15,8 @@
 ##' @param time Maximum time
 ##' @param qos Quality of service
 ##' @keywords internal
-.slurmOptions <- function(jobName, ntasks = NULL, dependency = NULL, memCPU = NULL,
-                          output = NULL, error = NULL, array = NULL, time = NULL,
-                          qos = NULL) {
+.slurmOptions <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
+                          error = NULL, array = NULL, time = NULL, qos = NULL) {
   ## Header and job name
   paste0(
     "#!/bin/bash", "\n",
@@ -26,9 +24,6 @@
     ## Number of tasks per CPU
     if (!is.null(ntasks)) {
       paste0("#SBATCH --ntasks=", ntasks, "\n")
-    },
-    if (!is.null(dependency)) {
-      paste0("#SBATCH --dependency=singleton --job-name=", dependency, "\n")
     },
     ## RAM per CPU
     if (!is.null(memCPU)) {
@@ -61,7 +56,6 @@
 ##' @title Write SLURM script to file
 ##' @param jobName Name of the job
 ##' @param ntasks Number of tasks
-##' @param dependency Job ids completed after which execution should start
 ##' @param memCPU RAM per CPU
 ##' @param output Output file
 ##' @param error Error log file
@@ -73,12 +67,11 @@
 ##' @param post List of commands after main command
 ##' @param file Filename
 ##' @keywords internal
-.writeSlurm <- function(jobName, ntasks = NULL, dependency = NULL, memCPU = NULL,
-                        output = NULL, error = NULL, array = NULL, time = NULL,
-                        qos = NULL, pre = NULL, cmd = NULL, post = NULL,
-                        file = NULL) {
+.writeSlurm <- function(jobName, ntasks = NULL, memCPU = NULL, output = NULL,
+                        error = NULL, array = NULL, time = NULL, qos = NULL,
+                        pre = NULL, cmd = NULL, post = NULL, file = NULL) {
   cat(
-    .slurmOptions(jobName, ntasks, dependency, memCPU, output, error, array, time, qos),
+    .slurmOptions(jobName, ntasks, memCPU, output, error, array, time, qos),
     if (!is.null(array)) {
       paste0("ID=$(expr ${SLURM_ARRAY_TASK_ID} - 0)", "\n")
     },
