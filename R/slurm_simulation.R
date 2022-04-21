@@ -10,17 +10,14 @@
 ##' @param expName Name of experiment
 ##' @param scenarios Scenario data frame
 ##' @param ntasks Number of tasks per CPU
-##' @param dep Should slurm_simulation.sh be launched only once
-##' slurm_scenarios.sh has been completed
 ##' @param memCPU Memory per CPU
 ##' @param time Maximum time
 ##' @param qos Quality of service
 ##' @param verbose If TRUE, use OpenMalaria's verbose output.
 ##' @export
 slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
-                                     dep = TRUE, memCPU = "250MB",
-                                     time = "06:00:00", qos = "6hours",
-                                     verbose = FALSE) {
+                                     memCPU = "250MB", time = "06:00:00",
+                                     qos = "6hours", verbose = FALSE) {
   ## Appease NSE notes in R CMD check
   scens <- NULL
 
@@ -39,7 +36,6 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
   .writeSlurm(
     jobName = paste0(expName, "_simulation"),
     ntasks = ntasks,
-    dependency = ifelse(dep, paste0(expName, "_scenarios"), NULL),
     array = nrow(scenarios),
     time = time,
     qos = qos,

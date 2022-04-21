@@ -7,7 +7,6 @@
 .writeSlurm(
   jobName,
   ntasks = NULL,
-  dependency = NULL,
   memCPU = NULL,
   output = NULL,
   error = NULL,
@@ -24,8 +23,6 @@
 \item{jobName}{Name of the job}
 
 \item{ntasks}{Number of tasks}
-
-\item{dependency}{Job ids completed after which execution should start}
 
 \item{memCPU}{RAM per CPU}
 

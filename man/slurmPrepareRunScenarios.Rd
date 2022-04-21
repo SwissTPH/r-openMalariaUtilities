@@ -8,7 +8,6 @@ slurmPrepareRunScenarios(
   expName,
   scenarios = NULL,
   ntasks = 1,
-  dep = TRUE,
   memCPU = "250MB",
   time = "06:00:00",
   qos = "6hours",
@@ -21,9 +20,6 @@ slurmPrepareRunScenarios(
 \item{scenarios}{Scenario data frame}
 
 \item{ntasks}{Number of tasks per CPU}
-
-\item{dep}{Should slurm_simulation.sh be launched only once
-slurm_scenarios.sh has been completed}
 
 \item{memCPU}{Memory per CPU}
 
