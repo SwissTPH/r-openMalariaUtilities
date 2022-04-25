@@ -260,7 +260,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
   
   ## REVIEW We increase the end year by so we can make sure that all deployments
   ##        were done and the effects have been measured.
-  if (is.character(interval)) {
+  if (is.character(interval)&&!is.date(interval)) {
     endDate <- as.character(
       as.Date(paste(as.numeric(strsplit(endDate, split = "-")[[1]][1]) + 1,
                     as.numeric(strsplit(endDate, split = "-")[[1]][2]),
@@ -276,7 +276,6 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
     ##        number of days between time points. Instead, we need to generate
     ##        our own 365 days long years and extract the dates we need.
     ##        Furthermore, if simStart is not NULL, use this as a starting date.
-    if (is.character(interval)) {
       if (interval %in% c("weekly", "monthly", "quarterly", "yearly")) {
         dates <- .xmlMonitoringTimeRegularSeq(
           startDate = ifelse(is.null(simStart), startDate, simStart),
@@ -340,8 +339,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
           stop("Unrecognized interval string")
         }
       }
-    }
-  } else if (is.list(interval)) {
+    } else if (is.list(interval)) {
     ## Or the interval is a list of the form (days = c(2, 5), months = c(3:7),
     ## years = c(2005:2030)).
     
@@ -440,6 +438,15 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
       dates <- dates[which.min(abs(as.Date(dates[, date]) - as.Date(origStartDate))):nrow(dates), ]
     }
     
+    ## Days used for the xml file
+    days <- dates$date
+    ## Extract the dates of the final year
+    endDates <- subset(
+      dates, format(as.Date(dates$date), "%Y") == max(
+        format(as.Date(dates$date), "%Y")
+      )
+    )
+    endDates <- endDates$date
   }
   
   ## Store the dates in the cache
@@ -475,6 +482,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
   }
   outlist <- append(outlist, mapply(function(x, y) {
     entry <- list()
+    if (!is.date(interval)){
     if (useRepeat == TRUE) {
       entry[["repeatStep"]] <- as.character(paste0(repeatStepsize, repeatUnit))
       entry[["repeatEnd"]] <- y
@@ -487,7 +495,12 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
         entry,
         paste0(x, "d")
       )
-    }
+    } 
+    } else {
+      entry <- append(
+        entry,as.character(x)
+      )
+      }
     return(list(surveyTime = entry))
   }, x = days, y = endDates))
   
