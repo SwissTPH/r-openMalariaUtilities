@@ -140,7 +140,14 @@ recXML <- function(x, data, errCol, recLevel = list()) {
 
   ## Clear cached placehoders, if any
   assign(x = "placeholders", value = NULL, envir = .pkgcache)
-
+  
+  ## Make sure component definitions are written before deployment
+  if("interventions"%in%names(data)){
+  interventionsHuman<-data[["interventions"]][["human"]]
+  data[["interventions"]][["human"]]<-
+    interventionsHuman[order(names(interventionsHuman))]
+  }
+  
   ## Run the recursion
   for (i in seq_len(length(data))) {
     if (names(data[i]) %in% xmlEntries & is.list(data[i])) {

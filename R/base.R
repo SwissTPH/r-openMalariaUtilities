@@ -122,6 +122,17 @@ setupOM <- function(version = 44, dir = NULL) {
       suppVers
     ))
   }
+  
+  ## Data type validation of baseXml against schema
+  baseXml <- xml2::read_xml(get(x = "baseXml", envir = .pkgcache))
+  schema <- xml2::read_xml(file.path(dir, f))
+  stdout <- attr(xml2::xml_validate(baseXml, schema),"errors")
+  errors_other_than_placeholders <- stdout[!grepl("@(.*?)@",stdout)]
+  if(length(errors_other_than_placeholders)>0){
+    warning(paste0("Validation against schema ",f," failed:"))
+    warning(errors_other_than_placeholders)
+  }
+  
 }
 
 ##' @rdname setupOM
