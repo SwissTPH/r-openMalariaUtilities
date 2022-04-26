@@ -220,7 +220,13 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
   checkmate::reportAssertions(collection = assertCol)
   
   ## Helper function
-  is.date<-function(x){!any(is.na(as.Date(x,format="%Y-%m-%d")))}
+  is.date.vector<-function(x){
+    if (!is.list(x)) {
+    !any(is.na(as.Date(x,format="%Y-%m-%d")))
+    }else{
+    F
+    }
+  }
   
   ## Sanity check: simStart needs to be before startDate
   if (!is.null(simStart)) {
@@ -233,7 +239,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
           sep = "-"
         )
       }
-      if (is.date(interval)){
+      if (is.date.vector(interval)){
         checkDate <- min(interval)
       }
     } else {
@@ -260,7 +266,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
   
   ## REVIEW We increase the end year by so we can make sure that all deployments
   ##        were done and the effects have been measured.
-  if (is.character(interval)&&!is.date(interval)) {
+  if (is.character(interval)&&!is.date.vector(interval)) {
     endDate <- as.character(
       as.Date(paste(as.numeric(strsplit(endDate, split = "-")[[1]][1]) + 1,
                     as.numeric(strsplit(endDate, split = "-")[[1]][2]),
@@ -403,7 +409,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
     
     repeatUnit <- "y"
     repeatStepsize <- 1
-  } else if (is.date(interval)){
+  } else if (is.date.vector(interval)){
     ## Or the interval is a vector of survey dates
     dates <- sort(interval)
     ## Use repeat syntax
@@ -482,7 +488,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL,
   }
   outlist <- append(outlist, mapply(function(x, y) {
     entry <- list()
-    if (!is.date(interval)){
+    if (!is.date.vector(interval)){
     if (useRepeat == TRUE) {
       entry[["repeatStep"]] <- as.character(paste0(repeatStepsize, repeatUnit))
       entry[["repeatEnd"]] <- y
