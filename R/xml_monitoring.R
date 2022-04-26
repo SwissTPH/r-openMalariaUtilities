@@ -76,7 +76,7 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
                                          dateFilter = "none") {
   ## Appease NSE notes in R CMD check
   week <- month <- roll_date <- quarter_date <- year_date <- NULL
-
+  
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(
@@ -85,7 +85,7 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-
+  
   ## Generate date sequence, 1 day resolution
   sequence <- seq.Date(as.Date(startDate), as.Date(endDate), by = "1 days")
   ## Remove and replace leap days
@@ -109,7 +109,7 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
   dateDF <- dateDF[dateDF$day %% daysFilter == 0 | dateDF$day == 0, ]
   ## Add number of time steps since startDate
   dateDF$timestep <- dateDF$day / 5
-
+  
   ## Mofify output data according to arguments
   if (dateFilter == "weekly") {
     ## Only return one date per selected week, here the first one available by
@@ -129,9 +129,9 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     ## dates[, .SD[month == min(month)], by = data.table::month(dates$date)]
     ## Also sort the dates again and remove the month column
     dateDF <- dateDF[dateDF[, .I[month == min(month)],
-      by = data.table::month(dateDF$date)
+                            by = data.table::month(dateDF$date)
     ]$V1][, month := NULL][order(date)]
-
+    
   } else if (dateFilter == "quarterly") {
     ## Similar to above, generate a date sequence and only keep dates
     ## corresponding to the end of quarters.
@@ -140,11 +140,11 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     quartersDF <- data.table::data.table(quarter_date = as.Date(sequence))
     ## Not pretty, but works
     quartersDF <- quartersDF[ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "03-31", TRUE,
-      ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "06-30", TRUE,
-        ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "09-30", TRUE,
-          ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "12-31", TRUE, FALSE)
-        )
-      )
+                                    ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "06-30", TRUE,
+                                           ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "09-30", TRUE,
+                                                  ifelse(format(as.Date(quartersDF$quarter_date), "%m-%d") == "12-31", TRUE, FALSE)
+                                           )
+                                    )
     )]
     ## Add a column to do the rolling join on
     dateDF[, roll_date := date]
@@ -157,7 +157,7 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     dateDF <- dateDF[quartersDF, roll = Inf]
     ## Make it pretty and set expected names
     dateDF <- dateDF[, c("roll_date", "quarter_date") := NULL]
-
+    
   } else if (dateFilter == "yearly") {
     ## Similar to above, generate a date sequence and only keep dates
     ## corresponding to the end of a year.
@@ -193,7 +193,7 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ##'   "monthly", "quarterly", "yearly"), "X days" (e.g. "15 days"), or a list,
 ##'   e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Setting the
 ##'   days in the list to 31 will always use the last day of the corresponding
-##'   month (e.g. 28 for February, 31 for July).
+##'   month (e.g. 28 for February, 31 for July), or a vector of survey dates
 ##' @param simStart Start date of the simulation. A good idea is to put this 100
 ##'   years in before your first survey date.
 ##' @param detectionLimit Deprecated in openMalaria. Double, limit above which a
@@ -205,27 +205,43 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
 ##'   Setting this to TRUE, one timestep will be added to each survey date so
 ##'   they include the dates of the survey itself.
 ##' @export
-monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
-                                     simStart = NULL, detectionLimit = NULL,
-                                     diagnostic = NULL, compatSurveys = FALSE) {
+monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, 
+                                     interval,simStart = NULL,
+                                     detectionLimit = NULL, diagnostic = NULL, 
+                                     compatSurveys = FALSE) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(
     checkmate::checkCharacter(interval),
     checkmate::checkList(interval),
+    checkmate::checkDate(interval),
     add = assertCol
   )
   checkmate::reportAssertions(collection = assertCol)
-
+  
+  ## Helper function
+  is.date.vector<-function(x){
+    if (!is.list(x)) {
+    !any(is.na(as.Date(x,format="%Y-%m-%d")))
+    }else{
+    F
+    }
+  }
+  
   ## Sanity check: simStart needs to be before startDate
   if (!is.null(simStart)) {
     if (is.null(startDate)) {
-      checkDate <- paste(
-        min(interval[["years"]]),
-        min(interval[["months"]]),
-        min(interval[["days"]]),
-        sep = "-"
-      )
+      if (is.list(interval)){
+        checkDate <- paste(
+          min(interval[["years"]]),
+          min(interval[["months"]]),
+          min(interval[["days"]]),
+          sep = "-"
+        )
+      }
+      if (is.date.vector(interval)){
+        checkDate <- min(interval)
+      }
     } else {
       checkDate <- startDate
     }
@@ -233,29 +249,29 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
       stop("startDate needs to be after simStart.")
     }
   }
-
+  
   ## Flag if Open Malaria's repeatStep syntax should be used
   useRepeat <- FALSE
   ## Unit of the repeating step, e.g. "d" or "y"
   repeatUnit <- NULL
   ## Numeric stepsize, e.g. 1 or 20.027
   repeatStepsize <- NULL
-
+  
   ## The generated sequence is either based on regular intervals and thus,
   ## specified via a string ("daily", "weekly", "monthly", "quarterly", "yearly"
   ## or "X days", e.g. "15 days") or as a list, which specifies the intervals.
   ## Here, daily = every 5 days, weekly = middle of a week, monthly = middle of
   ## a month, quarterly = close to end of quarter and yearly = close to end of
   ## year.
-
+  
   ## REVIEW We increase the end year by so we can make sure that all deployments
   ##        were done and the effects have been measured.
-  if (is.character(interval)) {
+  if (is.character(interval)&&!is.date.vector(interval)) {
     endDate <- as.character(
       as.Date(paste(as.numeric(strsplit(endDate, split = "-")[[1]][1]) + 1,
-        as.numeric(strsplit(endDate, split = "-")[[1]][2]),
-        as.numeric(strsplit(endDate, split = "-")[[1]][3]),
-        sep = "-"
+                    as.numeric(strsplit(endDate, split = "-")[[1]][2]),
+                    as.numeric(strsplit(endDate, split = "-")[[1]][3]),
+                    sep = "-"
       ))
     )
     ## REVIEW I hate the following code from the bottom of my heart. If anyone
@@ -266,7 +282,6 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     ##        number of days between time points. Instead, we need to generate
     ##        our own 365 days long years and extract the dates we need.
     ##        Furthermore, if simStart is not NULL, use this as a starting date.
-    if (is.character(interval)) {
       if (interval %in% c("weekly", "monthly", "quarterly", "yearly")) {
         dates <- .xmlMonitoringTimeRegularSeq(
           startDate = ifelse(is.null(simStart), startDate, simStart),
@@ -274,24 +289,24 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
           daysFilter = 5,
           dateFilter = interval
         )
-
+        
         ## Remove dates which are before the requested startDate
         if (!is.null(simStart)) {
           dates <- dates[which.min(abs(as.Date(dates[, date]) - as.Date(startDate))):nrow(dates), ]
         }
-
+        
         ## Get values for the xml entries
         days <- dates$day
         ## endDates is not used for these entries but mapply expects the same
         ## length of the inputs
         endDates <- rep(1, length.out = length(days))
       } else {
-
+        
         ## 'daily' interval is an alias for '1 days'
         if (interval == "daily") {
           interval <- "1 days"
         }
-
+        
         ## Check if given interval is a multiple of 5 days and adjust if necessary
         split <- strsplit(interval, split = " ")
         every <- as.numeric(split[[1]][1])
@@ -309,18 +324,18 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
             ))
           }
           every <- numDays
-
+          
           dates <- .xmlMonitoringTimeRegularSeq(
             startDate = ifelse(is.null(simStart), startDate, simStart),
             endDate = endDate,
             daysFilter = every
           )
-
+          
           ## Remove dates which are before the requested startDate
           if (!is.null(simStart)) {
             dates <- dates[which.min(abs(as.Date(dates[, date]) - as.Date(startDate))):nrow(dates), ]
           }
-
+          
           ## Get values for the xml entries
           days <- dates$day[1]
           endDates <- dates$date[length(dates$date)]
@@ -330,19 +345,18 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
           stop("Unrecognized interval string")
         }
       }
-    }
-  } else {
+    } else if (is.list(interval)) {
     ## Or the interval is a list of the form (days = c(2, 5), months = c(3:7),
     ## years = c(2005:2030)).
-
+    
     ## Use repeat syntax
     useRepeat <- TRUE
-
+    
     ## REVIEW As above, increase final year by one
     interval[["years"]] <- c(
       min(interval[["years"]]):(max(interval[["years"]]) + 1)
     )
-
+    
     ## Furthermore, if simStart is not NULL, adjust start year
     if (!is.null(simStart)) {
       origStartDate <- paste(
@@ -351,14 +365,14 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
         min(interval[["days"]]),
         sep = "-"
       )
-
+      
       interval[["years"]] <- c(
         as.numeric(strsplit(simStart, split = "-")[[1]][1]):max(interval[["years"]])
       )
     }
-
+    
     dates <- .xmlTimeBlockSeq(interval)
-
+    
     ## As above, adjust dates so they are multiples of 5 day timesteps
     validDates <- .xmlMonitoringTimeRegularSeq(
       startDate = ifelse(is.null(simStart), dates[1], simStart),
@@ -371,12 +385,12 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
       return(as.character(validDates$date[which.min(abs(x - validDates$date))]))
     }, FUN.VALUE = character(1), USE.NAMES = FALSE))
     dates <- validDates[as.character(validDates$date) %in% dates, ]
-
+    
     ## Remove dates which are before the requested startDate
     if (!is.null(simStart)) {
       dates <- dates[which.min(abs(as.Date(dates[, date]) - as.Date(origStartDate))):nrow(dates), ]
     }
-
+    
     ## Only use dates from the first year.
     days <- subset(
       dates, format(as.Date(dates$date), "%Y") == min(
@@ -384,7 +398,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
       )
     )
     days <- days$day
-
+    
     ## Extract the dates of the final year
     endDates <- subset(
       dates, format(as.Date(dates$date), "%Y") == max(
@@ -392,14 +406,58 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
       )
     )
     endDates <- endDates$date
-
+    
     repeatUnit <- "y"
     repeatStepsize <- 1
+  } else if (is.date.vector(interval)){
+    ## Or the interval is a vector of survey dates
+    dates <- sort(interval)
+    ## Use repeat syntax
+    useRepeat <- F
+    
+    # ## REVIEW As above, increase final year by one
+    # interval[["years"]] <- c(
+    #   min(interval[["years"]]):(max(interval[["years"]]) + 1)
+    # )
+    # 
+    ## Furthermore, if simStart is not NULL, adjust start year
+    if (!is.null(simStart)) {
+      origStartDate <- dates[1]
+    }
+    
+    
+    ## As above, adjust dates so they are multiples of 5 day timesteps
+    validDates <- .xmlMonitoringTimeRegularSeq(
+      startDate = if(is.null(simStart)){dates[1]}else{simStart},
+      endDate = dates[length(dates)],
+      daysFilter = 5
+    )
+    ## Adjust dates according to valid dates
+    ## Adapted from https://stackoverflow.com/a/45082198
+    dates <- unique(vapply(as.Date(dates), function(x) {
+      return(as.character(validDates$date[which.min(abs(x - validDates$date))]))
+    }, FUN.VALUE = character(1), USE.NAMES = FALSE))
+    dates <- validDates[as.character(validDates$date) %in% dates, ]
+    
+    ## Remove dates which are before the requested startDate
+    if (!is.null(simStart)) {
+      dates <- dates[which.min(abs(as.Date(dates[, date]) - as.Date(origStartDate))):nrow(dates), ]
+    }
+    
+    ## Days used for the xml file
+    days <- dates$date
+    ## Extract the dates of the final year
+    endDates <- subset(
+      dates, format(as.Date(dates$date), "%Y") == max(
+        format(as.Date(dates$date), "%Y")
+      )
+    )
+    endDates <- endDates$date
   }
-
+  
   ## Store the dates in the cache
   assign(x = "surveyTimes", value = dates, envir = .pkgcache)
-
+  
   if (useRepeat == TRUE) {
     ## Add 1 timestep = 5 days to the endDates which are used for repeatEnd. We do
     ## this to make sure that the very last survey is actually recorded.
@@ -412,14 +470,14 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     ## https://swisstph.github.io/openmalaria/schema-43.html#end-of-repetition-exclusive
     endDates <- endDates + 5
   }
-
+  
   if (compatSurveys == TRUE) {
     ## Adjust entries so they correspond to inclusive dates. By default,
     ## OpenMalaria handles survey dates exclusively; the survey ends before the
     ## given date.
     days <- days + 5
   }
-
+  
   ## Construct output list
   outlist <- list()
   if (!is.null(detectionLimit)) {
@@ -430,6 +488,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
   }
   outlist <- append(outlist, mapply(function(x, y) {
     entry <- list()
+    if (!is.date.vector(interval)){
     if (useRepeat == TRUE) {
       entry[["repeatStep"]] <- as.character(paste0(repeatStepsize, repeatUnit))
       entry[["repeatEnd"]] <- y
@@ -442,10 +501,15 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
         entry,
         paste0(x, "d")
       )
-    }
+    } 
+    } else {
+      entry <- append(
+        entry,as.character(x)
+      )
+      }
     return(list(surveyTime = entry))
   }, x = days, y = endDates))
-
+  
   ## Return output list
   return(outlist)
 }
@@ -516,14 +580,14 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
     add = assertCol
   )
   checkmate::reportAssertions(assertCol)
-
+  
   ## Start list
   startDate <- SIMSTART
   outlist <- list(
     name = name,
     startDate = startDate
   )
-
+  
   ## Generate continuous content
   if (continuous == TRUE) {
     cout <- list(
@@ -531,7 +595,7 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       immunY = FALSE, newInfect = FALSE, transmHuman = FALSE, alpha = FALSE,
       PB = FALSE, PCPD = FALSE
     )
-
+    
     ## Defaults
     if (is.null(continuousMeasures)) {
       continuousMeasures <- c(
@@ -539,10 +603,10 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
         "transmHuman"
       )
     }
-
+    
     cout[names(cout) %in% continuousMeasures] <- TRUE
     cout <- lapply(cout, tolower)
-
+    
     outlist <- .xmlAddList(
       data = outlist, sublist = NULL, entry = "continuous",
       input = monitoringContinuousGen(period = 1, list(
@@ -587,7 +651,7 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       inputEIR = FALSE,
       simEIR = FALSE
     )
-
+    
     if (is.null(surveyMeasures)) {
       basics <- c("nHost", "nPatent", "nUncomp", "nSevere", "simEIR")
       allTreatments <- c("nTreatments1", "nTreatments2", "nTreatments3", "nTreatDeployments")
@@ -598,10 +662,10 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       allInterventions <- c("nMassITNs", "nMassIRS", "nMDAs", "nMassGVI", "nMassVaccinations", "nEPIVaccinations")
       surveyMeasures <- c(basics, allTreatments, allHospital, allDeaths, allExpDeaths, "expectedSevere")
     }
-
+    
     cout[names(cout) %in% surveyMeasures] <- TRUE
     cout <- lapply(cout, tolower)
-
+    
     outlist <- .xmlAddList(
       data = outlist, sublist = NULL, entry = "SurveyOptions",
       input = monitoringSurveyOptionsGen(
@@ -630,7 +694,7 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       )
     )
   }
-
+  
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL, entry = "surveys",
     input = monitoringSurveyTimesGen(
@@ -639,18 +703,18 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       simStart = SIMSTART, compatSurveys = TRUE
     )
   )
-
+  
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL, entry = "ageGroup",
     input = ageGroupsGen(
       lowerbound = 0, ageGroups = data.frame(upperbound = upperbounds)
     )
   )
-
+  
   baseList <- .xmlAddList(
     data = baseList, sublist = NULL, entry = "monitoring",
     input = outlist, append = FALSE
   )
-
+  
   return(baseList)
 }
