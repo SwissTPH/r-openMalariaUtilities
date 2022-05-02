@@ -48,4 +48,4 @@ Suggests:
     testthat (>= 3.1.0)
 Config/testthat/edition: 3
 Remotes: 
-    mllg/checkmate@9c2e44b
+    mllg/checkmate
