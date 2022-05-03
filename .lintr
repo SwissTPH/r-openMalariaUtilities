@@ -1,3 +1,6 @@
 linters: with_defaults(
-  object_name_linter(styles = c("camelCase", "snake_case"))
+  line_length_linter(80),
+  nonportable_path_linter,
+  object_name_linter(styles = c("camelCase", "snake_case")),
+  T_and_F_symbol_linter
   )
