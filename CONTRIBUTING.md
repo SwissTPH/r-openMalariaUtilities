@@ -64,3 +64,28 @@ anymore. You should favor readability, correctness and robustness.
   examples in the code. Otherwise you are in for some pain!
 - When you are writing functions for the package, you can use `envir =
   .pkgcache`. For tests, use `envir = openMalariaUtilities:::.pkgcache`
+
+
+## Commits & Pull requests
+
+Please use the following template when creating commits and PRs.
+
+```
+Summarize the change in less than 50 characters
+
+# Headline optional
+# Use bullets
+Problem:
+- Problem, task, reason for commit
+- Make a new bullet for each reason
+- Each line should be under 72 characters
+
+# Headline optional
+# Use bullets or whole sentences to explain what has been done
+Solution:
+- Solution or list of Changes
+Explain exactly what was done in this commit with more depth than the
+50 character subject line. Remember to wrap at 72 characters!
+
+Include any additional notes, relevant links, or co-authors.
+```
