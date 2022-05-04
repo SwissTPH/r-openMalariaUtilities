@@ -1,8 +1,12 @@
 on:
   push:
-    branches: [master]
+    branches:
+        - master
+        - V2-stable
   pull_request:
-    branches: [master]
+    branches:
+        - master
+        - V2-stable
 
 name: test-coverage
 
@@ -45,8 +49,8 @@ jobs:
       - name: Create code coverage badge
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: db82500941e9bea7d7a5c0bfd5e6db8d
+          auth: ${{ secrets.V2_CODE_COVERAGE }}
+          gistID: 93320c83de1f498132cd906664f54633
           filename: cover.json
           label: coverage
           message: ${{ env.TOTAL }}
