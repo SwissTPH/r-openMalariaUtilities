@@ -164,8 +164,9 @@ defineVectorControl <- function(baseList, vectorInterventionParameters,
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertSubset(hist,
-    choices = c(TRUE, FALSE),
+  checkmate::assert(
+    #checkmate::checkCharacter(hist, pattern = "@(.*?)@"),
+    checkmate::checkLogical(hist),
     add = assertCol
   )
   checkmate::assertNumeric(
@@ -827,9 +828,206 @@ defineITN <- function(baseList, component = "histITN", noeffect = "outdoor",
   return(baseList)
 }
 
+
+##' @title Writes the ITN intervention parameterisation xml chunk from Briet 
+##' 2013 Malaria Journal paper
+##' @param baseList List with experiment data.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment.
+##' @param mosquitos Name of mosquito species affected by the intervention
+##' @param halflife Attrition of nets in years
+##' @param name Name of parameterization from Briet et al. 2013 mosquitopopulqtion_nettype
+##' @param historical Used for historical intervention coverage?
+##' @param noeffect Which mosquitoes unaffected by intervention?
+##' @export
+defineITN2013 <- function(baseList, component = "histITN", noeffect = "outdoor",
+                      mosquitos, halflife = 2, historical = FALSE, 
+                      name="Pitoa_P2") {
+  ## Parameters for
+  ## https://swisstph.github.io/openmalaria/schema-43.html#elt-ITN, in that
+  ## order
+  parameterNames <- c(
+    "usage", "holeRateMean", "holeRateCV", "ripRateMean",
+    "ripRateCV", "ripFactor", "initialsecticideMean",
+    "initialsecticideSD", "insecticideDecayL",
+    "insecticideDecayMu", "insecticideDecayCV"
+  )
+  if (!historical) {
+    values <- data.frame(
+      parameterNames = parameterNames,
+      values = c(
+        1, 1.8, signif(sqrt(exp(0.8^2) - 1), 4),
+        1.8, signif(sqrt(exp(0.8^2) - 1), 4), 0.3,
+        55.5, 14, 3, -0.32,
+        signif(sqrt(exp(0.8^2) - 1), 4)
+      )
+    )
+    insecticideDecayFun <- "exponential"
+  } else {
+    values <- data.frame(
+      parameterNames = parameterNames,
+      values = c(1, 0, 0, 0, 0, 0, 55.5, 14, 1, 0, 0)
+    )
+    insecticideDecayFun <- "step"
+  }
+  
+  ## REVIEW Where is this coming from?
+  ##        Insecticide decay
+  if (component == "monthITN") {
+    values[values[, "parameterNames"] == "insecticideDecayK", "values"] <- 0.083
+  }
+  
+  ## Net attrition
+  if (historical == FALSE) {
+    hh <- .calculateSmoothCompactHalflife(halflife = halflife)
+  }
+  
+  ## Add data to baseList
+  outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
+    input = list(
+      id = component,
+      name = component,
+      ITN = list(
+        usage = list(
+          value = values[values[, "parameterNames"] == "usage", "values"]
+        ),
+        holeRate = list(
+          CV = values[values[, "parameterNames"] == "holeRateCV", "values"],
+          distr = "lognormal",
+          mean = values[values[, "parameterNames"] == "holeRateMean", "values"]
+        ),
+        ripRate = list(
+          CV = values[values[, "parameterNames"] == "ripRateCV", "values"],
+          distr = "lognormal",
+          mean = values[values[, "parameterNames"] == "ripRateMean", "values"]
+        ),
+        ripFactor = list(
+          value = values[values[, "parameterNames"] == "ripFactor", "values"]
+        ),
+        initialInsecticide = list(
+          mean = values[values[, "parameterNames"] == "initialsecticideMean", "values"],
+          SD = values[values[, "parameterNames"] == "initialsecticideSD", "values"],
+          distr = "normal"
+        ),
+        insecticideDecay = list(
+          "function" = insecticideDecayFun,
+          L = values[values[, "parameterNames"] == "insecticideDecayL", "values"],
+          CV = values[values[, "parameterNames"] == "insecticideDecayCV", "values"]
+        ),
+        ## REVIEW 'monthITN' takes precedence (why?), then 'historial' if TRUE,
+        ##        else 'historical' == FALSE (default)
+        attritionOfNets = if (component == "monthITN") {
+          list(
+            "function" = "step",
+            L = 0.083
+          )
+        } else if (historical == TRUE) {
+          list(
+            "function" = "step",
+            L = 1
+          )
+        } else {
+          list(
+            "function" = "smooth-compact",
+            L = hh$L,
+            k = hh$k
+          )
+        }
+      )
+    )
+  )
+  
+  ## Mosquito parameters (resistance or not).
+  ## Parameters from Briet 2013 Malaria Journal, Supplementary Table 2
+  parameters2013<-data.frame(
+    "Pitoa_P2"=c(0.018,0.005,0.735,-0.477,0.014,0.264,0.017,0.476,0.121,0.145,0.015,0.682,0.133,-0.026,0.067,0.496,0.104),
+    "Pitoa_P3"=c(0.359,0.2,0.735,-0.477,0.014,0.226,0.189,0.434,0.121,0.145,0.015,0.567,0.3,0.034,0.067,0.762,0.158),
+    "Kou_P2"=c(0.001,0.003,0.876,-0.406,0.018,-0.107,0.2,0.268,0.036,0.053,0.016,0.413,0.097,0.208,0.014,0.265,0.032),
+    "Kou_P3"=c(0.378,0.019,0.876,-0.406,0.018,0.123,0.004,0.406,0.036,0.053,0.016,0.654,0.029,0.123,0.014,0.531,0.017),
+    "Akron_P2"=c(0.001,0.001,0.851,-0.434,0.017,0.065,0.063,0.361,0.116,0.141,0.015,0.296,0.093,0.133,0.066,0.231,0.009),
+    "Akron_P3"=c(0.692,0.078,0.851,-0.434,0.017,0.065,0.063,0.362,0.116,0.141,0.015,0.296,0.093,0.133,0.066,0.231,0.009),
+    "Zeneti_P2"=c(0.768,0.2,0.543,-0.413,0.012,0.383,0.052,0.322,0.06,0.084,0.016,0.899,0.096,-0.058,0.028,0.389,0.2),
+    "Zeneti_P3"=c(0.74,0.2,0.543,-0.413,0.012,0.44,0.062,0.387,0.06,0.084,0.016,0.935,0.107,-0.081,0.019,0.981,0.042),
+    "Malanville_P2"=c(0.793,0.095,0.524,-0.403,0.011,0.436,0.133,0.346,0.228,0.21,0.014,0.647,0.3,-0.131,0.144,0.776,0.059),
+    "Malanville_P3"=c(0.001,0.001,0.524,-0.403,0.011,0.476,0.030,0.402,0.228,0.21,0.014,0.752,0.042,-0.197,0.144,0.856,0.053)
+  )
+  
+  val<-parameterization2013[[name]]
+  
+  ## propActive: Proportion of bites for which ITN acts, defaults to 1
+  propActive <- rep(1, length(mosquitos))
+  ## Set IRS effectiveness to 0 for mosquitos which have 'noeffect' in their
+  ## name, if given
+  for (k in seq_len(length(noeffect))) {
+    propActive[grep(mosquitos, pattern = noeffect[k])] <- 0
+  }
+  
+  ## Loop over mosquitoes and add information to list
+  for (i in seq_len(length(mosquitos))) {
+    outlist <- .xmlAddList(
+      data = outlist, sublist = c("ITN"),
+      entry = "anophelesParams",
+      input = list(
+        mosquito = mosquitos[i],
+        propActive = propActive[i],
+        twoStageDeterrency = list(
+          entering = list(
+            insecticideFactor = val[1],
+            insecticideScalingFactor = val[2]
+          ),
+          attacking = list(
+            insecticideFactor = val[6],
+            insecticideScalingFactor = val[7],
+            holeFactor = val[4],
+            interactionFactor = val[8],
+            holeScalingFactor = val[5],
+            baseFactor = val[3]
+          )
+        ),
+        preprandialKillingEffect = list(
+          insecticideFactor = val[12],
+          insecticideScalingFactor = val[13],
+          holeFactor = val[10],
+          interactionFactor = val[14],
+          holeScalingFactor = val[11],
+          baseFactor = val[9]
+        ),
+        postprandialKillingEffect = list(
+          insecticideFactor = val[18],
+          insecticideScalingFactor = val[19],
+          holeFactor = val[16],
+          interactionFactor = val[20],
+          holeScalingFactor = val[17],
+          baseFactor = val[15]
+        )
+      )
+    )
+  }
+  
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+  
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
+    entry = "component", input = outlist
+  )
+  
+  return(baseList)
+}
+
+
+
 ##' @rdname defineITN
 ##' @export
 define_ITN <- defineITN
+
+##' @rdname defineITN
+##' @export
+define_ITN2013 <- defineITN2013
+
 
 ## DEPRECATED
 ##' @title Writes the ITN intervention parameterisation xml chunk. Compatibility
@@ -857,6 +1055,35 @@ define_ITN_compat <- function(baseList, component = "histITN",
     strong = strong
   )
 
+  return(baseList)
+}
+
+
+## DEPRECATED
+##' @title Writes the ITN intervention parameterisation xml chunk. Compatibility
+##'   version.
+##' @param baseList List with experiment data.
+##' @param component Name of the intervention, can be any name but needs to be
+##'   the same as defined in deployment.
+##' @param mosqs Name of mosquito species affected by the intervention
+##' @param halflife Attrition of nets in years
+##' @param resist If TRUE, a pyrethroid resistance will be assumed (default
+##'   percentage..?)
+##' @param hist Used for historical intervention coverage?
+##' @param noeffect Which mosquitoes unaffected by intervention?
+##' @param strong If !strong and !resist, then "Pitoa" parameter for LLIN
+##' @param versionnum OpenMalaria version (e.g. 38, 43)
+##' @export
+define_ITN2013_compat <- function(baseList, component = "histITN",
+                              noeffect = "outdoor", mosqs, halflife = 2,
+                              hist = FALSE, name,
+                              versionnum = 38) {
+  baseList <- defineITN2013(
+    baseList = baseList, component = component,
+    noeffect = noeffect, mosquitos = mosqs,
+    halflife = halflife, name = name, historical = hist
+  )
+  
   return(baseList)
 }
 
