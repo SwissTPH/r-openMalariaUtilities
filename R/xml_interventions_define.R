@@ -942,17 +942,23 @@ defineITN2013 <- function(baseList, component = "histITN", noeffect = "outdoor",
   
   ## Mosquito parameters (resistance or not).
   ## Parameters from Briet 2013 Malaria Journal, Supplementary Table 2
-  parameters2013<-data.frame(
-    "Pitoa_P2"=c(0.018,0.005,0.735,-0.477,0.014,0.264,0.017,0.476,0.121,0.145,0.015,0.682,0.133,-0.026,0.067,0.496,0.104),
-    "Pitoa_P3"=c(0.359,0.2,0.735,-0.477,0.014,0.226,0.189,0.434,0.121,0.145,0.015,0.567,0.3,0.034,0.067,0.762,0.158),
-    "Kou_P2"=c(0.001,0.003,0.876,-0.406,0.018,-0.107,0.2,0.268,0.036,0.053,0.016,0.413,0.097,0.208,0.014,0.265,0.032),
-    "Kou_P3"=c(0.378,0.019,0.876,-0.406,0.018,0.123,0.004,0.406,0.036,0.053,0.016,0.654,0.029,0.123,0.014,0.531,0.017),
-    "Akron_P2"=c(0.001,0.001,0.851,-0.434,0.017,0.065,0.063,0.361,0.116,0.141,0.015,0.296,0.093,0.133,0.066,0.231,0.009),
-    "Akron_P3"=c(0.692,0.078,0.851,-0.434,0.017,0.065,0.063,0.362,0.116,0.141,0.015,0.296,0.093,0.133,0.066,0.231,0.009),
-    "Zeneti_P2"=c(0.768,0.2,0.543,-0.413,0.012,0.383,0.052,0.322,0.06,0.084,0.016,0.899,0.096,-0.058,0.028,0.389,0.2),
-    "Zeneti_P3"=c(0.74,0.2,0.543,-0.413,0.012,0.44,0.062,0.387,0.06,0.084,0.016,0.935,0.107,-0.081,0.019,0.981,0.042),
-    "Malanville_P2"=c(0.793,0.095,0.524,-0.403,0.011,0.436,0.133,0.346,0.228,0.21,0.014,0.647,0.3,-0.131,0.144,0.776,0.059),
-    "Malanville_P3"=c(0.001,0.001,0.524,-0.403,0.011,0.476,0.030,0.402,0.228,0.21,0.014,0.752,0.042,-0.197,0.144,0.856,0.053)
+  ## Zeneti/Malanville are susceptible mosquitoes, all others are resistent
+  ## P2 is Permanet2.0, P3 is Permanet3.0
+  parameterization2013<-data.frame(
+    "parameterName"=c("entering_insecticideFactor","entering_insecticideScalingFactor",
+                      "attacking_baseFactor","attacking_holeFactor","attacking_holeScalingFactor","attacking_insecticideFactor","attacking_insecticideScalingFactor","attacking_interactionFactor",
+                      "preprandialKillingEffect_baseFactor","preprandialKillingEffect_holeFactor","preprandialKillingEffect_holeScalingFactor","preprandialKillingEffect_insecticideFactor","preprandialKillingEffect_insecticideScalingFactor","preprandialKillingEffect_interactionFactor",
+                      "postprandialKillingEffect_baseFactor","postprandialKillingEffect_holeFactor","postprandialKillingEffect_holeScalingFactor","postprandialKillingEffect_insecticideFactor","postprandialKillingEffect_insecticideScalingFactor","postprandialKillingEffect_interactionFactor"),
+    "Pitoa_P2"=c(0.018,0.005,0.735,-0.477,0.014,0.264,0.017,0.476,0.121,0.145,0.015,0.682,0.133,-0.026,0.067,0,0,0.496,0.104,0),
+    "Pitoa_P3"=c(0.359,0.2,0.735,-0.477,0.014,0.226,0.189,0.434,0.121,0.145,0.015,0.567,0.3,0.034,0.067,0,0,0.762,0.158,0),
+    "Kou_P2"=c(0.001,0.003,0.876,-0.406,0.018,-0.107,0.2,0.268,0.036,0.053,0.016,0.413,0.097,0.208,0.014,0,0,0.265,0.032,0),
+    "Kou_P3"=c(0.378,0.019,0.876,-0.406,0.018,0.123,0.004,0.406,0.036,0.053,0.016,0.654,0.029,0.123,0.014,0,0,0.531,0.017,0),
+    "Akron_P2"=c(0.001,0.001,0.851,-0.434,0.017,0.065,0.063,0.361,0.116,0.141,0.015,0.296,0.093,0.133,0.066,0,0,0.231,0.009,0),
+    "Akron_P3"=c(0.692,0.078,0.851,-0.434,0.017,0.065,0.063,0.362,0.116,0.141,0.015,0.296,0.093,0.133,0.066,0,0,0.231,0.009,0),
+    "Zeneti_P2"=c(0.768,0.2,0.543,-0.413,0.012,0.383,0.052,0.322,0.06,0.084,0.016,0.899,0.096,-0.058,0.028,0,0,0.389,0.2,0),
+    "Zeneti_P3"=c(0.74,0.2,0.543,-0.413,0.012,0.44,0.062,0.387,0.06,0.084,0.016,0.935,0.107,-0.081,0.019,0,0,0.981,0.042,0),
+    "Malanville_P2"=c(0.793,0.095,0.524,-0.403,0.011,0.436,0.133,0.346,0.228,0.21,0.014,0.647,0.3,-0.131,0.144,0,0,0.776,0.059,0),
+    "Malanville_P3"=c(0.001,0.001,0.524,-0.403,0.011,0.476,0.030,0.402,0.228,0.21,0.014,0.752,0.042,-0.197,0.144,0,0,0.856,0.053,0)
   )
   
   val<-parameterization2013[[name]]
