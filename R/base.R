@@ -6,63 +6,61 @@
 ## input data is a list having a distinct structure resembling the openMalaria
 ## xml files. Attribute and element names should be the same as in openMalaria.
 
-##' @include cache.R
+##' @include cache.R printing.R
 NULL
 
-##' @title Create a base xml file and folder structure
+##' @title Create a base XML file and folder structure
 ##' @description Processes a list as containing the required information to
-##'   generate a base xml file for OpenMalaria. This file is used to generate
+##'   generate a base XML file for OpenMalaria. This file is used to generate
 ##'   the scenarios for simulation.
-##' @details The 'data' argument is a nested list resembling the input xml of
+##' @details The 'data' argument is a nested list resembling the input XML of
 ##'   OpenMalaria. The attribute names and possible values can be found in
 ##'   OpenMalaria's schema documentation. Some attributes are not part of the
 ##'   official schema, like 'expName'. More details can be found in the
 ##'   vignette.
-##'   The function also creates the folder structure for the experiment. By
-##'   default, the experiment is created in the current working directory. This
-##'   behavior can be changed by modifying or setting 'rootDir', 'scenariosDir'
-##'   and 'logsDir' in the input list.
 ##' @param data List containing all information
-##' @param replace Overwrite experiment directory if it is already present.
+##' @param replace Overwrite output XML if it is already present.
 ##'   Possible values are TRUE, FALSE, or "ask".
 ##' @export
 createBaseXml <- function(data = NULL, replace = "ask") {
-  ## Replace spaces with underscores in experiment name and cache it
-  data[["expName"]] <- gsub(" ", "_", data[["expName"]])
-  assign(x = "experimentName", value = data[["expName"]], envir = .pkgcache)
+  ## Check if experiment directory is defined
+  tryCatch(
+    expDir <- getCache(x = "experimentDir"),
+    error = function(c) {
+      stop(
+        "Experiment directory could not be found. Please run 'setupDirs' or 'loadExperiment' first."
+      )
+    }
+  )
+
   ## Variables
   if (is.null(data[["xmlBasename"]])) {
-    xmlBasename <- paste0(get(x = "experimentName", envir = .pkgcache), "_base")
+    xmlBasename <- paste0(getCache(x = "experimentName"), "_base")
   } else {
     xmlBasename <- data[["xmlBasename"]]
   }
-  assign(x = "xmlBasename", value = xmlBasename, envir = .pkgcache)
+  putCache(x = "xmlBasename", value = xmlBasename)
 
   ## Generate document root
   baseXml <- .makeXmlRoot(
     schemaVersion = data[["OMVersion"]],
-    name = get(x = "experimentName", envir = .pkgcache),
+    name = getCache(x = "experimentName"),
     analysisNo = data[["analysisNo"]]
   )
-  assign(x = "OMVersion", value = data[["OMVersion"]], envir = .pkgcache)
+  putCache(x = "OMVersion", value = data[["OMVersion"]])
 
   ## Construct xml document
   .xmlMakeDocRec(baseXML = baseXml, data = data)
-  ## Create folders
-  .createFolders(
-    experimentName = get(x = "experimentName", envir = .pkgcache),
-    rootDir = data[["rootDir"]],
-    scenariosDir = data[["scenariosDir"]],
-    logsDir = data[["logsDir"]],
-    replace = replace
-  )
-  assign(x = "baseXml", value = file.path(
-    get(x = "experimentDir", envir = .pkgcache),
+
+  ## Cache path of XML file
+  putCache(x = "baseXml", value = file.path(
+    getCache(x = "experimentDir"),
     paste0(xmlBasename, ".xml")
-  ), envir = .pkgcache)
+  ))
 
   ## Write base xml file
-  xml2::write_xml(baseXml, file = get(x = "baseXml", envir = .pkgcache))
+  .printDebug(paste0("Writing XML file to ", getCache(x = "baseXml")))
+  xml2::write_xml(baseXml, file = getCache(x = "baseXml"))
   ## Write cache
   .synchronizeCache(direction = "none")
 }
@@ -86,11 +84,20 @@ setupOM <- function(version = 44, dir = NULL) {
 
     ## Download files into experiment folder if not already present
     if (is.null(dir)) {
-      dir <- get("experimentDir", envir = .pkgcache)
+      ## Check if experiment directory is defined
+      tryCatch(
+        dir <- getCache("experimentDir"),
+        error = function(c) {
+          stop(
+            "Experiment directory could not be found. Please run 'setupDirs' or 'loadExperiment' first."
+          )
+        }
+      )
     }
 
     ## Utility files
     for (f in c("autoRegressionParameters.csv", "densities.csv")) {
+      .printDebug(paste0("Trying to download ", f))
       if (!file.exists(file.path(dir, f))) {
         utils::download.file(
           url = paste0(
@@ -107,6 +114,7 @@ setupOM <- function(version = 44, dir = NULL) {
 
     ## Schema file
     f <- paste0("scenario_", major, ".xsd")
+    .printDebug(paste0("Trying to download ", f))
     if (!file.exists(file.path(dir, f))) {
       utils::download.file(
         url = paste0(
