@@ -1,7 +1,7 @@
 test_that("slurmPrepareRunScenarios works", {
   dir <- tempdir()
   assign(x = "experimentDir", dir, envir = openMalariaUtilities:::.pkgcache)
-  assign(x = "baseDir", dir, envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "rootDir", dir, envir = openMalariaUtilities:::.pkgcache)
   assign(x = "logsDir", file.path(dir, "logs"), envir = openMalariaUtilities:::.pkgcache)
   scenarios <- data.frame(setting = c(1:450))
 

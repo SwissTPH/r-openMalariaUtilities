@@ -1,7 +1,7 @@
 test_that("slurmPreparePostprocess works", {
   dir <- tempdir()
   assign(x = "experimentDir", dir, envir = openMalariaUtilities:::.pkgcache)
-  assign(x = "baseDir", dir, envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "rootDir", dir, envir = openMalariaUtilities:::.pkgcache)
   assign(x = "logsDir", file.path(dir, "logs"), envir = openMalariaUtilities:::.pkgcache)
   scenarios <- data.frame(setting = c(1:450))
 
@@ -115,7 +115,7 @@ temp <- openMalariaUtilities::do_post_processing(
 test_that("slurmPrepareCleanup works", {
   dir <- tempdir()
   assign(x = "experimentDir", dir, envir = openMalariaUtilities:::.pkgcache)
-  assign(x = "baseDir", dir, envir = openMalariaUtilities:::.pkgcache)
+  assign(x = "rootDir", dir, envir = openMalariaUtilities:::.pkgcache)
   assign(x = "logsDir", file.path(dir, "logs"), envir = openMalariaUtilities:::.pkgcache)
   scenarios <- data.frame(setting = c(1:450))
 

@@ -71,7 +71,7 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-    "setwd(dir = \"", paste0(get(x = "baseDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(get(x = "rootDir", envir = .pkgcache)), "\")
 
 ## Load library
 library(openMalariaUtilities)
