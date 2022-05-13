@@ -152,6 +152,10 @@ loadExperiment <- function(path) {
   .synchronizeCache(path = file.path(path, "cache"), direction = "memory")
 }
 
+##' @rdname loadExperiment
+##' @export
+load_experiment <- loadExperiment
+
 ##' @title Store object in cache.
 ##' @param x Object name to store in cache.
 ##' @param value Object value to store in cache.
@@ -161,6 +165,10 @@ putCache <- function(x, value) {
   value <- list(value = value, timestamp = ts)
   assign(x = as.character(x), value = value, envir = .pkgcache)
 }
+
+##' @rdname putCache
+##' @export
+put_cache <- putCache
 
 ##' @title Get cached object from cache.
 ##' @param x Object name to retrieve from cache.
@@ -188,6 +196,10 @@ getCache <- function(x, ret = "value") {
   }
 }
 
+##' @rdname getCache
+##' @export
+get_cache <- getCache
+
 ##' @title Remove all objects from cache.
 ##' @export
 clearCache <- function() {
@@ -196,6 +208,10 @@ clearCache <- function() {
     envir = .pkgcache
   )
 }
+
+##' @rdname clearCache
+##' @export
+clear_cache <- clearCache
 
 ##' @title List objects and values in cache.
 ##' @export
@@ -213,3 +229,7 @@ Value:
 ")
   }
 }
+
+##' @rdname listCache
+##' @export
+list_cache <- listCache
