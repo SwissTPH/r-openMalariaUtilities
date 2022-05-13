@@ -57,6 +57,27 @@ anymore. You should favor readability, correctness and robustness.
 
 ## Internals
 
+### Load order matters
+
+Due to the way the cache and the debug messages work in this package, the load
+order of the R files matter. Thus, you need to make sure that the `include`
+statements are present at the beginning of the file.
+
+The `pkg_setup.R` file should always be first.
+
+```{r}
+##' @include pkg_setup.R
+NULL
+```
+
+You can require multiple files if necessary:
+
+```{r}
+##' @include pkg_setup.R cache.R printing.R
+NULL
+```
+
+
 ### Cache
 
 - When you want to manipulate the cache `.pkgcache`, use the `assign()` and

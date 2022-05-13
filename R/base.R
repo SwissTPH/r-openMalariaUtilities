@@ -6,6 +6,9 @@
 ## input data is a list having a distinct structure resembling the openMalaria
 ## xml files. Attribute and element names should be the same as in openMalaria.
 
+##' @include cache.R
+NULL
+
 ##' @title Create a base xml file and folder structure
 ##' @description Processes a list as containing the required information to
 ##'   generate a base xml file for OpenMalaria. This file is used to generate
