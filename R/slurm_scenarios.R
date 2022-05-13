@@ -122,7 +122,7 @@ storeScenarios(
     scenarios = scenarios,
     full = full
   )
-  .storeCache()
+  .synchronizeCache(direction = "none")
 }
 
 ##' @title Submit scenario creation job to SLURM

@@ -64,7 +64,7 @@ createBaseXml <- function(data = NULL, replace = "ask") {
   ## Write base xml file
   xml2::write_xml(baseXml, file = get(x = "baseXml", envir = .pkgcache))
   ## Write cache
-  .storeCache()
+  .synchronizeCache(direction = "none")
 }
 
 ##' @rdname createBaseXml
