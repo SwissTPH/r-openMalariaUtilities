@@ -6,7 +6,7 @@
 
 ## Most of the functions here are used for their side effects.
 
-##' @include pkg_setup.R
+##' @include pkg_setup.R printing.R 
 NULL
 
 ##' @title Writes .pkgcache to disk
@@ -145,16 +145,9 @@ NULL
   }
 }
 
-##' @title Load cached data from experiment
-##' @param path Path of the experiment's folder
-##' @export
-loadExperiment <- function(path) {
-  .synchronizeCache(path = file.path(path, "cache"), direction = "memory")
-}
 
-##' @rdname loadExperiment
-##' @export
-load_experiment <- loadExperiment
+#
+## Commands
 
 ##' @title Store object in cache.
 ##' @param x Object name to store in cache.
@@ -212,6 +205,47 @@ clearCache <- function() {
 ##' @rdname clearCache
 ##' @export
 clear_cache <- clearCache
+
+##' @title Load cached data from experiment
+##' @param path Path of the experiment's folder
+##' @export
+loadExperiment <- function(path) {
+  .synchronizeCache(path = file.path(path, "cache"), direction = "memory")
+}
+
+##' @rdname loadExperiment
+##' @export
+load_experiment <- loadExperiment
+
+##' @rdname loadExperiment
+##' @export
+loadCache <- loadExperiment
+
+##' @rdname loadExperiment
+##' @export
+load_cache <- loadExperiment
+
+##' @title Write cached data from experiment
+##' @param path Path of the experiment's folder
+##' @export
+writeCache <- function(path) {
+  .synchronizeCache(path = file.path(path, "cache"), direction = "disk")
+}
+
+##' @rdname writeCache
+##' @export
+write_cache <- writeCache
+
+##' @title Synchronized cached data from experiment
+##' @param path Path of the experiment's folder
+##' @export
+syncCache <- function(path) {
+  .synchronizeCache(path = file.path(path, "cache"), direction = "none")
+}
+
+##' @rdname syncCache
+##' @export
+sync_cache <- syncCache
 
 ##' @title List objects and values in cache.
 ##' @export

@@ -169,6 +169,35 @@ test_that("loadExperiment works", {
   expect_equal(actual, expected)
 })
 
+test_that("writeCache works", {
+  clearCache()
+  putCache(x = "placeholders", value = c("foo", "bar"))
+  writeCache(path = file.path(tempdir(), "test-cache"))
+
+  putCache(x = "placeholders", value = c("foo", "bar", "baz"))
+  loadExperiment(file.path(tempdir(), "test-cache"))
+  actual <- getCache(x = "placeholders")
+  expected <- c("foo", "bar")
+
+  expect_equal(actual, expected)
+})
+
+test_that("syncCache works", {
+  clearCache()
+  putCache(x = "placeholders", value = c("foo", "bar"))
+  writeCache(path = file.path(tempdir(), "test-cache"))
+  clearCache()
+  putCache(x = "otherholders", value = c("baz"))
+
+  syncCache(file.path(tempdir(), "test-cache"))
+  actual <- getCache(x = "placeholders")
+  expected <- c("foo", "bar")
+  expect_equal(actual, expected)
+  actual <- getCache(x = "otherholders")
+  expected <- c("baz")
+  expect_equal(actual, expected)
+})
+
 test_that("listCache works", {
 
   ## Clear cache
