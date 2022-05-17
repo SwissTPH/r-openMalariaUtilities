@@ -1,14 +1,11 @@
 test_that("storeScenarios works", {
   scenarios <- .create_test_scens()
   full <- .create_test_full()
-  assign("cacheDir", file.path(tempdir(), "cache"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
+  putCache("cacheDir", file.path(tempdir(), "cache"))
   storeScenarios(scenarios = scenarios, full = full)
 
-  actual <- file.exists(file.path(get(
-    x = "cacheDir",
-    envir = openMalariaUtilities:::.pkgcache
+  actual <- file.exists(file.path(getCache(
+    x = "cacheDir"
   ), "scens.RData"))
   expected <- TRUE
 
@@ -33,20 +30,16 @@ test_that(".scenariosRowSelect works (custom range)", {
 testthat::test_path("examples", "image.png")
 
 test_that(".scenariosGenFiles works", {
-  assign("cacheDir", file.path(tempdir(), "cache"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("scenariosDir", file.path(tempdir(), "scenarios"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("placeholders", "pop", envir = openMalariaUtilities:::.pkgcache)
+  putCache("cacheDir", file.path(tempdir(), "cache"))
+  putCache("scenariosDir", file.path(tempdir(), "scenarios"))
+  putCache("placeholders", "pop")
   scenarios <- data.frame(pop = c(1:10))
   full <- "foo"
 
-  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
+  unlink(getCache(x = "scenariosDir"),
     recursive = TRUE
   )
-  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
+  dir.create(getCache(x = "scenariosDir"))
 
   .scenariosGenFiles(
     scenarios = scenarios,
@@ -56,29 +49,23 @@ test_that(".scenariosGenFiles works", {
   )
 
   scen_files <- paste0("exp_test_", c(1:10), ".xml")
-  actual <- file.exists(file.path(get("scenariosDir",
-    envir = openMalariaUtilities:::.pkgcache
-  ), scen_files))
+  actual <- file.exists(file.path(getCache("scenariosDir", ), scen_files))
   expected <- rep(TRUE, 10)
 
   expect_equal(actual, expected)
 })
 
 test_that(".scenariosGenFiles emits error", {
-  assign("cacheDir", file.path(tempdir(), "cache"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("scenariosDir", file.path(tempdir(), "scenarios"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("placeholders", "pop", envir = openMalariaUtilities:::.pkgcache)
+  putCache("cacheDir", file.path(tempdir(), "cache"))
+  putCache("scenariosDir", file.path(tempdir(), "scenarios"))
+  putCache("placeholders", "pop")
   scenarios <- data.frame(pop = c(1:10))
   full <- "foo"
 
-  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
+  unlink(getCache(x = "scenariosDir"),
     recursive = TRUE
   )
-  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
+  dir.create(getCache(x = "scenariosDir"))
 
   expect_error(
     .scenariosGenFiles(
@@ -92,20 +79,16 @@ test_that(".scenariosGenFiles emits error", {
 })
 
 test_that(".scenariosGenFiles emits warning", {
-  assign("cacheDir", file.path(tempdir(), "cache"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("scenariosDir", file.path(tempdir(), "scenarios"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("placeholders", "pop", envir = openMalariaUtilities:::.pkgcache)
+  putCache("cacheDir", file.path(tempdir(), "cache"))
+  putCache("scenariosDir", file.path(tempdir(), "scenarios"))
+  putCache("placeholders", "pop")
   scenarios <- data.frame(pop = c(1:10), foo = c(1:10))
   full <- "foo"
 
-  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
+  unlink(getCache(x = "scenariosDir"),
     recursive = TRUE
   )
-  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
+  dir.create(getCache(x = "scenariosDir"))
 
   expect_warning(
     .scenariosGenFiles(
@@ -119,13 +102,9 @@ test_that(".scenariosGenFiles emits warning", {
 })
 
 test_that("generateScenarios works", {
-  assign("cacheDir", file.path(tempdir(), "cache"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("scenariosDir", file.path(tempdir(), "scenarios"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("placeholders", "pop", envir = openMalariaUtilities:::.pkgcache)
+  putCache("cacheDir", file.path(tempdir(), "cache"))
+  putCache("scenariosDir", file.path(tempdir(), "scenarios"))
+  putCache("placeholders", "pop")
   scenarios <- data.frame(
     futITNcov = c(.65),
     futIRScov = c(0, .8),
@@ -136,10 +115,10 @@ test_that("generateScenarios works", {
   )
   full <- .create_test_full()
 
-  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
+  unlink(getCache(x = "scenariosDir"),
     recursive = TRUE
   )
-  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
+  dir.create(getCache(x = "scenariosDir"))
 
   generateScenarios(
     scenarios = scenarios, full = full,
@@ -148,9 +127,8 @@ test_that("generateScenarios works", {
   )
 
   scen_files <- paste0("exp_test_", c(1:10), ".xml")
-  actual <- file.exists(file.path(get(
-    x = "scenariosDir",
-    envir = openMalariaUtilities:::.pkgcache
+  actual <- file.exists(file.path(getCache(
+    x = "scenariosDir"
   ), scen_files))
   expected <- rep(TRUE, 10)
 

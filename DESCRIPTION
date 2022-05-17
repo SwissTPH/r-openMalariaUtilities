@@ -51,6 +51,7 @@ Remotes:
     mllg/checkmate
 Collate: 
     'pkg_setup.R'
+    'printing.R'
     'cache.R'
     'base.R'
     'compat.R'
@@ -58,7 +59,6 @@ Collate:
     'directories.R'
     'postprocess-compat.R'
     'postprocess.R'
-    'printing.R'
     'scenarios.R'
     'simulation.R'
     'slurm.R'

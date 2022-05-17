@@ -2,10 +2,13 @@
 % Please edit documentation in R/cache.R
 \name{listCache}
 \alias{listCache}
-\title{List objects in cache.}
+\alias{list_cache}
+\title{List objects and values in cache.}
 \usage{
 listCache()
+
+list_cache()
 }
 \description{
-List objects in cache.
+List objects and values in cache.
 }

@@ -22,18 +22,18 @@ test_that(".xmlAddChunks throws wrong length error", {
 
 
 test_that(".placeholderCollect works", {
-  assign("placeholders", c("foo"), envir = openMalariaUtilities:::.pkgcache)
+  putCache("placeholders", c("foo"))
   .placeholderCollect("@bar@")
-  actual <- get("placeholders", envir = openMalariaUtilities:::.pkgcache)
+  actual <- getCache("placeholders")
   expected <- c("bar", "foo")
 
   expect_equal(actual, expected)
 })
 
 test_that(".placeholderCollect handles duplicates", {
-  assign("placeholders", c("bar", "foo", "bar", "foo", "foo"), envir = openMalariaUtilities:::.pkgcache)
+  putCache("placeholders", c("bar", "foo", "bar", "foo", "foo"))
   .placeholderCollect("@bar@")
-  actual <- get("placeholders", envir = openMalariaUtilities:::.pkgcache)
+  actual <- getCache("placeholders")
   expected <- c("bar", "foo")
 
   expect_equal(actual, expected)

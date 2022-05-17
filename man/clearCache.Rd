@@ -2,9 +2,12 @@
 % Please edit documentation in R/cache.R
 \name{clearCache}
 \alias{clearCache}
+\alias{clear_cache}
 \title{Remove all objects from cache.}
 \usage{
 clearCache()
+
+clear_cache()
 }
 \description{
 Remove all objects from cache.

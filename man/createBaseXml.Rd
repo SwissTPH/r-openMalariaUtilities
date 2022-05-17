@@ -3,7 +3,7 @@
 \name{createBaseXml}
 \alias{createBaseXml}
 \alias{create_base_xml}
-\title{Create a base xml file and folder structure}
+\title{Create a base XML file and folder structure}
 \usage{
 createBaseXml(data = NULL, replace = "ask")
 
@@ -12,22 +12,18 @@ create_base_xml(data = NULL, replace = "ask")
 \arguments{
 \item{data}{List containing all information}
 
-\item{replace}{Overwrite experiment directory if it is already present.
+\item{replace}{Overwrite output XML if it is already present.
 Possible values are TRUE, FALSE, or "ask".}
 }
 \description{
 Processes a list as containing the required information to
-generate a base xml file for OpenMalaria. This file is used to generate
+generate a base XML file for OpenMalaria. This file is used to generate
 the scenarios for simulation.
 }
 \details{
-The 'data' argument is a nested list resembling the input xml of
+The 'data' argument is a nested list resembling the input XML of
 OpenMalaria. The attribute names and possible values can be found in
 OpenMalaria's schema documentation. Some attributes are not part of the
 official schema, like 'expName'. More details can be found in the
 vignette.
-The function also creates the folder structure for the experiment. By
-default, the experiment is created in the current working directory. This
-behavior can be changed by modifying or setting 'rootDir', 'scenariosDir'
-and 'logsDir' in the input list.
 }
