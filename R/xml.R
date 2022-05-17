@@ -7,6 +7,10 @@
 ## to be of the same length. If a value is NA, it will be skipped in the xml
 ## generation. It can also be a dataframe.
 
+##' @include cache.R printing.R
+NULL
+
+
 ##' @title Generate XML chunks
 ##' @param outlist List which will get modified and returned.
 ##' @param element Element to add
@@ -44,9 +48,9 @@
     ## If true, store it in the cache
     if (matched == TRUE) {
       value <- gsub("@(.*?)@", "\\1", x)
-      assign(x = "placeholders", unique(
-        c(value, get(x = "placeholders", envir = .pkgcache))
-      ), envir = .pkgcache)
+      putCache(x = "placeholders", unique(
+        c(value, getCache(x = "placeholders"))
+      ))
     }
   }
 }
@@ -139,7 +143,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
   assertCol <- checkmate::makeAssertCollection()
 
   ## Clear cached placehoders, if any
-  assign(x = "placeholders", value = NULL, envir = .pkgcache)
+  putCache(x = "placeholders", value = NULL)
 
   ## Run the recursion
   for (i in seq_len(length(data))) {
@@ -167,7 +171,9 @@ recXML <- function(x, data, errCol, recLevel = list()) {
   if (append == FALSE) {
     ## Make sure to remove all entries corresponding to sublist
     if (!is.null(sublist)) {
-      data[[c(sublist)]] <- data[[c(sublist)]][names(data[[c(sublist)]]) %in% c(entry) == FALSE]
+      data[[c(sublist)]] <- data[[c(sublist)]][
+        names(data[[c(sublist)]]) %in% c(entry) == FALSE
+      ]
     }
     ## Add new entry
     if (!is.null(entry)) {
