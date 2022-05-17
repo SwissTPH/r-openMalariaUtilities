@@ -59,8 +59,46 @@ createBaseXml <- function(data = NULL, replace = "ask") {
   ))
 
   ## Write base xml file
-  .printDebug(paste0("Writing XML file to ", getCache(x = "baseXml")))
-  xml2::write_xml(baseXml, file = getCache(x = "baseXml"))
+  createFile <- NULL
+  if (file.exists(getCache(x = "baseXml"))) {
+    .printDebug(
+      paste0("XML file ", getCache(x = "baseXml"), " already present.")
+    )
+    ## File present, no replace
+    if (replace == FALSE) {
+      .printDebug("Replace is FALSE, keeping XML file.")
+      stop("XML file already present. Aborting.")
+    } else if (replace == "ask") {
+      answer <- utils::askYesNo("Directory with experiment name already present. Replace?")
+      ## No or no answer
+      if (!answer == TRUE | is.na(answer)) {
+        .printDebug("Answer was no or not given.")
+        stop("Aborting.")
+        ## Yes
+      } else {
+        .printDebug("Answer was yes, removing XML file.")
+        createFile <- TRUE
+        unlink(getCache(x = "baseXml"))
+      }
+      ## Directory present, replace
+    } else {
+      .printDebug("Replace is TRUE, removing XML file.")
+      createFile <- TRUE
+      unlink(getCache(x = "baseXml"))
+    }
+    ## File not present
+  } else {
+    .printDebug(
+      paste0("XML file ", getCache(x = "baseXml"), " not found. Creating.")
+    )
+    createFile <- TRUE
+  }
+
+  if (createFile == TRUE) {
+    .printDebug(paste0("Writing XML file to ", getCache(x = "baseXml")))
+    xml2::write_xml(baseXml, file = getCache(x = "baseXml"))
+  }
+
   ## Write cache
   .synchronizeCache(direction = "none")
 }
