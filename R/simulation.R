@@ -14,7 +14,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
                          dryRun = FALSE, verbose = FALSE) {
   ## Get values from cache if not given
   if (is.null(scenariosDir)) {
-    scenariosDir <- get(x = "scenariosDir", envir = .pkgcache)
+    scenariosDir <- getCache(x = "scenariosDir")
   }
 
   ## Toggle verbose output of OpenMalaria
@@ -47,10 +47,10 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
   }
 
   for (i in seq_len(length(scenarios))) {
-    resources <- file.path(get(x = "experimentDir", envir = .pkgcache))
+    resources <- file.path(getCache(x = "experimentDir"))
     scenario <- scenarios[[i]]
     output <- file.path(
-      get(x = "outputsDir", envir = .pkgcache),
+      getCache(x = "outputsDir"),
       paste0(
         sub(
           pattern = "(.*)\\..*$",
@@ -61,7 +61,7 @@ runScenarios <- function(scenariosDir = NULL, cmd = "openMalaria",
       )
     )
     ctsout <- file.path(
-      get(x = "outputsDir", envir = .pkgcache),
+      getCache(x = "outputsDir"),
       paste0(
         sub(
           pattern = "(.*)\\..*$",

@@ -32,12 +32,12 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
     scen_batches = batches,
     scen_nbatches = nbatches
   )
-  assign(x = "slurm", value = temp, envir = .pkgcache)
-  assign(x = "scenarios", value = scenarios, envir = .pkgcache)
+  putCache(x = "slurm", value = temp)
+  putCache(x = "scenarios", value = scenarios)
 
   ## Create a scenario job
   filename <- file.path(
-    get(x = "experimentDir", envir = .pkgcache), "slurm_scenarios.sh"
+    getCache(x = "experimentDir"), "slurm_scenarios.sh"
   )
   .writeSlurm(
     jobName = paste0(expName, "_scenarios"),
@@ -46,11 +46,11 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
     time = time,
     qos = qos,
     output = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
+      file.path(getCache(x = "logsDir"), "scenarios"),
       paste0(expName, "_scenarios")
     ),
     error = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
+      file.path(getCache(x = "logsDir"), "scenarios"),
       paste0(expName, "_scenarios")
     ),
     pre = list(
@@ -58,7 +58,7 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
       "module load R/4.1.2-foss-2018b-Python-3.6.6"
     ),
     cmd = list(paste("Rscript", file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_scenarios.R"
+      getCache(x = "experimentDir"), "slurm_run_scenarios.R"
     ), "$ID")),
     file = filename
   )
@@ -71,22 +71,22 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-    "setwd(dir = \"", paste0(get(x = "rootDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(getCache(x = "rootDir")), "\")
 
 ## Load library
 library(openMalariaUtilities)
 
 ## Load cached data
-loadExperiment(\"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+loadExperiment(\"", paste0(getCache(x = "experimentDir")), "\")
 
 ## Get range of scenarios to create
-slurm <- get(x = \"slurm\", envir = openMalariaUtilities:::.pkgcache)
+slurm <- getCache(x = \"slurm\")
 ID <- args[1]
 rowStart <- slurm$scen_batches[[ID]][1]
 rowEnd <- slurm$scen_batches[[ID]][length(slurm$scen_batches[[ID]])]
 
-load(file.path(get(x = \"cacheDir\", envir = openMalariaUtilities:::.pkgcache), \"scens.RData\"))
-scens <- get(x = \"scenarios\", envir = openMalariaUtilities:::.pkgcache)
+load(file.path(getCache(x = \"cacheDir\"), \"scens.RData\"))
+scens <- getCache(x = \"scenarios\")
 
 ## Read placeholder names
 placeholders <- names(scens)
@@ -95,13 +95,13 @@ range <- openMalariaUtilities:::.scenariosRowSelect(
   scenarios = scens, rowStart = rowStart, rowEnd = rowEnd
 )
 
-baseFile <- get(x = \"baseXml\", envir = openMalariaUtilities:::.pkgcache)
-prefix <- get(x = \"experimentName\", envir = openMalariaUtilities:::.pkgcache)
+baseFile <- getCache(x = \"baseXml\")
+prefix <- getCache(x = \"experimentName\")
 
 ## Store filenames of each scenario in column
 scens <- openMalariaUtilities:::.scenariosFilenames(scenarios = scens, prefix = prefix)
 
-assign(x = \"scenarios\", value = scens, envir = openMalariaUtilities:::.pkgcache)
+putCache(x = \"scenarios\", value = scens)
 
 openMalariaUtilities:::.scenariosGenFiles(
   scenarios = scens, baseFile = baseFile, range = range,
@@ -110,11 +110,11 @@ openMalariaUtilities:::.scenariosGenFiles(
 
 ## Cache scenarios
 storeScenarios(
-  scenarios = get(x = \"scenarios\", envir = openMalariaUtilities:::.pkgcache),
+  scenarios = getCache(x = \"scenarios\"),
   full = full
 )",
     file = file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_scenarios.R"
+      getCache(x = "experimentDir"), "slurm_run_scenarios.R"
     ),
     sep = ""
   )
@@ -131,7 +131,7 @@ slurmCreateScenarios <- function() {
   system(
     command = paste0(
       "sbatch ", file.path(
-        get("experimentDir", envir = .pkgcache),
+        getCache("experimentDir"),
         "slurm_scenarios.sh"
       )
     )

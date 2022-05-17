@@ -24,14 +24,14 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
   ## Load scenarios from disk if not specified. We did save them in the step
   ## before.
   if (is.null(scenarios)) {
-    load(file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData"))
+    load(file.path(getCache(x = "cacheDir"), "scens.RData"))
     scenarios <- scens
   }
 
 
   ## Create a submission script
   filename <- file.path(
-    get(x = "experimentDir", envir = .pkgcache), "slurm_simulation.sh"
+    getCache(x = "experimentDir"), "slurm_simulation.sh"
   )
   .writeSlurm(
     jobName = paste0(expName, "_simulation"),
@@ -40,11 +40,11 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
     time = time,
     qos = qos,
     output = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
+      file.path(getCache(x = "logsDir"), "simulation"),
       paste0(expName, "_simulation")
     ),
     error = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
+      file.path(getCache(x = "logsDir"), "simulation"),
       paste0(expName, "_simulation")
     ),
     pre = list(
@@ -56,10 +56,10 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
       "module load OpenMalaria/44.0-iomkl-2019.01",
       ## This is quiet important, otherwise OpenMalaria cannot find the
       ## supporting files (*.xsd, etc)
-      paste0("cd ", get(x = "experimentDir", envir = .pkgcache))
+      paste0("cd ", getCache(x = "experimentDir"))
     ),
     cmd = list(paste("Rscript", file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_simulation.R"
+      getCache(x = "experimentDir"), "slurm_run_simulation.R"
     ), "$ID")),
     file = filename
   )
@@ -72,7 +72,7 @@ slurmPrepareRunScenarios <- function(expName, scenarios = NULL, ntasks = 1,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-    "setwd(dir = \"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(getCache(x = "experimentDir")), "\")
 
 ## Verbose output
 verbose <- ", ifelse(verbose == TRUE, paste0("\" --verbose \""), paste0("NULL")), "
@@ -81,19 +81,19 @@ verbose <- ", ifelse(verbose == TRUE, paste0("\" --verbose \""), paste0("NULL"))
 library(openMalariaUtilities)
 
 ## Load cached data
-loadExperiment(\"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
+loadExperiment(\"", paste0(getCache(x = "experimentDir")), "\")
 
 ## Get scenario number to run
 ID <- as.numeric(args[1])
 
-load(file.path(get(x = \"cacheDir\", envir = openMalariaUtilities:::.pkgcache), \"scens.RData\"))
+load(file.path(getCache(x = \"cacheDir\"), \"scens.RData\"))
 scenarios <- scens$file
 
 cmd <- \"openMalaria\"
-resources <- file.path(get(x = \"experimentDir\", envir = openMalariaUtilities:::.pkgcache))
-scenario <- file.path(get(x = \"scenariosDir\", envir = openMalariaUtilities:::.pkgcache), scenarios[[ID]])
+resources <- file.path(getCache(x = \"experimentDir\"))
+scenario <- file.path(getCache(x = \"scenariosDir\"), scenarios[[ID]])
 output <- file.path(
-  get(x = \"outputsDir\", envir = openMalariaUtilities:::.pkgcache),
+  getCache(x = \"outputsDir\"),
   paste0(
     sub(
       pattern = \".xml$\",
@@ -104,7 +104,7 @@ output <- file.path(
   )
 )
 ctsout <- file.path(
-  get(x = \"outputsDir\", envir = openMalariaUtilities:::.pkgcache),
+  getCache(x = \"outputsDir\"),
   paste0(
     sub(
       pattern = \".xml$\",
@@ -124,7 +124,7 @@ fullCmd <- paste0(
 system(command = fullCmd)
 ",
     file = file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_simulation.R"
+      getCache(x = "experimentDir"), "slurm_run_simulation.R"
     ),
     sep = ""
   )
@@ -136,7 +136,7 @@ slurmRunSimulation <- function() {
   system(
     command = paste0(
       "sbatch ", file.path(
-        get("experimentDir", envir = .pkgcache),
+        getCache("experimentDir"),
         "slurm_simulation.sh"
       )
     )

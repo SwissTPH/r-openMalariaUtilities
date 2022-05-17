@@ -398,7 +398,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
   }
 
   ## Store the dates in the cache
-  assign(x = "surveyTimes", value = dates, envir = .pkgcache)
+  putCache(x = "surveyTimes", value = dates)
 
   if (useRepeat == TRUE) {
     ## Add 1 timestep = 5 days to the endDates which are used for repeatEnd. We do

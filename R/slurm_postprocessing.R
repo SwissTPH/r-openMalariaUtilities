@@ -107,7 +107,7 @@ slurmPreparePostprocess <- function(expName, scenarios,
 
   ## Create a postprocess job
   filename <- file.path(
-    get(x = "experimentDir", envir = .pkgcache), "slurm_postprocess.sh"
+    getCache(x = "experimentDir"), "slurm_postprocess.sh"
   )
   .writeSlurm(
     jobName = paste0(expName, "_postprocess"),
@@ -117,11 +117,11 @@ slurmPreparePostprocess <- function(expName, scenarios,
     time = time_process,
     qos = qos_process,
     output = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+      file.path(getCache(x = "logsDir"), "postprocessing"),
       paste0(expName, "_postprocess")
     ),
     error = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+      file.path(getCache(x = "logsDir"), "postprocessing"),
       paste0(expName, "_postprocess")
     ),
     pre = list(
@@ -129,7 +129,7 @@ slurmPreparePostprocess <- function(expName, scenarios,
       "module load R/4.1.2-foss-2018b-Python-3.6.6"
     ),
     cmd = list(paste("Rscript", file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_postprocess.R"
+      getCache(x = "experimentDir"), "slurm_run_postprocess.R"
     ), sets, expName, loops, many, "$ID")),
     file = filename
   )
@@ -142,14 +142,14 @@ slurmPreparePostprocess <- function(expName, scenarios,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-    "setwd(dir = \"", paste0(get(x = "rootDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(getCache(x = "rootDir")), "\")
 
 ## Load library
 library(openMalariaUtilities)
 
 ## Load cached data
-loadExperiment(\"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
-load(file.path(get(x = \"cacheDir\", envir = openMalariaUtilities:::.pkgcache), \"scens.RData\"))
+loadExperiment(\"", paste0(getCache(x = "experimentDir")), "\")
+load(file.path(getCache(x = \"cacheDir\"), \"scens.RData\"))
 
 ## Set variables
 sets <- as.character(args[1])
@@ -188,7 +188,7 @@ temp <- openMalariaUtilities::do_post_processing(
 )
 ",
     file = file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_postprocess.R"
+      getCache(x = "experimentDir"), "slurm_run_postprocess.R"
     ),
     sep = ""
   )
@@ -200,7 +200,7 @@ slurmRunPostprocess <- function() {
   system(
     command = paste0(
       "sbatch ", file.path(
-        get("experimentDir", envir = .pkgcache),
+        getCache("experimentDir"),
         "slurm_postprocess.sh"
       )
     )
@@ -243,7 +243,7 @@ slurmPrepareCleanup <- function(expName, scenarios,
 
   ## Create a postprocess job
   filename <- file.path(
-    get(x = "experimentDir", envir = .pkgcache), "slurm_cleanup.sh"
+    getCache(x = "experimentDir"), "slurm_cleanup.sh"
   )
   .writeSlurm(
     jobName = paste0(expName, "_cleanup"),
@@ -253,11 +253,11 @@ slurmPrepareCleanup <- function(expName, scenarios,
     time = time_clean,
     qos = qos_clean,
     output = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+      file.path(getCache(x = "logsDir"), "postprocessing"),
       paste0(expName, "_cleanup")
     ),
     error = file.path(
-      file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+      file.path(getCache(x = "logsDir"), "postprocessing"),
       paste0(expName, "_cleanup")
     ),
     pre = list(
@@ -265,7 +265,7 @@ slurmPrepareCleanup <- function(expName, scenarios,
       "module load R/4.1.2-foss-2018b-Python-3.6.6"
     ),
     cmd = list(paste("Rscript", file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_cleanup.R"
+      getCache(x = "experimentDir"), "slurm_run_cleanup.R"
     ), "$ID")),
     file = filename
   )
@@ -278,14 +278,14 @@ slurmPrepareCleanup <- function(expName, scenarios,
 args <- commandArgs(trailingOnly = TRUE)
 
 ## Set correct working directory\n",
-    "setwd(dir = \"", paste0(get(x = "rootDir", envir = .pkgcache)), "\")
+    "setwd(dir = \"", paste0(getCache(x = "rootDir")), "\")
 
 ## Load library
 library(openMalariaUtilities)
 
 ## Load cached data
-loadExperiment(\"", paste0(get(x = "experimentDir", envir = .pkgcache)), "\")
-load(file.path(get(x = \"cacheDir\", envir = openMalariaUtilities:::.pkgcache), \"scens.RData\"))
+loadExperiment(\"", paste0(getCache(x = "experimentDir")), "\")
+load(file.path(getCache(x = \"cacheDir\"), \"scens.RData\"))
 
 ## Set variables
 setting_number <- as.numeric(args[1])
@@ -307,7 +307,7 @@ temp <- openMalariaUtilities::do_post_process_cleanup(
 )
 ",
     file = file.path(
-      get(x = "experimentDir", envir = .pkgcache), "slurm_run_cleanup.R"
+      getCache(x = "experimentDir"), "slurm_run_cleanup.R"
     ),
     sep = ""
   )
@@ -319,7 +319,7 @@ slurmRunCleanup <- function() {
   system(
     command = paste0(
       "sbatch ", file.path(
-        get("experimentDir", envir = .pkgcache),
+        getCache("experimentDir"),
         "slurm_cleanup.sh"
       )
     )

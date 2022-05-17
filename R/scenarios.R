@@ -26,7 +26,7 @@ storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
   ##            scenarios.
   ## Store filenames of each scenario in column
   if (is.null(prefix)) {
-    prefix <- get(x = "experimentName", envir = .pkgcache)
+    prefix <- getCache(x = "experimentName")
   }
   scenarios <- .scenariosFilenames(scenarios = scenarios, prefix = prefix)
   scenarios <- add_idvars(scenarios, full, confirm = FALSE, overwrite = FALSE)
@@ -36,13 +36,13 @@ storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
   if (csv == TRUE) {
     utils::write.csv(
       x = scens,
-      file = file.path(get("experimentDir", envir = .pkgcache), "scenarios.csv")
+      file = file.path(getCache("experimentDir"), "scenarios.csv")
     )
   }
 
   ## Save RData file
   save(scenarios, full, scens,
-    file = file.path(get(x = "cacheDir", envir = .pkgcache), "scens.RData")
+    file = file.path(getCache(x = "cacheDir"), "scens.RData")
   )
 }
 
@@ -97,8 +97,8 @@ storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
     file.copy(
       from = baseFile,
       to = file.path(
-        get(x = "scenariosDir", envir = .pkgcache),
-        paste0(get(x = "xmlBasename", envir = .pkgcache), ".xml")
+        getCache(x = "scenariosDir"),
+        paste0(getCache(x = "xmlBasename"), ".xml")
       )
     )
   } else {
@@ -111,7 +111,7 @@ storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
     base <- readLines(baseFile)
     ## Check if placeholders in base file are found in scenarios
     tmp <- c()
-    for (x in get(x = "placeholders", envir = .pkgcache)) {
+    for (x in getCache(x = "placeholders")) {
       if (!(x %in% placeholders)) {
         tmp <- c(x, tmp)
       }
@@ -128,7 +128,7 @@ storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
     ## Check if scenarios has more placeholders than used in the base file
     tmp <- c()
     for (x in placeholders) {
-      if (!(x %in% get(x = "placeholders", envir = .pkgcache))) {
+      if (!(x %in% getCache(x = "placeholders"))) {
         tmp <- c(x, tmp)
       }
     }
@@ -155,7 +155,7 @@ storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
 
       ## Write file
       cat(out, file = file.path(
-        get(x = "scenariosDir", envir = .pkgcache),
+        getCache(x = "scenariosDir"),
         filename
       ), sep = "\n")
     })
@@ -182,10 +182,10 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
                               rowEnd = NULL) {
   ## Get values from cache if not given
   if (is.null(baseFile)) {
-    baseFile <- get(x = "baseXml", envir = .pkgcache)
+    baseFile <- getCache(x = "baseXml")
   }
   if (is.null(prefix)) {
-    prefix <- get(x = "experimentName", envir = .pkgcache)
+    prefix <- getCache(x = "experimentName")
   }
 
   ## Input validation
@@ -214,11 +214,11 @@ generateScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
   ## Store scenarios in cache
   ## REVIEW This can get large (100k+ scenarios), maybe a separate cache is
   ## necessary
-  assign(x = "scenarios", value = scenarios, envir = .pkgcache)
+  putCache(x = "scenarios", value = scenarios)
 
   ## Cache scenarios
   storeScenarios(
-    scenarios = get(x = "scenarios", envir = .pkgcache),
+    scenarios = getCache(x = "scenarios"),
     full = full, prefix = prefix, csv = csv
   )
 }
