@@ -649,11 +649,11 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
       nMassVaccinations = FALSE,
       nEPIVaccinations = FALSE,
       inputEIR = FALSE,
-      simEIR = FALSE
+      simulatedEIR = FALSE
     )
     
     if (is.null(surveyMeasures)) {
-      basics <- c("nHost", "nPatent", "nUncomp", "nSevere", "simEIR")
+      basics <- c("nHost", "nPatent", "nUncomp", "nSevere", "simulatedEIR")
       allTreatments <- c("nTreatments1", "nTreatments2", "nTreatments3", "nTreatDeployments")
       allHospital <- c("nHospitalSeqs", "nHospitalRecovs", "nHospitalDeaths")
       allDeaths <- c("nHospitalDeaths", "nIndDeaths", "nDirDeaths")
@@ -686,7 +686,7 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
             cout$nTreatments3, cout$nTreatDeployments, cout$nHospitalSeqs,
             cout$nHospitalRecovs, cout$nHospitalDeaths, cout$nIndDeaths, cout$nDirDeaths,
             cout$expectedDirectDeaths, cout$expectedHospitalDeaths,
-            cout$expectedIndirectDeaths, cout$expectedSevere, cout$simEIR,
+            cout$expectedIndirectDeaths, cout$expectedSevere, cout$simulatedEIR,
             cout$inputEIR, cout$nMDAs, cout$nMassGVI, cout$nEPIVaccinations, cout$nMassIRS,
             cout$nMassITNs, cout$nMassVaccinations
           )
