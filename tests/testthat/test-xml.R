@@ -7,9 +7,8 @@ test_that(".xmlAddChunks works", {
   expected <- list(foo = list("bar" = 1, "baz" = 1))
 
   expect_equal(actual, expected)
-})
 
-test_that(".xmlAddChunks throws wrong length error", {
+  ## .xmlAddChunks throws wrong length error
   expect_error(
     .xmlAddChunks(
       outlist = list(),
@@ -28,9 +27,8 @@ test_that(".placeholderCollect works", {
   expected <- c("bar", "foo")
 
   expect_equal(actual, expected)
-})
 
-test_that(".placeholderCollect handles duplicates", {
+  ## .placeholderCollect handles duplicates
   putCache("placeholders", c("bar", "foo", "bar", "foo", "foo"))
   .placeholderCollect("@bar@")
   actual <- getCache("placeholders")
@@ -38,6 +36,7 @@ test_that(".placeholderCollect handles duplicates", {
 
   expect_equal(actual, expected)
 })
+
 
 test_that("recXML works", {
   expected <- xml2::read_xml(
@@ -94,7 +93,9 @@ test_that(".xmlMakeDocRec works", {
 })
 
 
-test_that(".xmlAddList works (not appending)", {
+test_that(".xmlAddList works", {
+
+  ## Not appending
   testlist <- list(
     interventions = list(
       human = list(
@@ -134,9 +135,8 @@ test_that(".xmlAddList works (not appending)", {
   )
 
   expect_equal(sort(unlist(actual)), sort(unlist(expected)))
-})
 
-test_that(".xmlAddList works (appending)", {
+  ## .xmlAddList works (appending)
   testlist <- list(
     interventions = list(
       human = list(
