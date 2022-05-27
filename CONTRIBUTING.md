@@ -63,17 +63,19 @@ Due to the way the cache and the debug messages work in this package, the load
 order of the R files matter. Thus, you need to make sure that the `include`
 statements are present at the beginning of the file.
 
-The `pkg_setup.R` file should always be first.
+The `pkg_setup.R` file should be used when in doubt in order to make sure the
+basic setup is loaded first.
 
 ```{r}
 ##' @include pkg_setup.R
 NULL
 ```
 
-You can require multiple files if necessary:
+You can require multiple files if necessary and skip `pkg_setup.R` if it is
+already included by other files.
 
 ```{r}
-##' @include pkg_setup.R cache.R printing.R
+##' @include cache.R printing.R
 NULL
 ```
 
