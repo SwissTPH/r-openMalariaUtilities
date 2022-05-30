@@ -258,7 +258,7 @@ listCache <- function() {
 Name:", obj, "\tTimestamp:", format(tmp[["timestamp"]], format = "%Y-%m-%d %H:%M:%S"), "
 Class:", class(tmp[["value"]]), "
 Value:
-", paste(capture.output(tmp[["value"]]), "\n", sep = ""), "
+", paste(utils::capture.output(tmp[["value"]]), "\n", sep = ""), "
 ", paste(rep("-", options()$width), collapse = ""), "
 ")
   }

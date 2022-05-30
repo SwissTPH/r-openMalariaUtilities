@@ -48,7 +48,7 @@ toggleDebug <- function() {
 .printVerbose <- function(x, ...) {
   curVal <- get("verboseOutput", envir = .pkgenv)
   if (curVal == TRUE) {
-    cat(paste0("INFO\t", capture.output(print(x, ...))), sep = "\n")
+    cat(paste0("INFO\t", utils::capture.output(print(x, ...))), sep = "\n")
   }
 }
 
@@ -60,6 +60,6 @@ toggleDebug <- function() {
 .printDebug <- function(x, ...) {
   curVal <- get("debugOutput", envir = .pkgenv)
   if (curVal == TRUE) {
-    cat(paste0("DEBUG\t", capture.output(print(x, ...))), sep = "\n")
+    cat(paste0("DEBUG\t", utils::capture.output(print(x, ...))), sep = "\n")
   }
 }

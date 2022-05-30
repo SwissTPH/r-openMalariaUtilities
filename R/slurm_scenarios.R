@@ -110,8 +110,7 @@ openMalariaUtilities:::.scenariosGenFiles(
 
 ## Cache scenarios
 storeScenarios(
-  scenarios = getCache(x = \"scenarios\"),
-  full = full
+  scenarios = getCache(x = \"scenarios\")
 )",
     file = file.path(
       getCache(x = "experimentDir"), "slurm_run_scenarios.R"
@@ -119,8 +118,7 @@ storeScenarios(
     sep = ""
   )
   storeScenarios(
-    scenarios = scenarios,
-    full = full
+    scenarios = scenarios
   )
   .synchronizeCache(direction = "none")
 }
