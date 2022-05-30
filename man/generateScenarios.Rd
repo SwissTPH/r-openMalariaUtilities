@@ -2,37 +2,18 @@
 % Please edit documentation in R/scenarios.R
 \name{generateScenarios}
 \alias{generateScenarios}
+\alias{generate_scenarios}
 \title{Generate scenarios from a base xml file}
 \usage{
-generateScenarios(
-  baseFile = NULL,
-  prefix = NULL,
-  scenarios,
-  csv = TRUE,
-  full,
-  rowStart = NULL,
-  rowEnd = NULL
-)
+generateScenarios(x)
+
+generate_scenarios(x)
 }
 \arguments{
-\item{baseFile}{Compatible base xml file.}
-
-\item{prefix}{Prefix for the scenario files.}
-
-\item{scenarios}{Data frame containing the values for the placeholders. One
-row per scenario, placeholders in columns. Column names correspond to the
-placeholder names.}
-
-\item{csv}{Save scenarios as .csv file.}
-
-\item{full}{List of experiment variables and values.}
-
-\item{rowStart}{Starting row. Optional.}
-
-\item{rowEnd}{End row. Optional.}
+\item{x}{Data frame containing the values for the placeholders for each
+scenarios.}
 }
 \description{
-Function generates scenarios defined in a data frame. In this
-data frame each row is a scenario, placeholder values are in the columns.
-Column names correspond to the placeholder names.
+Function makes sure that the scenario data frame is set up
+correctly. It adds the required 'ID' and 'file' columns.
 }

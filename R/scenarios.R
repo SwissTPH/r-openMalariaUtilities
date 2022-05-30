@@ -56,6 +56,7 @@ NULL
 ##' @param range Row range of scenarios
 ##' @param placeholders Vector containing the placeholders
 ##' @param prefix Filename prefix
+##' @param ncores Number of parallel processes to use.
 ##' @keywords internal
 .scenariosGenFiles <- function(scenarios, baseFile, range, placeholders,
                                prefix, ncores = 1) {
@@ -87,22 +88,6 @@ NULL
       stop(
         paste(
           "The following variables are definded in the base xml file but not in the scenarios:\n",
-          paste(tmp, collapse = " ")
-        )
-      )
-    }
-
-    ## Check if scenarios has more placeholders than used in the base file
-    tmp <- c()
-    for (x in placeholders) {
-      if (!(x %in% getCache(x = "placeholders"))) {
-        tmp <- c(x, tmp)
-      }
-    }
-    if (!is.null(tmp)) {
-      warning(
-        paste(
-          "The following variables are not used in the base xml file but definded in the scenarios:\n",
           paste(tmp, collapse = " ")
         )
       )
@@ -142,30 +127,20 @@ NULL
 
 
 ## This function should make sure that the scenario data frame is set up
-## correctly.
-##
-## Placeholders should be enclosed in '@' signs, the rest is meta data, e.g.
-## file name. Otherwise, define placeholders as imput arg, rest should be
-## considered as meta data.
-##
-## Needs to be added:
-## 1. ID
-## 2. file
-generateScenarios <- function(x, placeholders = NULL) {
+## correctly. Needs to be added: 1. ID 2. file
+##' @title Generate scenarios from a base xml file
+##' @description Function makes sure that the scenario data frame is set up
+##'   correctly. It adds the required 'ID' and 'file' columns.
+##' @param x Data frame containing the values for the placeholders for each
+##'   scenarios.
+##' @export
+generateScenarios <- function(x) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(x, add = assertCol)
-  checkmate::assertCharacter(placeholders, null.ok = TRUE)
   checkmate::reportAssertions(assertCol)
 
-  ## Warn and abort if ID and file column exist already or no placeholders could
-  ## be found.
-  if (is.null(placeholders)) {
-    placeholders <- grep(pattern = "@(.*?)@", x = colnames(x), value = TRUE)
-    if (length(placeholders) == 0) {
-      stop("No placeholders could be found.")
-    }
-  }
+  ## Warn and abort if ID and file column exist already.
   if (any(c("ID", "file") %in% colnames(x))) {
     stop("Data frame contains already a 'file' or 'ID' column. Please remove them beforehand.")
   }
@@ -175,11 +150,14 @@ generateScenarios <- function(x, placeholders = NULL) {
     scenarios = x, prefix = getCache(x = "experimentName")
   )
   ## Add ID column
-  x <- data.table::data.table(ID = seq(from = 1, to = nrow(x), by = 1), x)
-  return(as.data.frame(x))
+  x <- data.frame(ID = seq(from = 1, to = nrow(x), by = 1), x)
+  return(x)
 }
 
-## This function should generate the individual scenario files
+##' @rdname generateScenarios
+##' @export
+generate_scenarios <- generateScenarios
+
 ##' @title Generate scenarios from a base xml file
 ##' @description Function generates scenarios defined in a data frame. In this
 ##'   data frame each row is a scenario, placeholder values are in the columns.
@@ -189,13 +167,12 @@ generateScenarios <- function(x, placeholders = NULL) {
 ##' @param scenarios Data frame containing the values for the placeholders. One
 ##'   row per scenario, placeholders in columns. Column names correspond to the
 ##'   placeholder names.
+##' @param ncores Number of parallel processes to use.
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
-##' @param csv Save scenarios as .csv file.
 ##' @export
 setupScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
-                           ncores = 1, csv = TRUE, rowStart = NULL,
-                           rowEnd = NULL) {
+                           ncores = 1, rowStart = NULL, rowEnd = NULL) {
   ## Get values from cache if not given
   if (is.null(baseFile)) {
     baseFile <- getCache(x = "baseXml")
@@ -213,11 +190,7 @@ setupScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
   checkmate::reportAssertions(assertCol)
 
   ## Read placeholder names, remove '@' signs
-  placeholders <- gsub(
-    pattern = "@",
-    replacement = "",
-    grep(pattern = "@(.*?)@", x = colnames(scenarios), value = TRUE)
-  )
+  placeholders <- getCache("placeholders")
 
   ## Use all rows of given scenarios unless rowStart and rowEnd are both given
   range <- .scenariosRowSelect(
@@ -230,35 +203,32 @@ setupScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
   )
 }
 
+##' @rdname setupScenarios
+##' @export
+setup_scenarios <- setupScenarios
+
 ##' @title Store scenarios in cache folder
 ##' @param scenarios Data frame containing the values for the placeholders. One
 ##'   row per scenario, placeholders in columns. Column names correspond to the
 ##'   placeholder names.
-##' @param prefix Filename prefix.
-##' @param csv Save scenarios as .csv file.
+##' @param csv Additionally save scenarios as .csv file.
 ##' @export
-storeScenarios <- function(scenarios, full, prefix = NULL, csv = TRUE) {
-  ## DEPRECATED The following is done for compatibility reasons. In the end, we
-  ##            need to get rid of the 'full' object and ONLY store the
-  ##            scenarios.
-  ## Store filenames of each scenario in column
-  if (is.null(prefix)) {
-    prefix <- getCache(x = "experimentName")
-  }
-  scenarios <- .scenariosFilenames(scenarios = scenarios, prefix = prefix)
-  scenarios <- add_idvars(scenarios, full, confirm = FALSE, overwrite = FALSE)
-  scens <- scenarios
-
+storeScenarios <- function(scenarios, csv = TRUE) {
   ## Write csv if requested
   if (csv == TRUE) {
     utils::write.csv(
-      x = scens,
+      x = scenarios,
       file = file.path(getCache("experimentDir"), "scenarios.csv")
     )
   }
 
   ## Save RData file
-  save(scenarios, full, scens,
-    file = file.path(getCache(x = "cacheDir"), "scens.RData")
+  saveRDS(
+    scenarios,
+    file = file.path(getCache(x = "cacheDir"), "scenarios.rds")
   )
 }
+
+##' @rdname storeScenarios
+##' @export
+store_scenarios <- storeScenarios
