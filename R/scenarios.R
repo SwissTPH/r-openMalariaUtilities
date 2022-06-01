@@ -25,7 +25,7 @@ NULL
     range <- seq_len(nrow(scenarios))
   } else {
     rowStart <- ifelse(is.null(rowStart), 1, rowStart)
-    rowEnd <- ifelse(is.null(rowEnd), length(scenarios), rowEnd)
+    rowEnd <- ifelse(is.null(rowEnd), nrow(scenarios), rowEnd)
     range <- rowStart:rowEnd
   }
   return(range)
