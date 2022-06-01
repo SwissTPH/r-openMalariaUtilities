@@ -232,3 +232,23 @@ storeScenarios <- function(scenarios, csv = TRUE) {
 ##' @rdname storeScenarios
 ##' @export
 store_scenarios <- storeScenarios
+
+##' @title Return cached scenarios
+##' @param experimentDir Directory of the experiment
+##' @export
+readScenarios <- function(experimentDir = NULL) {
+  ## Try to get the experimentDir from cache if not given as input
+  if (is.null(experimentDir)) {
+    experimentDir <- getCache("experimentDir")
+  }
+
+  ## Read RDS file
+  scenarios <- readRDS(
+    file = file.path(experimentDir, "cache", "scenarios.rds"))
+
+  return(scenarios)
+}
+
+##' @rdname readScenarios
+##' @export
+read_scenarios <- readScenarios

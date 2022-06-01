@@ -149,7 +149,7 @@ test_that("setupScenarios works", {
   expect_equal(actual, expected)
 })
 
-test_that("storeScenarios works", {
+test_that("storing and restoring scenarios works", {
   scenarios <- data.frame(
     pop = c(1:10)
   )
@@ -170,5 +170,11 @@ test_that("storeScenarios works", {
     x = "experimentDir"
   ), "scenarios.csv"))
   expected <- TRUE
+  expect_equal(actual, expected)
+
+  ## Restore scenarios
+  expected <- scenarios
+  rm("scenarios")
+  actual <- readScenarios()
   expect_equal(actual, expected)
 })
