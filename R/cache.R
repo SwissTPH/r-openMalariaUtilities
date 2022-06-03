@@ -177,7 +177,14 @@ getCache <- function(x, ret = "value") {
   )
   checkmate::reportAssertions(assertCol)
 
-  values <- get(x = as.character(x), envir = .pkgcache)
+  tryCatch(
+    values <- get(x = as.character(x), envir = .pkgcache),
+    error = function(c) {
+      stop(
+        paste0(as.character(x), " could not be found in cache.")
+      )
+    }
+  )
   val <- values[["value"]]
   ts <- values[["timestamp"]]
   if (ret == "timestamp") {
