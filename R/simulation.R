@@ -76,6 +76,9 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
     )
     ## Collect required information to run Open Malaria
     cmds[[i]] <- list(
+      ## Workind directory
+      newWd = getCache(x = "experimentDir"),
+      oldWd = getwd(),
       ## Scenarios number
       num = i,
       ## Command to execute
@@ -92,13 +95,16 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
 
   ## Run scenario via Open Malaria
   runSim <- function(x, l, dryRun) {
-    print(paste0("Running scenario [", x[["num"]], "/", l, "]"))
     cmd <- x[["cmd"]]
     ## Open new sink connections
     zz <- file(x[["logfile"]], open = "wt")
     zzErr <- file(x[["Errlogfile"]], open = "wt")
     sink(zz)
     sink(zzErr, type = "message")
+
+    ## REVIEW Temporarily change working directory (Not good style!)
+    setwd(x[["newWd"]])
+    print(paste0("Running scenario [", x[["num"]], "/", l, "]"))
 
     ## Execute command
     ## REVIEW I think this should be wrapped in tryCatch in order to recover
@@ -112,16 +118,18 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
     ## Close sinks
     sink(type = "message")
     sink()
+    ## REVIEW Revert change working directory
+    setwd(x[["oldWd"]])
   }
 
   ## Use parallel if ncores > 1
   if (ncores > 1) {
     cl <- parallel::makeCluster(ncores)
-    invisible(
+    ## invisible(
       parallel::parLapply(
         cl = cl, cmds, runSim, l = length(cmds), dryRun = dryRun
       )
-    )
+    ## )
     parallel::stopCluster(cl)
   } else {
     invisible(lapply(cmds, runSim, l = length(cmds), dryRun = dryRun))
