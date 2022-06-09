@@ -39,7 +39,9 @@ Imports:
     iterators,
     magrittr,
     tidyr,
-    tidyselect
+    tidyselect,
+    RSQLite (>= 2.2.14),
+    DBI (>= 1.1.2)
 VignetteBuilder: knitr
 Suggests:
     covr (>= 3.5.1),
@@ -55,6 +57,7 @@ Collate:
     'base.R'
     'compat.R'
     'data.R'
+    'db.R'
     'directories.R'
     'postprocess-compat.R'
     'postprocess.R'

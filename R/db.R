@@ -15,22 +15,27 @@ NULL
 ## Profit!
 
 
-## Create a SQLite database in the root directory and return connection
-## TODO How do we handle the case if the database is already present?
+##' @title Create a database connection
+##' @description Create a SQLite database in the root directory if it does not
+##'   exist and return the connection.
+##' @param dbName Name of the database file without extension.
+##' @param path Directory of the database file. Defaults to the root directory.
+##' @keywords internal
 .createDB <- function(dbName, path = getCache("rootDir")) {
   con <- DBI::dbConnect(
     RSQLite::SQLite(), file.path(path, paste0(dbName, ".sqlite"))
   )
+  ## Allow the use of FOREIGN KEY
   DBI::dbExecute(conn = con, statement = "PRAGMA foreign_keys = ON;")
   return(con)
 }
 
-## Create the table layout
-## Experiment table
-## Scenarios table (with metadata)
-## Placeholder table
-## Results table
-## Cascade changes on delete and update
+##' @title Create the DB table layout
+##' @description Creates the database schema: experiments, scenarios,
+##'   scenarios_metadata, placeholders, results. Changes are cascaded from down
+##'   from experiments table.
+##' @param connection Database connection.
+##' @keywords internal
 .createTables <- function(connection) {
   ## Experiments table
   query <- DBI::dbSendQuery(
@@ -41,8 +46,6 @@ name TEXT NOT NULL UNIQUE
 );"
   )
   DBI::dbClearResult(query)
-
-  ## Use a composite primary keys to uniquely identify scenarios and experiment
 
   ## Scenarios table
   query <- DBI::dbSendQuery(
@@ -57,7 +60,6 @@ FOREIGN KEY (experiment_id) REFERENCES experiments (experiment_id)
   DBI::dbClearResult(query)
 
   ## Scenarios' metadata table
-  ## PRIMARY KEY (experiment_id, scenario_id, key_var),
   query <- DBI::dbSendQuery(
     conn = connection,
     statement = "CREATE TABLE IF NOT EXISTS scenarios_metadata (
@@ -71,7 +73,6 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   DBI::dbClearResult(query)
 
   ## Scenarios' placeholder table
-  ## PRIMARY KEY (experiment_id, scenario_id, placeholder),
   query <- DBI::dbSendQuery(
     conn = connection,
     statement = "CREATE TABLE IF NOT EXISTS placeholders (
@@ -103,9 +104,9 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 }
 
 ##' @title Dictionary mapping survey measure numbers to names
-##' @keywords internal
 ##' @description See:
 ##'   https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
+##' @keywords internal
 .numberToSurveyMeasure <- function() {
   dict <- data.table::data.table(
     measure_index = as.integer(c(
@@ -162,9 +163,16 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   return(dict)
 }
 
-## Read a _out.txt file, apply modifications and return a data frame which
-## should be added to the DB
+##' @title Read Open Malaria output file
+##' @description Read a '*_out.txt' file, apply modifications and return a data
+##'   frame which should be added to the DB.
+##' @param f File name to read from.
+##' @keywords internal
+##' @importFrom data.table ':=' .I
 .readOutputFile <- function(f) {
+  ## Appease NSE notes in R CMD check
+  measure_index <- measure <- measure_name <- rowNum <- survey_date <- NULL
+
   output <- data.table::fread(f)
   ## Assing column names
   colnames(output) <- c(
@@ -200,21 +208,69 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   return(output)
 }
 
-.addExpToDB <- function(connection, x) {
-  tryCatch(
+##' @title Add data to experiments table in DB
+##' @param connection Database connection.
+##' @param x Data to add.
+##' @keywords internal
+.addExpToDB <- function(connection, x, method = "append") {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(
+    method,
+    choices = c("append", "replace", "ignore"),
+    add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
+
+  ## Check if the experiment name is already present in the DB
+  entries <- DBI::dbReadTable(conn = connection, name = "experiments")[, "name"]
+  ## If yes, either delete and re-create the entry, append a timestamp to the
+  ## name and create new entry or do not enter data
+  if (x %in% entries) {
+    if (method == "replace") {
+      query <- DBI::dbSendQuery(
+        conn = connection,
+        statement = paste0("DELETE FROM experiments WHERE name = \"", x, "\";")
+      )
+      DBI::dbClearResult(query)
+
+      query <- DBI::dbSendQuery(
+        conn = connection,
+        statement = paste0("INSERT INTO experiments (name) VALUES(\"", x, "\")")
+      )
+      DBI::dbClearResult(query)
+      warning(paste0("An experiment with the name: ", x, " is already present and has been replaced."))
+    } else if (method == "append") {
+      old <- x
+      x <- gsub(pattern = " ", replacement = "_", paste0(x, "_", Sys.time()))
+      query <- DBI::dbSendQuery(
+        conn = connection,
+        statement = paste0("INSERT INTO experiments (name) VALUES(\"", x, "\")")
+      )
+      DBI::dbClearResult(query)
+      warning(paste0(
+        "An experiment with the name: ", old, " is already present.",
+        "\nThe experiment was renamed to: ", x
+      ))
+    } else if (method == "ignore") {
+      warning(paste0("An experiment with the name: ", x, " is already present and has been skipped."))
+    }
+  } else {
     query <- DBI::dbSendQuery(
       conn = connection,
       ## Use a manual statement to insert the experiment so we can rely on SQL
       ## to assing the experiment_id value.
       statement = paste0("INSERT INTO experiments (name) VALUES(\"", x, "\")")
-    ),
-    error = function(c) {
-      message(paste0("An error occured. Make sure that the experiment name is not used already.\n", c))
-    }
-  )
-  DBI::dbClearResult(query)
+    )
+    DBI::dbClearResult(query)
+  }
+  return(x)
 }
 
+##' @title Add data to scenarios and scenarios_metadata table in DB
+##' @param connection Database connection.
+##' @param x Data to add.
+##' @keywords internal
 .addScenToDB <- function(connection, x) {
   ## Create data frame to add
   x <- data.table::as.data.table(x)
@@ -240,6 +296,10 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   )
 }
 
+##' @title Add data to placeholders table in DB
+##' @param connection Database connection.
+##' @param x Data to add.
+##' @keywords internal
 .addPlaceholdersToDB <- function(connection, x) {
   ## Create data frame to add
   x <- data.table::as.data.table(x)
@@ -259,6 +319,10 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   )
 }
 
+##' @title Add data to results table in DB
+##' @param connection Database connection.
+##' @param x Data to add.
+##' @keywords internal
 .addResultsToDB <- function(connection, x) {
   ## Add to DB
   DBI::dbWriteTable(
@@ -269,9 +333,21 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   )
 }
 
-readResults <- function(expDir, dbName, dbDir = NULL) {
-  ## Load the cache from disk
-  loadExperiment(path = expDir)
+##' @title Collect Open Malaria results into a database
+##' @param expDir Database connection.
+##' @param dbName Name of the database file without extension.
+##' @param dbDir Directory of the database file. Defaults to the root directory.
+##' @param replace How to handle duplicate experiments in the database. If TRUE,
+##'   any experiment with the same name will be replaced. If FALSE, a new entry
+##'   with the same name will be ignored. If "append", a new entry with the same
+##'   name plus a timestamp appended will be generated.
+##' @export
+readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
+  ## Appease NSE notes in R CMD check
+  name <- NULL
+
+  ## Make sure the cache is up-to-date
+  syncCache(path = expDir)
 
   ## Create connection
   if (is.null(dbDir)) {
@@ -282,50 +358,65 @@ readResults <- function(expDir, dbName, dbDir = NULL) {
   ## Create table schema
   .createTables(connection = dbCon)
 
+  ## Translate replace value
+  methodsDict <- data.frame(
+    replace = c(TRUE, FALSE, "append"),
+    method = c("replace", "ignore", "append")
+  )
+  replace <- methodsDict[methodsDict[, "replace"] == replace, "method"]
+
   ## Add experiment
-  .addExpToDB(connection = dbCon, x = getCache("experimentName"))
-  ## Add scenarios and placeholders
-  scenarios <- data.table::as.data.table(
-    readScenarios(experimentDir = getCache("experimentDir"))
-  )
-  experiment_id <- data.table::data.table(DBI::dbReadTable(dbCon, "experiments"))[name == getCache("experimentName"), experiment_id]
-  scenarios <- data.table::data.table(
-    scenarios,
-    experiment_id
-  )
-
-  placeholders <- getCache("placeholders")
-  .addScenToDB(connection = dbCon, x = scenarios[, !..placeholders])
-
-  cols <- c("ID", "experiment_id", placeholders)
-  .addPlaceholdersToDB(connection = dbCon, x = scenarios[, ..cols])
-
-  ## Add results
-  scenarioFiles <- scenarios[["file"]]
-  fileNotFound <- c()
-  for (file in scenarioFiles) {
-    scenario_id <- scenarios[file == file][["ID"]]
-    file <- gsub(pattern = ".xml", replacement = "_out.txt", x = file)
-    file <- file.path(getCache("outputsDir"), file)
-    if (file.exists(file)) {
-      input <- .readOutputFile(file)
-      input <- data.table::data.table(
-        input,
-        experiment_id,
-        scenario_id
+  expName <- getCache("experimentName")
+  expName <- .addExpToDB(connection = dbCon, x = expName, method = replace)
+  if (replace == TRUE || replace == "append") {
+    ## Add scenarios and placeholders
+    scenarios <- data.table::as.data.table(
+      readScenarios(experimentDir = getCache("experimentDir"))
+    )
+    experiment_id <- data.table::data.table(
+      DBI::dbReadTable(
+        dbCon, "experiments"
       )
-      DBI::dbWriteTable(
-        conn = dbCon,
-        name = "results",
-        value = input,
-        append = TRUE
-      )
-    } else {
-      fileNotFound <- c(fileNotFound, file)
+    )[name == expName, experiment_id]
+    scenarios <- data.table::data.table(scenarios, experiment_id)
+
+    placeholders <- getCache("placeholders")
+    .addScenToDB(
+      connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
+    )
+
+    cols <- c("ID", "experiment_id", placeholders)
+    .addPlaceholdersToDB(
+      connection = dbCon, x = scenarios[, cols, with = FALSE]
+    )
+
+    ## Add results
+    scenarioFiles <- scenarios[["file"]]
+    fileNotFound <- c()
+    for (file in scenarioFiles) {
+      scenario_id <- scenarios[file == file][["ID"]]
+      file <- gsub(pattern = ".xml", replacement = "_out.txt", x = file)
+      file <- file.path(getCache("outputsDir"), file)
+      if (file.exists(file)) {
+        input <- .readOutputFile(file)
+        input <- data.table::data.table(
+          input,
+          experiment_id,
+          scenario_id
+        )
+        DBI::dbWriteTable(
+          conn = dbCon,
+          name = "results",
+          value = input,
+          append = TRUE
+        )
+      } else {
+        fileNotFound <- c(fileNotFound, file)
+      }
     }
+    if (length(fileNotFound) != 0) {
+      warning(paste0("The following results could not be found:\n"), fileNotFound)
+    }
+    DBI::dbDisconnect(conn = dbCon)
   }
-  if (length(fileNotFound) != 0) {
-    warning(paste0("The following results could not be found:\n"), fileNotFound)
-  }
-  DBI::dbDisconnect(conn = dbCon)
 }
