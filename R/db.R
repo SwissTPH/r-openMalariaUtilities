@@ -103,10 +103,12 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   DBI::dbClearResult(query)
 }
 
-##' @title Dictionary mapping survey measure numbers to names
+##' @title Dictionary mapping survey measure numbers to names and whether
+##'   measures are summed between survey dates (incident = TRUE) or represent
+##'   prevalent characteristics (incident = FALSE)
+##' @keywords internal
 ##' @description See:
 ##'   https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
-##' @keywords internal
 .numberToSurveyMeasure <- function() {
   dict <- data.table::data.table(
     measure_index = as.integer(c(
@@ -158,6 +160,31 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
       "sumLogDrugConcNonZero", "expectedDirectDeaths", "expectedHospitalDeaths",
       "expectedIndirectDeaths", "expectedSequelae", "expectedSevere",
       "innoculationsPerVector"
+    ),
+    incident = c(
+      ## 0 - 8
+      TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, NA, NA,
+
+      ## 10s
+      FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
+      ## 20s
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
+      ## 30s
+      TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE,
+
+      ## 40s
+      NA, NA, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
+      ## 50s
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
+      ## 60s
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
+      ## 70s
+      TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
     )
   )
   return(dict)
