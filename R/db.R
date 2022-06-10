@@ -103,9 +103,9 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   DBI::dbClearResult(query)
 }
 
-##' @title Dictionary of survey measure numbers to names and whether measures
-##' are summed between survey dates (incident=T) or represent prevalent characteristics
-##' (incident=F)
+##' @title Dictionary mapping survey measure numbers to names and whether
+##'   measures are summed between survey dates (incident = TRUE) or represent
+##'   prevalent characteristics (incident = FALSE)
 ##' @keywords internal
 ##' @description See:
 ##'   https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
@@ -125,36 +125,36 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
       ## 0 - 8
       "nHost", "nInfect", "nExpectd", "nPatent", "sumLogPyrogenThres",
       "sumlogDens", "totalInfs", "nTransmit", "totalPatentInf",
-      
+
       ## 10s
       "sumPyrogenThresh", "nTreatments1", "nTreatments2", "nTreatments3",
       "nUncomp", "nSevere", "nSeq", "nHospitalDeaths", "nIndDeaths",
       "nDirDeaths",
-      
+
       ## 20s
       "nEPIVaccinations", "allCauseIMR", "nMassVaccinations", "nHospitalRecovs",
       "nHospitalSeqs", "nIPTDoses", "annAvgK", "nNMFever",
-      
+
       ## 30s
       "innoculationsPerAgeGroup", "Vector_Nv0", "Vector_Nv", "Vector_Ov",
       "Vector_Sv", "inputEIR", "simulatedEIR", "Clinical_RDTs",
-      
+
       ## 40s
       "Clinical_DrugUsage", "Clinical_FirstDayDeaths",
       "Clinical_HospitalFirstDayDeaths", "nNewefections", "nMassITNs",
       "nEPI_ITNs", "nMassIRS", "nMassVA", "Clinical_Microscopy",
       "Clinical_DrugUsageIV",
-      
+
       ## 50s
       "nAddedToCohort", "nRemovedFromCohort", "nMDAs", "nNmfDeaths",
       "nAntibioticTreatments", "nMassScreenings", "nMassGVI", "nCtsIRS",
       "nCtsGVI", "nCtsMDA",
-      
+
       ## 60s
       "nCtsScreenings", "nSubPopRemovalTooOld", "nSubPopRemovalFirstEvent",
       "nLiverStageTreatments", "nTreatDiagnostics", "nMassRecruitOnly",
       "nCtsRecruitOnly", "nTreatDeployments", "sumAge", "nInfectByGenotype",
-      
+
       ## 70s
       "nPatentByGenotype", "logDensByGenotype", "nHostDrugConcNonZero",
       "sumLogDrugConcNonZero", "expectedDirectDeaths", "expectedHospitalDeaths",
@@ -163,29 +163,28 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
     ),
     incident = c(
       ## 0 - 8
-      T,T,T,T,F,F,F,NA,NA,
-      
+      TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, NA, NA,
+
       ## 10s
-      F,T,T,T,T,T,T,T,T,T,
-      
+      FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 20s
-      T,T,T,T,T,T,F,T,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
       ## 30s
-      T,F,F,F,F,T,T,T,
-      
+      TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE,
+
       ## 40s
-      NA,NA,NA,T,T,T,T,T,T,T,
-      
+      NA, NA, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 50s
-      T,T,T,T,T,T,T,T,T,T,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 60s
-      T,T,T,T,T,T,T,T,F,T,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
       ## 70s
-      T,F,T,NA,T,T,T,T,T,T
-      
+      TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
     )
   )
   return(dict)
