@@ -195,10 +195,11 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 ##'   frame which should be added to the DB.
 ##' @param f File name to read from.
 ##' @keywords internal
-##' @importFrom data.table ':=' .I
+##' @importFrom data.table ':='
 .readOutputFile <- function(f) {
   ## Appease NSE notes in R CMD check
-  measure_index <- measure <- measure_name <- rowNum <- survey_date <- NULL
+  measure_index <- measure <- measure_name <- number <- rowNum <- NULL
+  survey_date <- third_dimension <- NULL
 
   output <- data.table::fread(f)
   ## Assing column names
@@ -224,14 +225,15 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   ## cached dates (e.g. if last survey_date = 422, then we should have 422
   ## unique cached dates)
   output[, rowNum := survey_date]
-  surveyTimes[, rowNum := .I]
+  surveyTimes[, rowNum := number]
   ## Perform join and drop added column
   output <- output[, survey_date := surveyTimes[output,
     date,
     on = "rowNum"
   ]][, c("rowNum") := NULL]
+  ## Assign column types
   output <- output[, survey_date := as.character(survey_date)]
-
+  output <- output[, third_dimension := as.character(third_dimension)]
   return(output)
 }
 

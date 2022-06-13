@@ -131,7 +131,6 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     dateDF <- dateDF[dateDF[, .I[month == min(month)],
       by = data.table::month(dateDF$date)
     ]$V1][, month := NULL][order(date)]
-
   } else if (dateFilter == "quarterly") {
     ## Similar to above, generate a date sequence and only keep dates
     ## corresponding to the end of quarters.
@@ -157,7 +156,6 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
     dateDF <- dateDF[quartersDF, roll = Inf]
     ## Make it pretty and set expected names
     dateDF <- dateDF[, c("roll_date", "quarter_date") := NULL]
-
   } else if (dateFilter == "yearly") {
     ## Similar to above, generate a date sequence and only keep dates
     ## corresponding to the end of a year.
@@ -374,7 +372,9 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
 
     ## Remove dates which are before the requested startDate
     if (!is.null(simStart)) {
-      dates <- dates[which.min(abs(as.Date(dates[, date]) - as.Date(origStartDate))):nrow(dates), ]
+      dates <- dates[which.min(
+        abs(as.Date(dates[, date]) - as.Date(origStartDate))
+      ):nrow(dates), ]
     }
 
     ## Only use dates from the first year.
@@ -397,8 +397,11 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     repeatStepsize <- 1
   }
 
-  ## Store the dates in the cache
-  putCache(x = "surveyTimes", value = dates)
+  ## Add survey number column and store the dates in the cache
+  putCache(
+    x = "surveyTimes",
+    value = data.table::data.table(number = seq.int(nrow(dates)), dates)
+  )
 
   if (useRepeat == TRUE) {
     ## Add 1 timestep = 5 days to the endDates which are used for repeatEnd. We do
