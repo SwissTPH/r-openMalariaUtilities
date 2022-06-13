@@ -195,10 +195,11 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 ##'   frame which should be added to the DB.
 ##' @param f File name to read from.
 ##' @keywords internal
-##' @importFrom data.table ':=' .I
+##' @importFrom data.table ':='
 .readOutputFile <- function(f) {
   ## Appease NSE notes in R CMD check
-  measure_index <- measure <- measure_name <- rowNum <- survey_date <- NULL
+  measure_index <- measure <- measure_name <- number <- rowNum <- NULL
+  survey_date <- third_dimension <- NULL
 
   output <- data.table::fread(f)
   ## Assing column names
@@ -224,14 +225,15 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   ## cached dates (e.g. if last survey_date = 422, then we should have 422
   ## unique cached dates)
   output[, rowNum := survey_date]
-  surveyTimes[, rowNum := .I]
+  surveyTimes[, rowNum := number]
   ## Perform join and drop added column
   output <- output[, survey_date := surveyTimes[output,
     date,
     on = "rowNum"
   ]][, c("rowNum") := NULL]
+  ## Assign column types
   output <- output[, survey_date := as.character(survey_date)]
-
+  output <- output[, third_dimension := as.character(third_dimension)]
   return(output)
 }
 
@@ -239,12 +241,12 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 ##' @param connection Database connection.
 ##' @param x Data to add.
 ##' @keywords internal
-.addExpToDB <- function(connection, x, method = "append") {
+.addExpToDB <- function(connection, x, method = "ignore") {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(
     method,
-    choices = c("append", "replace", "ignore"),
+    choices = c("replace", "ignore"),
     add = assertCol
   )
   checkmate::reportAssertions(assertCol)
@@ -267,20 +269,10 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
       )
       DBI::dbClearResult(query)
       warning(paste0("An experiment with the name: ", x, " is already present and has been replaced."))
-    } else if (method == "append") {
-      old <- x
-      x <- gsub(pattern = " ", replacement = "_", paste0(x, "_", Sys.time()))
-      query <- DBI::dbSendQuery(
-        conn = connection,
-        statement = paste0("INSERT INTO experiments (name) VALUES(\"", x, "\")")
-      )
-      DBI::dbClearResult(query)
-      warning(paste0(
-        "An experiment with the name: ", old, " is already present.",
-        "\nThe experiment was renamed to: ", x
-      ))
+      return(TRUE)
     } else if (method == "ignore") {
       warning(paste0("An experiment with the name: ", x, " is already present and has been skipped."))
+      return(FALSE)
     }
   } else {
     query <- DBI::dbSendQuery(
@@ -290,8 +282,8 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
       statement = paste0("INSERT INTO experiments (name) VALUES(\"", x, "\")")
     )
     DBI::dbClearResult(query)
+    return(TRUE)
   }
-  return(x)
 }
 
 ##' @title Add data to scenarios and scenarios_metadata table in DB
@@ -366,8 +358,7 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 ##' @param dbDir Directory of the database file. Defaults to the root directory.
 ##' @param replace How to handle duplicate experiments in the database. If TRUE,
 ##'   any experiment with the same name will be replaced. If FALSE, a new entry
-##'   with the same name will be ignored. If "append", a new entry with the same
-##'   name plus a timestamp appended will be generated.
+##'   with the same name will be ignored.
 ##' @export
 readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
   ## Appease NSE notes in R CMD check
@@ -387,15 +378,15 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
 
   ## Translate replace value
   methodsDict <- data.frame(
-    replace = c(TRUE, FALSE, "append"),
-    method = c("replace", "ignore", "append")
+    replace = c(TRUE, FALSE),
+    method = c("replace", "ignore")
   )
   replace <- methodsDict[methodsDict[, "replace"] == replace, "method"]
 
   ## Add experiment
   expName <- getCache("experimentName")
-  expName <- .addExpToDB(connection = dbCon, x = expName, method = replace)
-  if (replace == TRUE || replace == "append") {
+  continue <- .addExpToDB(connection = dbCon, x = expName, method = replace)
+  if (continue == TRUE) {
     ## Add scenarios and placeholders
     scenarios <- data.table::as.data.table(
       readScenarios(experimentDir = getCache("experimentDir"))
@@ -405,7 +396,10 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
         dbCon, "experiments"
       )
     )[name == expName, experiment_id]
-    scenarios <- data.table::data.table(scenarios, experiment_id)
+    scenarios <- data.table::data.table(
+      scenarios,
+      experiment_id = rep(experiment_id, times = nrow(scenarios))
+    )
 
     placeholders <- getCache("placeholders")
     .addScenToDB(
@@ -420,17 +414,15 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
     ## Add results
     scenarioFiles <- scenarios[["file"]]
     fileNotFound <- c()
-    for (file in scenarioFiles) {
-      scenario_id <- scenarios[file == file][["ID"]]
-      file <- gsub(pattern = ".xml", replacement = "_out.txt", x = file)
+    for (f in scenarioFiles) {
+      scenario_id <- scenarios[file == f][["ID"]]
+      file <- gsub(pattern = ".xml", replacement = "_out.txt", x = f)
       file <- file.path(getCache("outputsDir"), file)
       if (file.exists(file)) {
         input <- .readOutputFile(file)
-        input <- data.table::data.table(
-          input,
-          experiment_id,
-          scenario_id
-        )
+        input <- input[, experiment_id := rep(experiment_id, times = nrow(input))]
+        input <- input[, scenario_id := rep(scenario_id, times = nrow(input))]
+
         DBI::dbWriteTable(
           conn = dbCon,
           name = "results",
@@ -444,6 +436,6 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
     if (length(fileNotFound) != 0) {
       warning(paste0("The following results could not be found:\n"), fileNotFound)
     }
-    DBI::dbDisconnect(conn = dbCon)
   }
+  DBI::dbDisconnect(conn = dbCon)
 }
