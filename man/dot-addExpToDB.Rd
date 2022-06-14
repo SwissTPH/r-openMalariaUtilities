@@ -4,7 +4,7 @@
 \alias{.addExpToDB}
 \title{Add data to experiments table in DB}
 \usage{
-.addExpToDB(connection, x, method = "append")
+.addExpToDB(connection, x, method = "ignore")
 }
 \arguments{
 \item{connection}{Database connection.}

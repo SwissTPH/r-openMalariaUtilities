@@ -103,13 +103,21 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   DBI::dbClearResult(query)
 }
 
-##' @title Dictionary mapping survey measure numbers to names and whether
-##'   measures are summed between survey dates (incident = TRUE) or represent
-##'   prevalent characteristics (incident = FALSE)
-##' @keywords internal
-##' @description See:
-##'   https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
-.numberToSurveyMeasure <- function() {
+##' @title Open Malaria output dictionary
+##' @description A dictionary which provides tranlations for the following
+##'   outputs of Open Malaria:
+##'
+##'   - Survey measure numbers to names
+##'
+##'   - Whether measures are summed up between survey dates (incident = TRUE) or
+##'   represent prevalent characteristics (incident = FALSE)
+##'
+##'   - An identifier for the 'third dimension' column. This can be 'age_group',
+##' 'vector_species', 'drug_id' or NA
+##'
+##' See: https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
+##' @export
+omOutputDict <- function() {
   dict <- data.table::data.table(
     measure_index = as.integer(c(
       0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -185,6 +193,39 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 
       ## 70s
       TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
+    ),
+    third_dimension = c(
+      ## 0 - 8
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", NA, "age_group",
+
+      ## 10s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
+      ## 20s
+      "age_group", NA, "age_group", "age_group", "age_group", "age_group", NA,
+      "age_group",
+
+      ## 30s
+      "age_group", "vector_species", "vector_species", "vector_species",
+      "vector_species", NA, NA, NA,
+
+      ## 40s
+      "drug_id", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", NA, "drug_id",
+
+      ## 50s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
+      ## 60s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
+      ## 70s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", NA
     )
   )
   return(dict)
@@ -208,7 +249,7 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   )
   ## Translate measure indices
   ## Read dictionary
-  dict <- .numberToSurveyMeasure()
+  dict <- omOutputDict()
   ## Add column to join on
   output[, measure_index := measure]
   ## Perform join and drop added column

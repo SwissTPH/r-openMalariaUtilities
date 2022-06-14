@@ -46,7 +46,7 @@ test_that(".createTables works", {
   DBI::dbDisconnect(testcon)
 })
 
-test_that(".numberToSurveyMeasure works", {
+test_that("omOutputDict works", {
   expected <- data.table::data.table(
     measure_index = as.integer(c(
       0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -126,7 +126,7 @@ test_that(".numberToSurveyMeasure works", {
     )
   )
 
-  actual <- .numberToSurveyMeasure()
+  actual <- omOutputDict()
   expect_equal(actual, expected)
 })
 
