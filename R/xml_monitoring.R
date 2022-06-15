@@ -64,6 +64,47 @@ monitoringSurveyOptionsGen <- function(onlyNewEpisodes = NULL, options) {
   return(outlist)
 }
 
+##' @title Generate list for 'monitoring/ageGroup'
+##' @param lowerbound Double, lower bound of age group
+##' @param upperbounds Vector with upperbounds
+##' @return List for xml contruction
+##' @export
+surveyAgeGroupsGen <- function(lowerbound, upperbounds) {
+  ## Generate outlist as usual
+  outlist <- ageGroupsGen(
+    lowerbound = lowerbound, ageGroups = data.frame(upperbound = upperbounds)
+  )
+
+  ## Creat thirdDimension entry
+  thirdDimension <- data.table::data.table(
+    id = "age_group",
+    value = seq_len(length(upperbounds)),
+    name = {
+      out <- c(paste0(lowerbound, "-", upperbounds[1]))
+      for (i in seq_len(length(upperbounds))[-length(upperbounds)]) {
+        out <- c(out, paste0(upperbounds[i], "-", upperbounds[i + 1]))
+      }
+      out
+    }
+  )
+
+  ## Check if it does exist already in cache and if yes, append new data
+  if ("thirdDimension" %in% ls(all.names = TRUE, envir = .pkgcache)) {
+    old <- getCache("thirdDimension")
+    thirdDimension <- data.table::rbindlist(
+      l = list(old, thirdDimension), use.names = TRUE
+    )
+  }
+
+  ## Store information in cache
+  putCache(x = "thirdDimension", value = thirdDimension)
+
+  ageGroups <- list(lowerbound = lowerbound, upperbounds = upperbounds)
+  putCache(x = "ageGroups", value = ageGroups)
+
+  return(outlist)
+}
+
 ##' @title Generate a date sequence
 ##' @param startDate Start date in 'YYYY-MM-DD'
 ##' @param endDate End date in 'YYYY-MM-DD'
@@ -645,8 +686,8 @@ write_monitoring_compat <- function(baseList, name = "Annual Surveys",
 
   outlist <- .xmlAddList(
     data = outlist, sublist = NULL, entry = "ageGroup",
-    input = ageGroupsGen(
-      lowerbound = 0, ageGroups = data.frame(upperbound = upperbounds)
+    input = surveyAgeGroupsGen(
+      lowerbound = 0, upperbounds = upperbounds
     )
   )
 
