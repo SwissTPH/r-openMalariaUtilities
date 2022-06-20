@@ -10,6 +10,22 @@
 ##' @include cache.R printing.R
 NULL
 
+##' @title Create a folder and return the path
+##' @description If a folder does not exist, create it and return the path.
+##'   Otherwise, just return the path.
+##' @param path Path of directory.
+##' @keywords internal
+.useDir <- function(path) {
+  if (!dir.exists(paths = path)) {
+    .printDebug(paste0("Directory ", path, " does not exist, creating ..."))
+    dir.create(
+      path = path, recursive = TRUE,
+      showWarnings = get("debugOutput", envir = .pkgenv)
+    )
+  }
+  return(path)
+}
+
 ##' @title Create folder structure
 ##' @description Generate the folder structure for an experiment. Caches the
 ##'   paths in the `.pkgcache` environment.

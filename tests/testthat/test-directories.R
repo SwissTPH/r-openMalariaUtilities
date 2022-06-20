@@ -2,6 +2,11 @@
 testDir <- file.path(tempdir(), "test-directories")
 dir.create(path = testDir, recursive = TRUE)
 
+test_that(".useDir works", {
+  testPath <- .useDir(file.path(testDir, "level_1", "level_2", "level_3"))
+  expect_equal(dir.exists(testPath), TRUE)
+})
+
 test_that(".createFolders works", {
   .createFolders(
     experimentName = "Test",
