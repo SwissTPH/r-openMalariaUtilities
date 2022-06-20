@@ -6,7 +6,7 @@
 
 ## Most of the functions here are used for their side effects.
 
-##' @include pkg_setup.R printing.R 
+##' @include pkg_setup.R printing.R
 NULL
 
 ##' @title Writes .pkgcache to disk
@@ -255,19 +255,25 @@ syncCache <- function(path) {
 sync_cache <- syncCache
 
 ##' @title List objects and values in cache.
+##' @param simple If TRUE simply list the names of the objects in the cache,
+##'   else (FALSE) also show values.
 ##' @export
-listCache <- function() {
+listCache <- function(simple = FALSE) {
   objs <- ls(all.names = TRUE, envir = .pkgcache)
-  out <- list()
-  for (obj in objs) {
-    tmp <- getCache(obj, ret = "both")
-    cat("
+  if (simple == TRUE) {
+    print(objs)
+  } else {
+    out <- list()
+    for (obj in objs) {
+      tmp <- getCache(obj, ret = "both")
+      cat("
 Name:", obj, "\tTimestamp:", format(tmp[["timestamp"]], format = "%Y-%m-%d %H:%M:%S"), "
 Class:", class(tmp[["value"]]), "
 Value:
 ", paste(utils::capture.output(tmp[["value"]]), "\n", sep = ""), "
 ", paste(rep("-", options()$width), collapse = ""), "
 ")
+    }
   }
 }
 

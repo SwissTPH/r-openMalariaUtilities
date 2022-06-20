@@ -208,6 +208,10 @@ test_that("listCache works", {
   putCache(x = "baz", value = 42)
   putCache(x = "meppa", value = data.frame(a = c(1:5), b = letters[1:5]))
 
+  ## Simple output
+  expect_equal(listCache(simple = TRUE), c("bar", "baz", "foo", "meppa"))
+
+  ## Full output
   expect_output(listCache(), "Name: bar")
   expect_output(listCache(), "Class: character")
   expect_output(listCache(), "Class: numeric")
