@@ -35,6 +35,13 @@ It is recommended to use tools like [lintr](https://github.com/jimhester/lintr)
 and [styler](https://github.com/r-lib/styler) for automatic syntax checks and
 formatting.
 
+
+### Use file headers
+
+All files in the `/R` directory should have a header with a summary of the
+functionality provided by the file.
+
+
 ### for loops vs apply family
 
 Prefer loops if
@@ -82,11 +89,12 @@ NULL
 
 ### Cache
 
-- When you want to manipulate the cache `.pkgcache`, use the `assign()` and
-  `get()` functions together with the correct environment. There are plenty of
-  examples in the code. Otherwise you are in for some pain!
-- When you are writing functions for the package, you can use `envir =
-  .pkgcache`. For tests, use `envir = openMalariaUtilities:::.pkgcache`
+- When you want to manipulate the cache `.pkgcache`, use the `putCache()` and
+  `getCache()` functions. They will use the correct environment and make the
+  usage of the cache much easier. There are plenty of examples in the code.
+  Otherwise you are in for some pain!
+- Consider using `syncCache()` or similar for within functions which manipulate
+  the cache. This way, you can make sure that the updated cache is synchronized.
 
 
 ## Commits & Pull requests
@@ -112,3 +120,5 @@ Explain exactly what was done in this commit with more depth than the
 
 Include any additional notes, relevant links, or co-authors.
 ```
+
+**Ignoring any of the above guidelines can lead to the rejection of your contribution!**
