@@ -193,7 +193,7 @@ omOutputDict  <- function() {
       ## 70s
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
     ),
-    third_dimension = c(
+    third_dimension_name = c(
       ## 0 - 8
       "age_group","age_group","age_group","age_group","age_group",
       "age_group","age_group",NA,"age_group",
