@@ -128,7 +128,7 @@ omOutputDict  <- function() {
       60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
       70, 71, 72, 73, 74, 75, 76, 77, 78, 79
     )),
-    measure_name  = c(
+    measure  = c(
       ## 0 - 8
       "nHost", "nInfect", "nExpectd", "nPatent", "sumLogPyrogenThres",
       "sumlogDens", "totalInfs", "nTransmit", "totalPatentInf",
