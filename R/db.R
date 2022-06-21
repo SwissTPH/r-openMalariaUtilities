@@ -109,14 +109,15 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 ##'
 ##'   - Survey measure numbers to names
 ##'
-##'   - Whether measures values are summed events between survey dates 
-##'   (measure_tally = TRUE) or taken on the survey date (measure_tally=F)
+##'   - Whether measures are summed up between survey dates (incident = TRUE) or
+##'   represent prevalent characteristics (incident = FALSE)
 ##'
 ##'   - An identifier for the 'third dimension' column. This can be 'age_group',
 ##' 'vector_species', 'drug_id' or NA
+##'
 ##' See: https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
 ##' @export
-omOutputDict  <- function() {
+omOutputDict <- function() {
   dict <- data.table::data.table(
     measure_index = as.integer(c(
       0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -128,103 +129,103 @@ omOutputDict  <- function() {
       60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
       70, 71, 72, 73, 74, 75, 76, 77, 78, 79
     )),
-    measure  = c(
+    measure_name = c(
       ## 0 - 8
       "nHost", "nInfect", "nExpectd", "nPatent", "sumLogPyrogenThres",
       "sumlogDens", "totalInfs", "nTransmit", "totalPatentInf",
-      
+
       ## 10s
       "sumPyrogenThresh", "nTreatments1", "nTreatments2", "nTreatments3",
       "nUncomp", "nSevere", "nSeq", "nHospitalDeaths", "nIndDeaths",
       "nDirDeaths",
-      
+
       ## 20s
       "nEPIVaccinations", "allCauseIMR", "nMassVaccinations", "nHospitalRecovs",
       "nHospitalSeqs", "nIPTDoses", "annAvgK", "nNMFever",
-      
+
       ## 30s
       "innoculationsPerAgeGroup", "Vector_Nv0", "Vector_Nv", "Vector_Ov",
       "Vector_Sv", "inputEIR", "simulatedEIR", "Clinical_RDTs",
-      
+
       ## 40s
       "Clinical_DrugUsage", "Clinical_FirstDayDeaths",
       "Clinical_HospitalFirstDayDeaths", "nNewefections", "nMassITNs",
       "nEPI_ITNs", "nMassIRS", "nMassVA", "Clinical_Microscopy",
       "Clinical_DrugUsageIV",
-      
+
       ## 50s
       "nAddedToCohort", "nRemovedFromCohort", "nMDAs", "nNmfDeaths",
       "nAntibioticTreatments", "nMassScreenings", "nMassGVI", "nCtsIRS",
       "nCtsGVI", "nCtsMDA",
-      
+
       ## 60s
       "nCtsScreenings", "nSubPopRemovalTooOld", "nSubPopRemovalFirstEvent",
       "nLiverStageTreatments", "nTreatDiagnostics", "nMassRecruitOnly",
       "nCtsRecruitOnly", "nTreatDeployments", "sumAge", "nInfectByGenotype",
-      
+
       ## 70s
       "nPatentByGenotype", "logDensByGenotype", "nHostDrugConcNonZero",
       "sumLogDrugConcNonZero", "expectedDirectDeaths", "expectedHospitalDeaths",
       "expectedIndirectDeaths", "expectedSequelae", "expectedSevere",
       "innoculationsPerVector"
     ),
-    measure_tally = c(
+    incident = c(
       ## 0 - 8
-      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
-      
+      TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, NA, NA,
+
       ## 10s
       FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-      
+
       ## 20s
-      TRUE, NA, TRUE, TRUE, TRUE, NA, FALSE, TRUE,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
       ## 30s
-      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA,
-      
+      TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE,
+
       ## 40s
-      NA, TRUE, TRUE, NA, TRUE, TRUE, TRUE, NA, NA, NA,
-      
+      NA, NA, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 50s
-      NA, NA, TRUE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 60s
-      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, NA, FALSE, FALSE,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
       ## 70s
-      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+      TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
     ),
-    third_dimension_name = c(
+    third_dimension = c(
       ## 0 - 8
-      "age_group","age_group","age_group","age_group","age_group",
-      "age_group","age_group",NA,"age_group",
-      
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", NA, "age_group",
+
       ## 10s
-      "age_group","age_group","age_group","age_group","age_group",
-      "age_group","age_group","age_group","age_group","age_group",
-      
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
       ## 20s
-      "age_group",NA,"age_group","age_group","age_group","age_group",
-      NA,"age_group",
-      
+      "age_group", NA, "age_group", "age_group", "age_group", "age_group", NA,
+      "age_group",
+
       ## 30s
-      "age_group","vector_species","vector_species","vector_species",
-      "vector_species",NA,NA,NA,
-      
+      "age_group", "vector_species", "vector_species", "vector_species",
+      "vector_species", NA, NA, NA,
+
       ## 40s
-      "drug_id","age_group","age_group","age_group","age_group","age_group",
-      "age_group","age_group",NA,"drug_id",
-      
+      "drug_id", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", NA, "drug_id",
+
       ## 50s
-      "age_group","age_group","age_group","age_group","age_group",
-      "age_group","age_group","age_group","age_group","age_group",
-      
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
       ## 60s
-      "age_group","age_group","age_group","age_group","age_group",
-      "age_group","age_group","age_group","age_group","age_group",
-      
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
       ## 70s
-      "age_group","age_group","age_group","age_group","age_group",
-      "age_group","age_group","age_group","age_group",NA
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", NA
     )
   )
   return(dict)
