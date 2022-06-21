@@ -261,9 +261,8 @@ sync_cache <- syncCache
 listCache <- function(simple = FALSE) {
   objs <- ls(all.names = TRUE, envir = .pkgcache)
   if (simple == TRUE) {
-    print(objs)
+    return(objs)
   } else {
-    out <- list()
     for (obj in objs) {
       tmp <- getCache(obj, ret = "both")
       cat("
