@@ -62,36 +62,36 @@ test_that("omOutputDict works", {
       ## 0 - 8
       "nHost", "nInfect", "nExpectd", "nPatent", "sumLogPyrogenThres",
       "sumlogDens", "totalInfs", "nTransmit", "totalPatentInf",
-      
+
       ## 10s
       "sumPyrogenThresh", "nTreatments1", "nTreatments2", "nTreatments3",
       "nUncomp", "nSevere", "nSeq", "nHospitalDeaths", "nIndDeaths",
       "nDirDeaths",
-      
+
       ## 20s
       "nEPIVaccinations", "allCauseIMR", "nMassVaccinations", "nHospitalRecovs",
       "nHospitalSeqs", "nIPTDoses", "annAvgK", "nNMFever",
-      
+
       ## 30s
       "innoculationsPerAgeGroup", "Vector_Nv0", "Vector_Nv", "Vector_Ov",
       "Vector_Sv", "inputEIR", "simulatedEIR", "Clinical_RDTs",
-      
+
       ## 40s
       "Clinical_DrugUsage", "Clinical_FirstDayDeaths",
       "Clinical_HospitalFirstDayDeaths", "nNewefections", "nMassITNs",
       "nEPI_ITNs", "nMassIRS", "nMassVA", "Clinical_Microscopy",
       "Clinical_DrugUsageIV",
-      
+
       ## 50s
       "nAddedToCohort", "nRemovedFromCohort", "nMDAs", "nNmfDeaths",
       "nAntibioticTreatments", "nMassScreenings", "nMassGVI", "nCtsIRS",
       "nCtsGVI", "nCtsMDA",
-      
+
       ## 60s
       "nCtsScreenings", "nSubPopRemovalTooOld", "nSubPopRemovalFirstEvent",
       "nLiverStageTreatments", "nTreatDiagnostics", "nMassRecruitOnly",
       "nCtsRecruitOnly", "nTreatDeployments", "sumAge", "nInfectByGenotype",
-      
+
       ## 70s
       "nPatentByGenotype", "logDensByGenotype", "nHostDrugConcNonZero",
       "sumLogDrugConcNonZero", "expectedDirectDeaths", "expectedHospitalDeaths",
@@ -100,29 +100,61 @@ test_that("omOutputDict works", {
     ),
     incident = c(
       ## 0 - 8
-      T,T,T,T,F,F,F,NA,NA,
-      
+      TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, NA, NA,
+
       ## 10s
-      F,T,T,T,T,T,T,T,T,T,
-      
+      FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 20s
-      T,T,T,T,T,T,F,T,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
       ## 30s
-      T,F,F,F,F,T,T,T,
-      
+      TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE,
+
       ## 40s
-      NA,NA,NA,T,T,T,T,T,T,T,
-      
+      NA, NA, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 50s
-      T,T,T,T,T,T,T,T,T,T,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
+
       ## 60s
-      T,T,T,T,T,T,T,T,F,T,
-      
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+
       ## 70s
-      T,F,T,NA,T,T,T,T,T,T
-      
+      TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
+    ),
+    third_dimension = c(
+      ## 0 - 8
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", NA, "age_group",
+
+      ## 10s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
+      ## 20s
+      "age_group", NA, "age_group", "age_group", "age_group", "age_group", NA,
+      "age_group",
+
+      ## 30s
+      "age_group", "vector_species", "vector_species", "vector_species",
+      "vector_species", NA, NA, NA,
+
+      ## 40s
+      "drug_id", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", NA, "drug_id",
+
+      ## 50s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
+      ## 60s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+
+      ## 70s
+      "age_group", "age_group", "age_group", "age_group", "age_group",
+      "age_group", "age_group", "age_group", "age_group", NA
     )
   )
 
@@ -145,14 +177,17 @@ test_that(".readOutputFile works", {
   )
   expected <- expected[, survey_date := c("2000-01-16", "2000-01-16", "2000-01-16")]
   expected <- expected[, measure := c("nHost", "nHost", "nHost")]
+  expected <- expected[, third_dimension := as.character(third_dimension)]
 
+  dates <- .xmlMonitoringTimeRegularSeq(
+    "2000-01-01", "2000-03-20",
+    daysFilter = 5, dateFilter = "monthly"
+  )
   putCache(
     "surveyTimes",
-    .xmlMonitoringTimeRegularSeq(
-      "2000-01-01", "2000-03-20",
-      daysFilter = 5, dateFilter = "monthly"
-    )
+    data.table::data.table(number = seq.int(nrow(dates)), dates)
   )
+
   actual <- .readOutputFile(file.path(rootDir, "test.txt"))
   expect_equal(actual, expected)
 })
@@ -211,7 +246,7 @@ test_that(".addPlaceholdersToDB works", {
   foo1 <- rnorm(5)
   foo2 <- rnorm(5)
   places <- data.frame(
-    scenario_id = 1:5,
+    ID = 1:5,
     experiment_id = data.table::data.table(
       DBI::dbReadTable(testcon, "experiments")
     )[name == "test", experiment_id],

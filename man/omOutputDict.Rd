@@ -7,7 +7,7 @@
 omOutputDict()
 }
 \description{
-A dictionary which provides tranlations for the following
+A dictionary which provides translations for the following
 outputs of Open Malaria:
 \itemize{
 \item Survey measure numbers to names

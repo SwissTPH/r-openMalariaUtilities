@@ -99,7 +99,7 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
     ## Open new sink connections
     zz <- file(x[["logfile"]], open = "wt")
     zzErr <- file(x[["Errlogfile"]], open = "wt")
-    sink(zz)
+    sink(zz, split = TRUE)
     sink(zzErr, type = "message")
 
     ## REVIEW Temporarily change working directory (Not good style!)
@@ -110,11 +110,12 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
     ## REVIEW I think this should be wrapped in tryCatch in order to recover
     ##        from an error and make sure that the sinks get closed.
     if (dryRun == TRUE) {
-      print(cmd)
+      result <- print(cmd)
     } else {
-      system(command = cmd, wait = TRUE)
+      result <- system(command = cmd, intern = TRUE)
     }
 
+    print(result)
     ## Close sinks
     sink(type = "message")
     sink()

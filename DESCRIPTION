@@ -35,11 +35,6 @@ Imports:
     data.table (>= 1.14.2),
     stats (>= 3.5.0),
     xml2 (>= 1.3.2),
-    dplyr,
-    iterators,
-    magrittr,
-    tidyr,
-    tidyselect,
     RSQLite (>= 2.2.14),
     DBI (>= 1.1.2)
 VignetteBuilder: knitr
@@ -55,19 +50,13 @@ Collate:
     'printing.R'
     'cache.R'
     'base.R'
-    'compat.R'
     'data.R'
     'db.R'
     'directories.R'
-    'postprocess-compat.R'
-    'postprocess.R'
     'scenarios.R'
     'simulation.R'
-    'slurm.R'
-    'slurm_postprocessing.R'
-    'slurm_scenarios.R'
-    'slurm_simulation.R'
     'time.R'
+    'utils.R'
     'xml.R'
     'xml_demography.R'
     'xml_entomology_define.R'
