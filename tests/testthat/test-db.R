@@ -121,7 +121,7 @@ test_that("omOutputDict works", {
       TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, NA, FALSE, FALSE,
 
       ## 70s
-      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+      TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
     ),
     third_dimension = c(
       ## 0 - 8

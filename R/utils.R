@@ -25,3 +25,38 @@ splitSeq <- function(x, n) {
   }
   return(chunks)
 }
+
+## Adapted from https://stackoverflow.com/a/35761217
+
+##' @title Read file line by line
+##' @description Read file line by line and optionally remove whitespace and
+##'   duplicate lines. WARNING: Be careful with large files!
+##' @param f Path to file.
+##' @param trim If TRUE, trim whitespace.
+##' @param rmdups If TRUE, only keep lines which are not identical to the
+##'   previous line AND which are not whitespace.
+##' @return Character vector with each element corresponding to a line.
+##' @export
+processFile <- function(f, trim = TRUE, rmdups = TRUE) {
+  results <- c()
+  con <- file(f, "r")
+  while (TRUE) {
+    line <- readLines(con, n = 1)
+    if (trim == TRUE) {
+      line <- trimws(line)
+    }
+    if (length(line) == 0) {
+      break
+    } else {
+      if (rmdups == TRUE) {
+        if (length(results) == 0 || line != results[1]) {
+          results <- c(line[line != ""], results)
+        }
+      } else {
+        results <- c(line, results)
+      }
+    }
+  }
+  close(con)
+  return(rev(results))
+}

@@ -1,10 +1,8 @@
-test_that("runSimulations works", {
-  clearCache()
-  unlink(file.path(tempdir(), "test-simulation"), recursive = TRUE)
-  setupDirs(
-    experimentName = "test-simulation", rootDir = tempdir(), replace = TRUE
-  )
+clearCache()
+rootDir <- file.path(tempdir(), "test-scenarios")
+setupDirs("test", rootDir = rootDir, replace = TRUE)
 
+test_that("runSimulations works", {
   scenarios <- generateScenarios(data.frame(foo = rnorm(5), bar = rnorm(5)))
 
   ## Throws an error if cmd not found
@@ -27,8 +25,7 @@ test_that("runSimulations works", {
 
   ## Check if log files have been written
   ## Expected log files
-  logfiles <- paste0("test-simulation_", c(1:5), ".log")
-  errlogfiles <- paste0("test-simulation_", c(1:5), "_error.log")
+  logfiles <- paste0("test_", c(1:5), ".log")
 
 
   expect_equal(
@@ -39,16 +36,6 @@ test_that("runSimulations works", {
       pattern = ".*[0-9]+\\.log"
     ),
     logfiles
-  )
-  ## Normal log files
-  expect_equal(
-    list.files(
-      file.path(
-        getCache(x = "logsDir"), "simulation"
-      ),
-      pattern = ".*[0-9]+_error\\.log"
-    ),
-    errlogfiles
   )
 
   ## Cluster run
@@ -73,15 +60,5 @@ test_that("runSimulations works", {
       pattern = ".*[0-9]+\\.log"
     ),
     logfiles
-  )
-  ## Normal log files
-  expect_equal(
-    list.files(
-      file.path(
-        getCache(x = "logsDir"), "simulation"
-      ),
-      pattern = ".*[0-9]+_error\\.log"
-    ),
-    errlogfiles
   )
 })

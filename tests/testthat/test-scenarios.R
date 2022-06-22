@@ -1,3 +1,8 @@
+## Setup
+clearCache()
+rootDir <- file.path(tempdir(), "test-scenarios")
+setupDirs("test", rootDir = rootDir, replace = TRUE)
+
 test_that(".scenariosRowSelect works", {
   ## Full range
   scenarios <- data.frame(pop = c(1:10))
@@ -17,8 +22,6 @@ test_that(".scenariosRowSelect works", {
 })
 
 test_that(".scenariosGenFiles works", {
-  putCache("cacheDir", file.path(tempdir(), "cache"))
-  putCache("scenariosDir", file.path(tempdir(), "scenarios"))
   putCache("placeholders", "pop")
   scenarios <- data.frame(pop = c(1:10))
 
