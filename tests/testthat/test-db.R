@@ -100,28 +100,28 @@ test_that("omOutputDict works", {
     ),
     incident = c(
       ## 0 - 8
-      TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, NA, NA,
-
+      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+      
       ## 10s
       FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-
+      
       ## 20s
-      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
-
+      TRUE, NA, TRUE, TRUE, TRUE, NA, FALSE, TRUE,
+      
       ## 30s
-      TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE,
-
+      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA,
+      
       ## 40s
-      NA, NA, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-
+      NA, TRUE, TRUE, NA, TRUE, TRUE, TRUE, NA, NA, NA,
+      
       ## 50s
-      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-
+      NA, NA, TRUE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE,
+      
       ## 60s
-      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
-
+      TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, NA, FALSE, FALSE,
+      
       ## 70s
-      TRUE, FALSE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
+      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
     ),
     third_dimension = c(
       ## 0 - 8
