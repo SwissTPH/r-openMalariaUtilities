@@ -172,25 +172,25 @@ omOutputDict <- function() {
     incident = c(
       ## 0 - 8
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
-      
+
       ## 10s
       FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,
-      
+
       ## 20s
       TRUE, NA, TRUE, TRUE, TRUE, NA, FALSE, TRUE,
-      
+
       ## 30s
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA,
-      
+
       ## 40s
       NA, TRUE, TRUE, NA, TRUE, TRUE, TRUE, NA, NA, NA,
-      
+
       ## 50s
       NA, NA, TRUE, TRUE, NA, TRUE, TRUE, TRUE, TRUE, TRUE,
-      
+
       ## 60s
       TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, NA, FALSE, FALSE,
-      
+
       ## 70s
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
     ),
