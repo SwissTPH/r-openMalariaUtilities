@@ -443,10 +443,12 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
       experiment_id = rep(experiment_id, times = nrow(scenarios))
     )
 
+    ## Placeholders can be empty in case there are none. We need to handle that
+    ## situation.
     placeholders <- tryCatch(
       getCache("placeholders"),
       error = function(c) {
-        warning("No placeholders found in cache!")
+        .printVerbose("No placeholders found in cache!")
         character(0)
       }
     )

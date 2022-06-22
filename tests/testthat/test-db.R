@@ -365,11 +365,8 @@ test_that("readResults works", {
 
   syncCache(path = getCache("experimentDir"))
 
-  ## We did not define placeholders, thus expect a warning
-  expect_warning(
-    readResults(
-      expDir = getCache("experimentDir"), dbName = "test"
-    ), "No placeholders found"
+  readResults(
+    expDir = getCache("experimentDir"), dbName = "test"
   )
 
   ## Replace
@@ -409,7 +406,8 @@ test_that("readResults works", {
       data.table::data.table(experiment_id = 1, scenario_id = 2, results),
       data.table::data.table(experiment_id = 1, scenario_id = 3, results),
       data.table::data.table(experiment_id = 1, scenario_id = 4, results),
-      data.table::data.table(experiment_id = 1, scenario_id = 5, results))
+      data.table::data.table(experiment_id = 1, scenario_id = 5, results)
+    )
   )
   expected <- as.data.frame(results)
   actual <- DBI::dbReadTable(testcon, "results")

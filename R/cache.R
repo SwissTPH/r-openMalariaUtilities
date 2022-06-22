@@ -102,11 +102,10 @@ NULL
   )
   checkmate::reportAssertions(assertCol)
 
-  if (is.null(path)) {
-    path <- file.path(getCache("cacheDir"))
-  }
   ## Make sure cache directory is available
-  dir.create(path, showWarnings = get("debugOutput", envir = .pkgenv))
+  if (is.null(path)) {
+    path <- .useDir(path = file.path(getCache("cacheDir")))
+  }
 
   ## If direction is "disk", simply write the cache to disk and be done.
   if (direction == "disk") {
