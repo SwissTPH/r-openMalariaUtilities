@@ -20,7 +20,13 @@ test_that("createBaseXml works", {
 
   ## Test XML file creation
   setupDirs(experimentName = "Test", rootDir = testDir, replace = TRUE)
-  createBaseXml(data = data, replace = TRUE)
+  options(askYesNo = TRUE)
+  createBaseXml(data = data)
+  options(askYesNo = NULL)
+  toggleDebug()
+  expect_output(createBaseXml(data = data, replace = TRUE))
+  toggleDebug()
+  expect_error(createBaseXml(data = data, replace = FALSE))
 
   actual <- file.exists(file.path(testDir, "Test", "Test_base.xml"))
   expected <- TRUE

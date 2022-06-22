@@ -400,6 +400,7 @@ omOutputDict <- function() {
 ##' @param replace How to handle duplicate experiments in the database. If TRUE,
 ##'   any experiment with the same name will be replaced. If FALSE, a new entry
 ##'   with the same name will be ignored.
+##' @importFrom data.table ':='
 ##' @export
 readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
   ## Appease NSE notes in R CMD check
@@ -442,15 +443,27 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
       experiment_id = rep(experiment_id, times = nrow(scenarios))
     )
 
-    placeholders <- getCache("placeholders")
-    .addScenToDB(
-      connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
+    placeholders <- tryCatch(
+      getCache("placeholders"),
+      error = function(c) {
+        warning("No placeholders found in cache!")
+        character(0)
+      }
     )
+    if (length(placeholders) == 0) {
+      .addScenToDB(
+        connection = dbCon, x = scenarios
+      )
+    } else {
+      .addScenToDB(
+        connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
+      )
 
-    cols <- c("ID", "experiment_id", placeholders)
-    .addPlaceholdersToDB(
-      connection = dbCon, x = scenarios[, cols, with = FALSE]
-    )
+      cols <- c("ID", "experiment_id", placeholders)
+      .addPlaceholdersToDB(
+        connection = dbCon, x = scenarios[, cols, with = FALSE]
+      )
+    }
 
     ## Add results
     scenarioFiles <- scenarios[["file"]]
