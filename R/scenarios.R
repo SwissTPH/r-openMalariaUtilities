@@ -94,33 +94,79 @@ NULL
     }
 
     ## Generate scenarios
-    makeScen <- function(row, scenDir) {
-      out <- base
-      for (var in placeholders) {
-        out <- gsub(
-          pattern = paste("@", var, "@", sep = ""),
-          replacement = scenarios[[var]][[row]],
-          x = out
-        )
-      }
-      filename <- paste(prefix, "_", row, ".xml", sep = "")
+    makeScen <- function(row, scenDir, logpath) {
+      tryCatch(
+        {
+          ## Open new sink connections
+          logfile <- file.path(logpath, paste0(prefix, "_", row, ".log"))
+          errlogfile <- file.path(
+            logpath, paste0(prefix, "_", row, "_error.log")
+          )
+          zz <- file(logfile, open = "wt")
+          zzErr <- file(errlogfile, open = "wt")
+          ## Redirect both outputs to a designated file. Unfortunately, R is not
+          ## able to split 'message', 'warning', etc. level so have to handle that
+          ## oursevles.
+          sink(zz, split = TRUE)
+          sink(zzErr, type = "message")
 
-      ## Write file
-      cat(out, file = file.path(
-        scenDir,
-        filename
-      ), sep = "\n")
+          out <- base
+          for (var in placeholders) {
+            out <- gsub(
+              pattern = paste("@", var, "@", sep = ""),
+              replacement = scenarios[[var]][[row]],
+              x = out
+            )
+          }
+          filename <- paste0(prefix, "_", row, ".xml")
+
+          ## Write file
+          cat(out, file = file.path(
+            scenDir,
+            filename
+          ), sep = "\n")
+        },
+        finally = {
+          ## Close sinks
+          sink(type = "message")
+          sink()
+          ## Check if logfiles are empty. If yes, remove them to save a bit
+          ## space.
+          for (f in c(logfile, errlogfile)) {
+            ## If file size = 0 bytes, remove
+            ## If the file contains only whitespace, also remove
+            if (file.size(f) == 0 || length(processFile(f)) == 0) {
+              unlink(f)
+            }
+          }
+        }
+      )
     }
 
     ## Use parallel if ncores > 1
     if (ncores > 1) {
-      cl <- parallel::makeCluster(ncores)
-      parallel::parLapply(
-        cl = cl, range, makeScen, scenDir = getCache(x = "scenariosDir")
+      tryCatch(
+        {
+          cl <- parallel::makeCluster(ncores, outfile = "")
+          invisible(
+            parallel::parLapply(
+              cl = cl, range, makeScen, scenDir = getCache(x = "scenariosDir"),
+              logpath = file.path(getCache(x = "logsDir"), "scenarios")
+            )
+          )
+        },
+        finally = {
+          parallel::stopCluster(cl)
+        }
       )
-      parallel::stopCluster(cl)
     } else {
-      lapply(range, makeScen, scenDir = getCache(x = "scenariosDir"))
+      invisible(
+        lapply(
+          range, makeScen,
+          scenDir = getCache(x = "scenariosDir"),
+          logpath = file.path(getCache(x = "logsDir"), "scenarios")
+        )
+      )
     }
   }
 }
@@ -244,7 +290,8 @@ readScenarios <- function(experimentDir = NULL) {
 
   ## Read RDS file
   scenarios <- readRDS(
-    file = file.path(experimentDir, "cache", "scenarios.rds"))
+    file = file.path(experimentDir, "cache", "scenarios.rds")
+  )
 
   return(scenarios)
 }

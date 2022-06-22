@@ -70,24 +70,25 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
       paste0(basenameScen, "_cts.txt")
     )
     ## Print current step
-    fullCmd <- paste0(
-      cmd, " --resource-path ", resources, " --scenario ",
-      scenario, " --output ", output, " --ctsout ", ctsout, verbose
+    args <- paste0(
+      "--resource-path ", resources, " --scenario ", scenario, " --output ",
+      output, " --ctsout ", ctsout, verbose
     )
     ## Collect required information to run Open Malaria
     cmds[[i]] <- list(
       ## Workind directory
       newWd = getCache(x = "experimentDir"),
       oldWd = getwd(),
-      ## Scenarios number
+      ## Scenario number
       num = i,
       ## Command to execute
-      cmd = fullCmd,
+      cmd = cmd,
+      args = args,
       ## Logfile destinations
       logfile = file.path(
         getCache(x = "logsDir"), "simulation", paste0(basenameScen, ".log")
       ),
-      Errlogfile = file.path(
+      errlogfile = file.path(
         getCache(x = "logsDir"), "simulation", paste0(basenameScen, "_error.log")
       )
     )
@@ -95,43 +96,81 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
 
   ## Run scenario via Open Malaria
   runSim <- function(x, l, dryRun) {
-    cmd <- x[["cmd"]]
-    ## Open new sink connections
-    zz <- file(x[["logfile"]], open = "wt")
-    zzErr <- file(x[["Errlogfile"]], open = "wt")
-    sink(zz, split = TRUE)
-    sink(zzErr, type = "message")
+    ## This function is supposed to be able to run via R's parallel clusters.
+    ## The nodes do not inherit the environment, so we need to make sure to have
+    ## the required objects available.
+    library(openMalariaUtilities, include.only = "processFile")
 
-    ## REVIEW Temporarily change working directory (Not good style!)
-    setwd(x[["newWd"]])
-    print(paste0("Running scenario [", x[["num"]], "/", l, "]"))
+    ## Wrap whole function into tryCatch so we can make sure that even if
+    ## something fails, we close all sinks and revert the working directory.
+    tryCatch(
+      {
+        ## Open new sink connections
+        zz <- file(x[["logfile"]], open = "wt")
+        zzErr <- file(x[["errlogfile"]], open = "wt")
+        ## Redirect both outputs to a designated file. Unfortunately, R is not
+        ## able to split 'message', 'warning', etc. level so have to handle that
+        ## oursevles.
+        sink(zz, split = TRUE)
+        sink(zzErr, type = "message")
 
-    ## Execute command
-    ## REVIEW I think this should be wrapped in tryCatch in order to recover
-    ##        from an error and make sure that the sinks get closed.
-    if (dryRun == TRUE) {
-      result <- print(cmd)
-    } else {
-      result <- system(command = cmd, intern = TRUE)
-    }
+        ## REVIEW Temporarily change working directory (Not good style!)
+        setwd(x[["newWd"]])
+        print(paste0("Running scenario [", x[["num"]], "/", l, "]"))
 
-    print(result)
-    ## Close sinks
-    sink(type = "message")
-    sink()
-    ## REVIEW Revert change working directory
-    setwd(x[["oldWd"]])
+        ## Execute command, store output
+        if (dryRun == TRUE) {
+          result <- paste0(x[["cmd"]], " ", x[["args"]])
+        } else {
+          result <- system2(command = x[["cmd"]], args = x[["args"]], stdout = TRUE, stderr = TRUE)
+        }
+
+        ## Store output into temporary file
+        tmpLog <- file.path(tempdir(), paste0("sim-log_", x[["num"]], ".txt"))
+        cat(result, file = tmpLog)
+
+        ## Read logfile and remove duplicate entries. This reduces individual
+        ## log file size and length massively.
+        result <- processFile(tmpLog)
+
+        ## Append the logs to designated logfile
+        cat(result, file = x[["logfile"]], sep = "\n", append = TRUE)
+      },
+      finally = {
+        ## Close sinks
+        sink(type = "message")
+        sink()
+
+        ## REVIEW Revert change working directory
+        setwd(x[["oldWd"]])
+
+        ## Check if logfiles are empty. If yes, remove them to save a bit space.
+        for (f in c(x[["logfile"]], x[["errlogfile"]])) {
+          ## If file size = 0 bytes, remove
+          ## If the file contains only whitespace, also remove
+          if (file.size(f) == 0 || length(processFile(f)) == 0) {
+            unlink(f)
+          }
+        }
+      }
+    )
   }
 
   ## Use parallel if ncores > 1
   if (ncores > 1) {
-    cl <- parallel::makeCluster(ncores)
-    ## invisible(
-      parallel::parLapply(
-        cl = cl, cmds, runSim, l = length(cmds), dryRun = dryRun
-      )
-    ## )
-    parallel::stopCluster(cl)
+    tryCatch(
+      {
+        cl <- parallel::makeCluster(ncores, outfile = "")
+        invisible(
+          parallel::parLapply(
+            cl = cl, cmds, runSim, l = length(cmds), dryRun = dryRun
+          )
+        )
+      },
+      finally = {
+        parallel::stopCluster(cl)
+      }
+    )
   } else {
     invisible(lapply(cmds, runSim, l = length(cmds), dryRun = dryRun))
   }
