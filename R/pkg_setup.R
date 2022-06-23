@@ -10,5 +10,5 @@
 ## Cache environment
 .pkgcache <- new.env(hash = TRUE, parent = emptyenv())
 
-## General environment 
+## General environment
 .pkgenv <- new.env(hash = TRUE, parent = emptyenv())
