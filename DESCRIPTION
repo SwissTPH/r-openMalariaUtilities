@@ -68,3 +68,4 @@ Collate:
     'xml_model.R'
     'xml_monitoring.R'
     'xml_root.R'
+    'xml_validation.R'
