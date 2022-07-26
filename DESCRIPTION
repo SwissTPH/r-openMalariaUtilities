@@ -53,6 +53,7 @@ Collate:
     'data.R'
     'db.R'
     'directories.R'
+    'logs.R'
     'scenarios.R'
     'simulation.R'
     'time.R'
