@@ -149,7 +149,6 @@ NULL
           getCache(x = "logsDir"),
           file.path(getCache(x = "logsDir"), "scenarios"),
           file.path(getCache(x = "logsDir"), "simulation"),
-          file.path(getCache(x = "logsDir"), "postprocessing"),
           ## Open Malaria output directory
           getCache(x = "outputsDir")
         ),
