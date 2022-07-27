@@ -36,6 +36,9 @@ validateXML <- function(xmlfile = NULL, schema = NULL, scenarios = NULL) {
     stop("Schema XSD file or XML file could not be found. Make sure they exist.")
   }
 
+  ## Setup return value. If any of the following tests fails, set it to FALSE
+  pass <- TRUE
+
   ## Extract potential errors (stored as attributes)
   errors <- attr(xml2::xml_validate(
     xml2::read_xml(xmlfile),
@@ -61,6 +64,7 @@ validateXML <- function(xmlfile = NULL, schema = NULL, scenarios = NULL) {
   ## placeholders). Warn about remaining errors.
   fpositives <- errors[!grepl("@(.*?)@", errors)]
   if (length(fpositives) > 0) {
+    pass <- FALSE
     warning(
       cat("Validation against schema failed:\n",
         fpositives, "",
@@ -76,6 +80,7 @@ validateXML <- function(xmlfile = NULL, schema = NULL, scenarios = NULL) {
       expected <- found[found[, "key"] == i, "rtype"]
       if (length(expected != 0)) {
         if (actual != expected) {
+          pass <- FALSE
           warning(
             paste0(
               i, " should be ", expected, " but was found to be ", actual, "."
@@ -85,6 +90,7 @@ validateXML <- function(xmlfile = NULL, schema = NULL, scenarios = NULL) {
       }
     }
   }
+  return(pass)
 }
 
 ##' @rdname validateXML
