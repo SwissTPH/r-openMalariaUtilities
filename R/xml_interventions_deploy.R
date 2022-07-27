@@ -192,7 +192,8 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     )
 
     cumulativeCoverage_component <- ifelse(
-      is.null(subpop), "", paste0("-", subpop))
+      is.null(subpop), "", paste0("-", subpop)
+    )
     temp <- list()
     if (!is.null(subpop)) {
       temp <- append(temp, list(

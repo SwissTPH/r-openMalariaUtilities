@@ -13,12 +13,10 @@ on:
     branches:
         - master
         - develop
-        - V2-stable
   pull_request:
     branches:
         - master
         - develop
-        - V2-stable
 
 name: OpenMalaria validation
 

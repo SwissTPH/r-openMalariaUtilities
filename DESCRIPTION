@@ -53,6 +53,7 @@ Collate:
     'data.R'
     'db.R'
     'directories.R'
+    'logs.R'
     'scenarios.R'
     'simulation.R'
     'time.R'
@@ -68,3 +69,4 @@ Collate:
     'xml_model.R'
     'xml_monitoring.R'
     'xml_root.R'
+    'xml_validation.R'
