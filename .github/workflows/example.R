@@ -366,7 +366,7 @@ testExp <- list(
 )
 
 ## Setup dirs
-setupDirs(experimentName = "gha_test", replace = TRUE)
+setupDirs(experimentName = "exp_test", replace = TRUE)
 
 ## Copy necessary Open Malaria files.
 setupOM()
