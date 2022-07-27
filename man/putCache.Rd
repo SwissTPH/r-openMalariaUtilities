@@ -2,9 +2,12 @@
 % Please edit documentation in R/cache.R
 \name{putCache}
 \alias{putCache}
+\alias{put_cache}
 \title{Store object in cache.}
 \usage{
 putCache(x, value)
+
+put_cache(x, value)
 }
 \arguments{
 \item{x}{Object name to store in cache.}

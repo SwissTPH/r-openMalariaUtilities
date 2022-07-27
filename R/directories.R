@@ -7,10 +7,30 @@
 
 ## NOTE Directory structure is created as a side effect
 
+##' @include cache.R printing.R
+NULL
+
+##' @title Create a folder and return the path
+##' @description If a folder does not exist, create it and return the path.
+##'   Otherwise, just return the path.
+##' @param path Path of directory.
+##' @keywords internal
+.useDir <- function(path) {
+  if (!dir.exists(paths = path)) {
+    .printDebug(paste0("Directory ", path, " does not exist, creating ..."))
+    dir.create(
+      path = path, recursive = TRUE,
+      showWarnings = get("debugOutput", envir = .pkgenv)
+    )
+  }
+  return(path)
+}
+
 ##' @title Create folder structure
 ##' @description Generate the folder structure for an experiment. Caches the
-##'   paths in the `.openMalariaUtilites` environment.
-##' @param experimentName Name of the experiment. Defaults to current timestamp
+##'   paths in the `.pkgcache` environment.
+##' @param experimentName Name of the experiment. Spaces will be replaced by
+##'   underscores.
 ##' @param rootDir Root directory as a string. Defaults to the current working
 ##'   directory.
 ##' @param scenariosDir Scenarios directory name as a string. Will be a
@@ -20,27 +40,25 @@
 ##' @param replace If the present directory structure should be replaced. Can be
 ##'   TRUE, FALSE or "ask".
 ##' @keywords internal
-.createFolders <- function(experimentName = NULL,
-                           rootDir = NULL,
-                           scenariosDir = NULL,
-                           logsDir = NULL,
-                           replace = "ask") {
+.createFolders <- function(experimentName, rootDir = NULL, scenariosDir = NULL,
+                           logsDir = NULL, replace = "ask") {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(experimentName, add = assertCol)
-  checkmate::assert(checkmate::checkNull(rootDir),
-    checkmate::checkCharacter(rootDir),
+  checkmate::assert(
+    checkmate::checkCharacter(rootDir, null.ok = TRUE),
     add = assertCol
   )
-  checkmate::assert(checkmate::checkNull(scenariosDir),
-    checkmate::checkCharacter(scenariosDir),
+  checkmate::assert(
+    checkmate::checkCharacter(scenariosDir, null.ok = TRUE),
     add = assertCol
   )
-  checkmate::assert(checkmate::checkNull(logsDir),
-    checkmate::checkCharacter(logsDir),
+  checkmate::assert(
+    checkmate::checkCharacter(logsDir, null.ok = TRUE),
     add = assertCol
   )
-  checkmate::assert(checkmate::checkLogical(replace),
+  checkmate::assert(
+    checkmate::checkLogical(replace),
     checkmate::checkCharacter(replace, pattern = "ask"),
     add = assertCol
   )
@@ -51,34 +69,28 @@
   if (is.null(rootDir)) {
     rootDir <- getwd()
   }
-  assign(x = "baseDir", value = file.path(rootDir), envir = .pkgcache)
+  putCache(x = "rootDir", value = file.path(rootDir))
 
+  ## Replace spaces with underscores in experiment name and cache it
+  experimentName <- gsub(" ", "_", experimentName)
+  putCache(x = "experimentName", value = experimentName)
 
   ## Experiment directory
-  if (is.null(experimentName)) {
-    experimentName <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  }
-  assign(
-    x = "experimentDir", value = file.path(rootDir, experimentName),
-    envir = .pkgcache
-  )
+  putCache(x = "experimentDir", value = file.path(rootDir, experimentName))
 
   ## Cache directory
-  assign(x = "cacheDir", value = file.path(get(
-    x = "experimentDir",
-    envir = .pkgcache
-  ), "cache"), envir = .pkgcache)
+  putCache(
+    x = "cacheDir", value = file.path(getCache(x = "experimentDir"), "cache")
+  )
 
   ## Scenario directory
   if (is.null(scenariosDir)) {
     scenariosDir <- "scenarios"
   }
 
-  assign(x = "scenariosDir", value = file.path(
-    rootDir,
-    experimentName,
-    scenariosDir
-  ), envir = .pkgcache)
+  putCache(
+    x = "scenariosDir", value = file.path(rootDir, experimentName, scenariosDir)
+  )
 
 
   ## Logs directory
@@ -86,29 +98,16 @@
     logsDir <- "logs"
   }
 
-  assign(x = "logsDir", value = file.path(
-    rootDir,
-    experimentName,
-    logsDir
-  ), envir = .pkgcache)
+  putCache(x = "logsDir", value = file.path(rootDir, experimentName, logsDir))
 
   ## Output directory
-  assign(x = "outputsDir", value = file.path(
-    rootDir,
-    experimentName,
-    "outputs"
-  ), envir = .pkgcache)
-
-  ## Combined outputs directory
-  assign(x = "combinedDir", value = file.path(
-    rootDir,
-    experimentName,
-    "combined"
-  ), envir = .pkgcache)
+  putCache(
+    x = "outputsDir", value = file.path(rootDir, experimentName, "outputs")
+  )
 
   ## Check if directories are already present and crete them if necessary
   createDir <- NULL
-  if (dir.exists(get(x = "experimentDir", envir = .pkgcache))) {
+  if (dir.exists(getCache(x = "experimentDir"))) {
     ## Directory present, no replace
     if (replace == FALSE) {
       stop("Directory with experiment name already present. Aborting.")
@@ -121,12 +120,12 @@
         ## Yes
       } else {
         createDir <- TRUE
-        unlink(get(x = "experimentDir", envir = .pkgcache), recursive = TRUE)
+        unlink(getCache(x = "experimentDir"), recursive = TRUE)
       }
       ## Directory present, replace
     } else {
       createDir <- TRUE
-      unlink(get(x = "experimentDir", envir = .pkgcache), recursive = TRUE)
+      unlink(getCache(x = "experimentDir"), recursive = TRUE)
     }
     ## Directory not present
   } else {
@@ -139,29 +138,54 @@
       lapply(
         c(
           ## Project root
-          get(x = "baseDir", envir = .pkgcache),
+          getCache(x = "rootDir"),
           ## Experiment directory
-          get(x = "experimentDir", envir = .pkgcache),
+          getCache(x = "experimentDir"),
           ## Cache directory
-          get(x = "cacheDir", envir = .pkgcache),
+          getCache(x = "cacheDir"),
           ## Scenarios directory
-          get(x = "scenariosDir", envir = .pkgcache),
+          getCache(x = "scenariosDir"),
           ## Log directory
-          get(x = "logsDir", envir = .pkgcache),
-          file.path(get(x = "logsDir", envir = .pkgcache), "scenarios"),
-          file.path(get(x = "logsDir", envir = .pkgcache), "simulation"),
-          file.path(get(x = "logsDir", envir = .pkgcache), "postprocessing"),
+          getCache(x = "logsDir"),
+          file.path(getCache(x = "logsDir"), "scenarios"),
+          file.path(getCache(x = "logsDir"), "simulation"),
           ## Open Malaria output directory
-          get(x = "outputsDir", envir = .pkgcache),
-          ## Combined outputs directory
-          get(x = "combinedDir", envir = .pkgcache)
+          getCache(x = "outputsDir")
         ),
         function(x) {
           if (!dir.exists(x)) {
+            .printVerbose(paste0("Creating directory ", x))
             dir.create(x, showWarnings = TRUE, recursive = TRUE)
           }
         }
       )
     )
   }
+  ## Write cache
+  .synchronizeCache(direction = "none")
 }
+
+##' @title Create folder structure
+##' @description Generate the folder structure for an experiment.
+##' @param experimentName Name of the experiment. Spaces will be replaced by
+##'   underscores.
+##' @param rootDir Root directory as a string. Defaults to the current working
+##'   directory.
+##' @param scenariosDir Scenarios directory name as a string. Will be a
+##'   subfolder of the `rootDir`. Defaults to 'scenarios'.
+##' @param logsDir Logs directory name as a string. Will be a subfolder of the
+##'   `rootDir`. Defaults to 'logs'.
+##' @param replace If the present directory structure should be replaced. Can be
+##'   TRUE, FALSE or "ask". This will remove any existing content!
+##' @export
+setupDirs <- function(experimentName, rootDir = NULL, scenariosDir = NULL,
+                      logsDir = NULL, replace = "ask") {
+  .createFolders(
+    experimentName = experimentName, rootDir = rootDir,
+    scenariosDir = scenariosDir, logsDir = logsDir, replace = replace
+  )
+}
+
+##' @rdname setupDirs
+##' @export
+setup_dirs <- setupDirs

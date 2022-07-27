@@ -4,7 +4,14 @@
 \alias{.scenariosGenFiles}
 \title{Generate scenario xml files}
 \usage{
-.scenariosGenFiles(scenarios, baseFile, range, placeholders, prefix)
+.scenariosGenFiles(
+  scenarios,
+  baseFile,
+  range,
+  placeholders,
+  prefix,
+  ncores = 1
+)
 }
 \arguments{
 \item{scenarios}{Data frame containing the values for the placeholders. One
@@ -18,6 +25,8 @@ placeholder names.}
 \item{placeholders}{Vector containing the placeholders}
 
 \item{prefix}{Filename prefix}
+
+\item{ncores}{Number of parallel processes to use.}
 }
 \description{
 Generate scenario xml files

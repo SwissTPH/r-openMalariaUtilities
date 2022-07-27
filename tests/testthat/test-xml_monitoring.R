@@ -25,6 +25,35 @@ expected <- list(
   subPop = list(id = "baz", number = 4)
 )
 
+test_that("surveyAgeGroupsGen works", {
+  clearCache()
+
+  actual <- surveyAgeGroupsGen(
+    lowerbound = 0,
+    upperbounds = c(1, 2)
+  )
+  expected <- list(
+    lowerbound = 0,
+    group = list("upperbound" = 1),
+    group = list("upperbound" = 2)
+  )
+
+  expect_equal(actual, expected)
+
+  ## Test cache entries
+  expected <- data.table::data.table(
+    id = "age_group",
+    value = c(1, 2),
+    name = c("0-1", "1-2")
+  )
+  actual <- getCache("thirdDimension")
+  expect_equal(actual, expected)
+
+  expected <- list(lowerbound = 0, upperbounds = c(1, 2))
+  actual <- getCache("ageGroups")
+  expect_equal(actual, expected)
+})
+
 test_that("monitoringCohortsGen works", {
   expect_equal(actual, expected)
 })

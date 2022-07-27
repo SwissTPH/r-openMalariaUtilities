@@ -35,6 +35,13 @@ It is recommended to use tools like [lintr](https://github.com/jimhester/lintr)
 and [styler](https://github.com/r-lib/styler) for automatic syntax checks and
 formatting.
 
+
+### Use file headers
+
+All files in the `/R` directory should have a header with a summary of the
+functionality provided by the file.
+
+
 ### for loops vs apply family
 
 Prefer loops if
@@ -57,13 +64,37 @@ anymore. You should favor readability, correctness and robustness.
 
 ## Internals
 
+### Load order matters
+
+Due to the way the cache and the debug messages work in this package, the load
+order of the R files matter. Thus, you need to make sure that the `include`
+statements are present at the beginning of the file.
+
+The `pkg_setup.R` file should be used when in doubt in order to make sure the
+basic setup is loaded first.
+
+```{r}
+##' @include pkg_setup.R
+NULL
+```
+
+You can require multiple files if necessary and skip `pkg_setup.R` if it is
+already included by other files.
+
+```{r}
+##' @include cache.R printing.R
+NULL
+```
+
+
 ### Cache
 
-- When you want to manipulate the cache `.pkgcache`, use the `assign()` and
-  `get()` functions together with the correct environment. There are plenty of
-  examples in the code. Otherwise you are in for some pain!
-- When you are writing functions for the package, you can use `envir =
-  .pkgcache`. For tests, use `envir = openMalariaUtilities:::.pkgcache`
+- When you want to manipulate the cache `.pkgcache`, use the `putCache()` and
+  `getCache()` functions. They will use the correct environment and make the
+  usage of the cache much easier. There are plenty of examples in the code.
+  Otherwise you are in for some pain!
+- Consider using `syncCache()` or similar for within functions which manipulate
+  the cache. This way, you can make sure that the updated cache is synchronized.
 
 
 ## Commits & Pull requests
@@ -89,3 +120,5 @@ Explain exactly what was done in this commit with more depth than the
 
 Include any additional notes, relevant links, or co-authors.
 ```
+
+**Ignoring any of the above guidelines can lead to the rejection of your contribution!**

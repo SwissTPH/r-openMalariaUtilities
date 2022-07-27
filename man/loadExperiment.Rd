@@ -2,9 +2,18 @@
 % Please edit documentation in R/cache.R
 \name{loadExperiment}
 \alias{loadExperiment}
+\alias{load_experiment}
+\alias{loadCache}
+\alias{load_cache}
 \title{Load cached data from experiment}
 \usage{
 loadExperiment(path)
+
+load_experiment(path)
+
+loadCache(path)
+
+load_cache(path)
 }
 \arguments{
 \item{path}{Path of the experiment's folder}

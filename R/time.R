@@ -203,8 +203,9 @@ xmlTimeGen <- function(startDate = NULL, endDate = NULL, interval) {
   }
 
   if (m1 >= m2) {
-    o2 <- seq.Date(as.Date(paste(y1, m1, d1, sep = "-")),
-                   as.Date(paste(y2, m2, d1, sep = "-")),
+    o2 <- seq.Date(
+      as.Date(paste(y1, m1, d1, sep = "-")),
+      as.Date(paste(y2, m2, d1, sep = "-")),
       by = paste(every, interval)
     )
   }

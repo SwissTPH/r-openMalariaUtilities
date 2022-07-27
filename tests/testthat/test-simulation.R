@@ -1,59 +1,64 @@
-test_that("runScenarios throws an error if cmd not found", {
-  assign("scenariosDir", file.path(tempdir(), "scenarios"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
-    recursive = TRUE
-  )
-  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
+clearCache()
+rootDir <- file.path(tempdir(), "test-scenarios")
+setupDirs("test", rootDir = rootDir, replace = TRUE)
 
+test_that("runSimulations works", {
+  scenarios <- generateScenarios(data.frame(foo = rnorm(5), bar = rnorm(5)))
+
+  ## Throws an error if cmd not found
   expect_error(
-    runScenarios(cmd = "NotOpenMalaria"),
+    runSimulations(scenarios = scenarios, cmd = "NotOpenMalaria"),
     "openMalaria could not be found"
   )
-})
 
-test_that("runScenarios throws an error if scenarios do not exist", {
-  expect_error(
-    ## R should be installed
-    runScenarios(scenariosDir = "./", cmd = "R"),
-    "does not exist"
+  ## Normal run with console output
+  ## Make sure logfiles don't exist beforehand
+  removeFiles <- list.files(
+    file.path(getCache(x = "logsDir"), "simulation"),
+    pattern = ".*\\.log", full.names = TRUE
   )
-})
+  if (any(file.exists(removeFiles))) {
+    file.remove(removeFiles)
+  }
 
-test_that("runScenarios works (dry run)", {
-  ## Generate scenarios
-  assign("cacheDir", file.path(tempdir(), "cache"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("scenariosDir", file.path(tempdir(), "scenarios"),
-    envir = openMalariaUtilities:::.pkgcache
-  )
-  assign("placeholders", "pop",
-    envir = openMalariaUtilities:::.pkgcache
-  )
+  expect_output(runSimulations(scenarios = scenarios, dryRun = TRUE))
 
-  scenarios <- data.frame(
-    futITNcov = c(.65),
-    futIRScov = c(0, .8),
-    EIR = c(5, 25),
-    setting = c("alpha"),
-    pop = c(1:10),
-    seed = 1
-  )
-  scens <- scenarios
-  full <- .create_test_full()
+  ## Check if log files have been written
+  ## Expected log files
+  logfiles <- paste0("test_", c(1:5), ".log")
 
-  unlink(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache),
-    recursive = TRUE
-  )
-  dir.create(get(x = "scenariosDir", envir = openMalariaUtilities:::.pkgcache))
 
-  generateScenarios(
-    scenarios = scenarios, full = full,
-    baseFile = testthat::test_path("ref", "exp_test_base.xml"),
-    prefix = "exp_test"
+  expect_equal(
+    list.files(
+      file.path(
+        getCache(x = "logsDir"), "simulation"
+      ),
+      pattern = ".*[0-9]+\\.log"
+    ),
+    logfiles
   )
 
-  expect_output(runScenarios(cmd = "R", dryRun = TRUE))
+  ## Cluster run
+  ## Make sure they don't exist beforehand
+  removeFiles <- list.files(
+    file.path(getCache(x = "logsDir"), "simulation"),
+    pattern = ".*\\.log", full.names = TRUE
+  )
+  if (any(file.exists(removeFiles))) {
+    file.remove(removeFiles)
+  }
+
+  runSimulations(scenarios = scenarios, dryRun = TRUE, ncores = 2)
+
+  ## Check if log files have been written
+  ## Normal log files
+  expect_equal(
+    list.files(
+      file.path(
+        getCache(x = "logsDir"), "simulation"
+      ),
+      pattern = ".*[0-9]+\\.log"
+    ),
+    logfiles
+  )
 })

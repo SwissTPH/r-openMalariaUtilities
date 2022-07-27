@@ -2,12 +2,18 @@
 % Please edit documentation in R/cache.R
 \name{getCache}
 \alias{getCache}
+\alias{get_cache}
 \title{Get cached object from cache.}
 \usage{
-getCache(x)
+getCache(x, ret = "value")
+
+get_cache(x, ret = "value")
 }
 \arguments{
 \item{x}{Object name to retrieve from cache.}
+
+\item{ret}{What values to return. Can be one of "value", "timestamp" or
+"both".}
 }
 \description{
 Get cached object from cache.

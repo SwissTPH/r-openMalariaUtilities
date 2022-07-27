@@ -365,22 +365,36 @@ testExp <- list(
   )
 )
 
+## Setup dirs
+setupDirs(experimentName = "exp_test", replace = TRUE)
+
+## Copy necessary Open Malaria files.
+setupOM()
+
+## Create base XML file
 createBaseXml(testExp, replace = TRUE)
 
 scenarios <- data.frame(
   pop = 1000L,
   futLSMcov = "none"
 )
-full <- list(
-  pop = 1000L,
-  futLSMcov = "none"
+scenarios <- generateScenarios(scenarios)
+
+setupScenarios(scenarios = scenarios)
+
+storeScenarios(scenarios)
+
+## Manually store survey times in cache
+dates <- .xmlMonitoringTimeRegularSeq(
+  startDate = "2000-01-01",
+  "2020-04-01", daysFilter = 5, dateFilter = "quarterly"
+)
+putCache(
+  x = "surveyTimes",
+  value = data.table::data.table(number = seq.int(nrow(dates)), dates)
 )
 
-generateScenarios(scenarios = scenarios, full = full)
+## Run simulations
+runSimulations(scenarios = scenarios)
 
-setupOM()
-
-## Otherwise OpenMalaria shits itself
-setwd(dir = get(x = "experimentDir", envir = openMalariaUtilities:::.pkgcache))
-
-runScenarios()
+readResults(getCache("experimentDir"), dbName = "test")

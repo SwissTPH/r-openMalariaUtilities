@@ -5,7 +5,7 @@
 \title{Create folder structure}
 \usage{
 .createFolders(
-  experimentName = NULL,
+  experimentName,
   rootDir = NULL,
   scenariosDir = NULL,
   logsDir = NULL,
@@ -13,7 +13,8 @@
 )
 }
 \arguments{
-\item{experimentName}{Name of the experiment. Defaults to current timestamp}
+\item{experimentName}{Name of the experiment. Spaces will be replaced by
+underscores.}
 
 \item{rootDir}{Root directory as a string. Defaults to the current working
 directory.}
@@ -29,6 +30,6 @@ TRUE, FALSE or "ask".}
 }
 \description{
 Generate the folder structure for an experiment. Caches the
-paths in the \code{.openMalariaUtilites} environment.
+paths in the \code{.pkgcache} environment.
 }
 \keyword{internal}

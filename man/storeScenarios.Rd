@@ -2,21 +2,20 @@
 % Please edit documentation in R/scenarios.R
 \name{storeScenarios}
 \alias{storeScenarios}
-\title{Store scenarios and full object in cache folder}
+\alias{store_scenarios}
+\title{Store scenarios in cache folder}
 \usage{
-storeScenarios(scenarios, full, prefix = NULL, csv = TRUE)
+storeScenarios(scenarios, csv = TRUE)
+
+store_scenarios(scenarios, csv = TRUE)
 }
 \arguments{
 \item{scenarios}{Data frame containing the values for the placeholders. One
 row per scenario, placeholders in columns. Column names correspond to the
 placeholder names.}
 
-\item{full}{List of experiment variables and values.}
-
-\item{prefix}{Filename prefix.}
-
-\item{csv}{Save scenarios as .csv file.}
+\item{csv}{Additionally save scenarios as .csv file.}
 }
 \description{
-Store scenarios and full object in cache folder
+Store scenarios in cache folder
 }
