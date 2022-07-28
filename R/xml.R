@@ -105,6 +105,16 @@ recXML <- function(x, data, errCol, recLevel = list()) {
         .placeholderCollect(rest[[i]])
         ## Set the attribute for the current named entry (e.g. '<a
         ## foo="baz"/>')
+        if (is.null(rest[[i]])) {
+          stop(
+            paste0(
+              paste0(
+                paste0(recLevel, collapse = ":"), ":", names(rest)[[i]]
+              ),
+              " is not allowed to be NULL!"
+            )
+          )
+        }
         if (!is.na(rest[[i]])) {
           xml2::xml_set_attr(
             chunk,
