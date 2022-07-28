@@ -108,27 +108,37 @@ NULL
   ## Check if directories are already present and crete them if necessary
   createDir <- NULL
   if (dir.exists(getCache(x = "experimentDir"))) {
+    .printDebug(
+      paste0("Directory ", getCache(x = "experimentDir"), " already present.")
+    )
     ## Directory present, no replace
     if (replace == FALSE) {
+      .printDebug("Replace is FALSE, keeping directory.")
       stop("Directory with experiment name already present. Aborting.")
       ## Directory present, ask
     } else if (replace == "ask") {
       answer <- utils::askYesNo("Directory with experiment name already present. Replace?")
       ## No or no answer
       if (!answer == TRUE | is.na(answer)) {
+        .printDebug("Answer was no or not given.")
         stop("Aborting.")
         ## Yes
       } else {
+        .printDebug("Answer was yes, removing directory.")
         createDir <- TRUE
         unlink(getCache(x = "experimentDir"), recursive = TRUE)
       }
       ## Directory present, replace
     } else {
+      .printDebug("Replace is TRUE, removing directory.")
       createDir <- TRUE
       unlink(getCache(x = "experimentDir"), recursive = TRUE)
     }
     ## Directory not present
   } else {
+    .printDebug(
+      paste0("Directory ", getCache(x = "experimentDir"), " not found. Creating.")
+    )
     createDir <- TRUE
   }
 
