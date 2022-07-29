@@ -1,0 +1,39 @@
+---
+title: "Introduction to openMalariaUtilities"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to openMalariaUtilities}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(openMalariaUtilities)
+```
+
+Open Malaria is a powerful tool for simulating and studying the epidemiology of
+malaria. However, it can also be daunting. This R package is designed to make
+the use of Open Malaria easier.
+
+## Prerequisites
+
+Make sure that `SQLite` and `Open Malaria` are both installed and available on
+the system. Please note: Even though the package should work on Windows, it is
+developed and tested under Linux.
+
+To install the package, run
+
+```{r, eval = FALSE}
+devtools::install_github("SwissTPH/r-openMalariaUtilities")
+```
+
+## Introduction
+
+Withing this tutorial, we will create and run example scenarios. Each scenario
+needs to be defined in a XML file which serves as an input for Open Malaria
+(OM). OpenMalariaUtilities (OMU) contains many functions which help to generate
+these input files.
