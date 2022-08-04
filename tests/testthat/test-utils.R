@@ -54,3 +54,60 @@ bar
   expected <- expected[expected != ""]
   expect_equal(actual, expected)
 })
+
+test_that(".indexList works", {
+  testList <- list(l1 = 2, l2 = list(l3 = 2))
+
+  expected <- list(
+    "2" = list(
+      index = 2,
+      name = "l2"
+    ),
+    "1" = list(
+      index = 1,
+      name = "l1",
+      value = 2
+    ),
+    "2.1" = list(
+      index = c(2, 1),
+      name = "l3",
+      value = 2
+    )
+  )
+
+  expect_equal(.indexList(testList), expected)
+})
+
+test_that(".getIndex works", {
+  testList <- .indexList(list(l1 = 2, l2 = list(l3 = 2)))
+
+  expected <- list(
+    "2.1" = list(
+      index = c(2, 1),
+      name = "l3",
+      value = 2
+    )
+  )
+
+  expect_equal(.getIndex(testList, name = "l3", value = "2"), expected)
+})
+
+test_that("extractList works", {
+
+  testList <- list(l1 = 2, l2 = list(l3 = 2))
+
+  expected <- list(
+    "2" = list(
+      l3 = 2
+    )
+  )
+
+  expect_equal(extractList(testList, name = "l3", value = "2"), expected)
+
+  ## Only the index
+  expected <- list("2" = c(2, 1))
+
+  expect_equal(
+    extractList(testList, name = "l3", value = "2", onlyIndex = TRUE), expected
+  )
+})
