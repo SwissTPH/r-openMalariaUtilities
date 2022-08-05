@@ -44,9 +44,7 @@ Suggests:
     rmarkdown (>= 2.14),
     testthat (>= 3.1.0)
 Config/testthat/edition: 3
-Remotes: 
-    mllg/checkmate
-Collate: 
+Collate:
     'pkg_setup.R'
     'printing.R'
     'cache.R'
