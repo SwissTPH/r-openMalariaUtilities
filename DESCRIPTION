@@ -1,6 +1,6 @@
 Package: openMalariaUtilities
 Title: Helper functions to provide easier usage of Open Malaria from R
-Version: 2.0
+Version: 22.08.0
 Authors@R: 
     c(person(given = "Roland",
              family = "Goers",

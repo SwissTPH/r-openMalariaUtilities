@@ -121,4 +121,16 @@ Explain exactly what was done in this commit with more depth than the
 Include any additional notes, relevant links, or co-authors.
 ```
 
+## Versioning & Releases
+
+We follow the `YY.MM.minorversion` (e.g. `22.08.0`) schema for version names. 
+
+Minor, non-breaking changes should only cause an increase of the minor version,
+e.g. `.1 -> .2`. 
+
+Big changes, which might be breaking, should lead to an updated `YY.MM`.
+
+Consequentially, each bump in a version should lead to a tagged release.
+Ideally, the version bump is the last commit before your do this.
+
 **Ignoring any of the above guidelines can lead to the rejection of your contribution!**
