@@ -36,4 +36,121 @@ devtools::install_github("SwissTPH/r-openMalariaUtilities")
 Withing this tutorial, we will create and run example scenarios. Each scenario
 needs to be defined in a XML file which serves as an input for Open Malaria
 (OM). OpenMalariaUtilities (OMU) contains many functions which help to generate
-these input files.
+these input files. In this tutorial we will re-create the example from Open
+Malaria itself.
+
+## XML file generation
+
+A large part of OMU is dedicated at the generation of valid OM XML files. Before
+we start with the generation of these files, we will explain the folder layout
+of your projects.
+
+In the folder hierarchy, your working or project directory is the top level.
+Within this folder, you can have one or more folders which correspond to the
+names of experiments. The simulations of these experiments are controlled via
+one or multiple R scripts, placed in the project directory. Please note: Most of
+the directories can be modified via function arguments, but for the sake of
+simplicity we using the defaults here.
+
+```
+MyProject
+├── experiment_1
+├── experiment_2
+├── ...
+├── script_1.R
+├── script_2.R
+└── ...
+```
+
+Each of the experiment folders will have a similar layout and content.
+
+```
+MyProject/experiment_1
+├── cache/
+├── logs/
+├── outputs/
+├── scenarios/
+├── autoRegressionParameters.csv
+├── densities.csv
+├── base.xml
+└── scenario_44.xsd
+```
+
+You do not need to worry about the creation of the folders and files. OMU will
+create necessary folders and download required files for you.
+
+The `cache` folder contains R objects which are used by OMU to store reusable
+information. This will speed up certain operations. Log files are stored in the
+`logs` folder (which will contain sub-folders for each step in the process) and
+OM's raw output will be `outputs`. The XML files for each simulation scenario
+are stored in the `scenarios` folder.
+
+### Starting the project
+
+In your R script, you will probably start with `library(openMalariaUtilities)`.
+Thus, the beginning could look like
+
+```{r start}
+library(openMalariaUtilities)
+
+## Basic skeleton
+baseList <- list(
+  ## Mandatory
+  expName = "example",
+  ## Mandatory
+  OMVersion = 44L,
+  ## Optional
+  ## analysisNo = 1L,
+  ## Mandatory
+  demography = list(),
+  monitoring = list(),
+  interventions = list(),
+  healthSystem = list(),
+  entomology = list(),
+  ## These are optional for OM
+  ## parasiteGenetics = list(),
+  ## pharmacology = list(),
+  ## diagnostics = list(),
+  model = list()
+)
+```
+
+For XML file generation, OMU uses a list as input (here: `baseList`). This list
+has a very [similar structure](https://swisstph.github.io/openmalaria/schema-latest.html)
+as the XML file required by OM but is easier to edit from R compared
+to XML. The above snippet corresponds to the minimal skeleton of this input
+list. `expName` is the name of your experiment and `OMVersion` the version of
+Open Malaria. Currently, only version 44 is supported. Also note, that the OM
+version needs to be an integer.
+
+Each of the six nested lists `demography`, `monitoring`, `interventions`,
+`healthSystem`, `entomology` and `model` need to be filled for OM.
+
+### Demography
+
+```{r demography}
+demo_data <- data.frame(
+  poppercent = c(
+    3.474714994, 12.76004028, 14.52151394, 12.75565434, 10.83632374,
+    8.393312454, 7.001421452, 5.800587654, 5.102136612, 4.182561874,
+    3.339409351, 2.986112356, 2.555766582, 2.332763433, 1.77400255,
+    1.008525491, 0.74167341, 0.271863401, 0.161614642
+  ),
+  upperbound = c(
+    1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90
+  )
+)
+
+
+baseList <- defineDemography(
+  baseList,
+  name = "Ifakara",
+  popSize = 4000L,
+  maximumAgeYrs = 90,
+  lowerbound = 0,
+  poppercent = demo_data$poppercent,
+  upperbound = demo_data$upperbound
+)
+
+str(baseList, max.level = 2)
+```
