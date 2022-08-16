@@ -148,6 +148,13 @@
 <div class="section level3">
 <h3 id="demography">Demography<a class="anchor" aria-label="anchor" href="#demography"></a>
 </h3>
+<p>There are two ways to add the data to the <code>demography</code> entry:</p>
+<ol style="list-style-type: decimal">
+<li>Add it manually, e.g. <code>baseList[["demography"]] &lt;- list(name = "Ifakara",    ...)</code>
+</li>
+<li>Use the provided <code>defineDemography</code> function</li>
+</ol>
+<p>We will use the second option in this tutorial. You can find various <code>defineXY</code> functions which are each designed to add a specific entry to the list. However, you always have the option to write parts or change specific entries manually (See also <code>extractList</code>).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">demo_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  poppercent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -186,6 +193,11 @@
 <span><span class="co">#&gt;  $ healthSystem : list()</span></span>
 <span><span class="co">#&gt;  $ entomology   : list()</span></span>
 <span><span class="co">#&gt;  $ model        : list()</span></span></code></pre></div>
+<p>In the above snippet, we started by creating a data frame which contains the demographic data. This in turn was used as input for <code>defineDemography</code> among other parameters. The function will take care that the information is added at the correct position and also check, that the correct data types are used.</p>
+</div>
+<div class="section level3">
+<h3 id="monitoring">Monitoring<a class="anchor" aria-label="anchor" href="#monitoring"></a>
+</h3>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
