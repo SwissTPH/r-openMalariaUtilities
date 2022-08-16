@@ -128,6 +128,17 @@ Each of the six nested lists `demography`, `monitoring`, `interventions`,
 
 ### Demography
 
+There are two ways to add the data to the `demography` entry:
+
+1. Add it manually, e.g. `baseList[["demography"]] <- list(name = "Ifakara",
+   ...)`
+2. Use the provided `defineDemography` function
+
+We will use the second option in this tutorial. You can find various `defineXY`
+functions which are each designed to add a specific entry to the list. However,
+you always have the option to write parts or change specific entries manually
+(See also `extractList`).
+
 ```{r demography}
 demo_data <- data.frame(
   poppercent = c(
@@ -154,3 +165,10 @@ baseList <- defineDemography(
 
 str(baseList, max.level = 2)
 ```
+
+In the above snippet, we started by creating a data frame which contains the
+demographic data. This in turn was used as input for `defineDemography` among
+other parameters. The function will take care that the information is added at
+the correct position and also check, that the correct data types are used.
+
+### Monitoring
