@@ -1,0 +1,5 @@
+url: https://swisstph.github.io/r-openMalariaUtilities/
+
+template:
+  bootstrap: 5
+  bootswatch: journal
