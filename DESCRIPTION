@@ -26,6 +26,8 @@ Description: Provides functions for creating scenarios and
     running experiments.
 Depends: R (>= 3.5.0)
 License: GPL-3
+URL: https://swisstph.github.io/r-openMalariaUtilities,
+     https://github.com/SwissTPH/r-openMalariaUtilities
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
