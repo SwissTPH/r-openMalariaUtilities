@@ -1,330 +1,330 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/404.html</loc>
   </url>
   <url>
-    <loc>/CONTRIBUTING.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/CONTRIBUTING.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/openmalariautilities.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/articles/openmalariautilities.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/index.html</loc>
   </url>
   <url>
-    <loc>/reference/BEN.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/BEN.html</loc>
   </url>
   <url>
-    <loc>/reference/CMR.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/CMR.html</loc>
   </url>
   <url>
-    <loc>/reference/GHA.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/GHA.html</loc>
   </url>
   <url>
-    <loc>/reference/HTI.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/HTI.html</loc>
   </url>
   <url>
-    <loc>/reference/MOZ.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/MOZ.html</loc>
   </url>
   <url>
-    <loc>/reference/TZA.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/TZA.html</loc>
   </url>
   <url>
-    <loc>/reference/UGA.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/UGA.html</loc>
   </url>
   <url>
-    <loc>/reference/ageGroupsGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/ageGroupsGen.html</loc>
   </url>
   <url>
-    <loc>/reference/changeHSCFRGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/changeHSCFRGen.html</loc>
   </url>
   <url>
-    <loc>/reference/changeHSpSeqInGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/changeHSpSeqInGen.html</loc>
   </url>
   <url>
-    <loc>/reference/cleanLogs.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/cleanLogs.html</loc>
   </url>
   <url>
-    <loc>/reference/clearCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/clearCache.html</loc>
   </url>
   <url>
-    <loc>/reference/createBaseXml.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/createBaseXml.html</loc>
   </url>
   <url>
-    <loc>/reference/defineChangeHS.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineChangeHS.html</loc>
   </url>
   <url>
-    <loc>/reference/defineDemography.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineDemography.html</loc>
   </url>
   <url>
-    <loc>/reference/defineEntomology.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineEntomology.html</loc>
   </url>
   <url>
-    <loc>/reference/defineHealthSystem.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineHealthSystem.html</loc>
   </url>
   <url>
-    <loc>/reference/defineIRS.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineIRS.html</loc>
   </url>
   <url>
-    <loc>/reference/defineITN.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineITN.html</loc>
   </url>
   <url>
-    <loc>/reference/defineImportedInfections.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineImportedInfections.html</loc>
   </url>
   <url>
-    <loc>/reference/defineLarv.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineLarv.html</loc>
   </url>
   <url>
-    <loc>/reference/defineNothing.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineNothing.html</loc>
   </url>
   <url>
-    <loc>/reference/defineTreatSimple.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineTreatSimple.html</loc>
   </url>
   <url>
-    <loc>/reference/defineVaccine.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineVaccine.html</loc>
   </url>
   <url>
-    <loc>/reference/defineVectorControl.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/defineVectorControl.html</loc>
   </url>
   <url>
-    <loc>/reference/define_IRS_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/define_IRS_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/define_ITN_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/define_ITN_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/define_changeHS_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/define_changeHS_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/define_importedInfections_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/define_importedInfections_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/define_larv_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/define_larv_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/define_nothing_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/define_nothing_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/deleteLogs.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/deleteLogs.html</loc>
   </url>
   <url>
-    <loc>/reference/deployIT.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/deployIT.html</loc>
   </url>
   <url>
-    <loc>/reference/deploy_it_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/deploy_it_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-addExpToDB.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-addExpToDB.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-addPlaceholdersToDB.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-addPlaceholdersToDB.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-addResultsToDB.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-addResultsToDB.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-addScenToDB.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-addScenToDB.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-calculateSmoothCompact.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-calculateSmoothCompact.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-calculateSmoothCompactHalflife.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-calculateSmoothCompactHalflife.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-createDB.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createDB.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-createFolders.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createFolders.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-createTables.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createTables.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-defineInterventionsHeader.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-defineInterventionsHeader.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-deployTime_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-deployTime_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-equalizePlaceholders.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-equalizePlaceholders.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-getIndex.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-getIndex.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-indexList.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-indexList.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-makeXmlRoot.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-makeXmlRoot.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-placeholderCollect.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-placeholderCollect.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-placeholderseqGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-placeholderseqGen.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-printDebug.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-printDebug.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-printVerbose.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-printVerbose.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-readOutputFile.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-readOutputFile.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-scenariosFilenames.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-scenariosFilenames.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-scenariosGenFiles.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-scenariosGenFiles.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-scenariosRowSelect.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-scenariosRowSelect.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-syncBoth.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-syncBoth.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-syncDisk.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-syncDisk.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-syncMem.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-syncMem.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-synchronizeCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-synchronizeCache.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-useDir.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-useDir.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-xmlAddChunks.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-xmlAddChunks.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-xmlAddList.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-xmlAddList.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-xmlMakeDocRec.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-xmlMakeDocRec.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-xmlMonitoringTimeRegularSeq.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-xmlMonitoringTimeRegularSeq.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-xmlTimeBlockSeq.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-xmlTimeBlockSeq.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-xmlTimeRegularSeq.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-xmlTimeRegularSeq.html</loc>
   </url>
   <url>
-    <loc>/reference/extractList.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/extractList.html</loc>
   </url>
   <url>
-    <loc>/reference/generateScenarios.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/generateScenarios.html</loc>
   </url>
   <url>
-    <loc>/reference/getCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/getCache.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/listCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/listCache.html</loc>
   </url>
   <url>
-    <loc>/reference/loadExperiment.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/loadExperiment.html</loc>
   </url>
   <url>
-    <loc>/reference/make_ento_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/make_ento_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/monitoringCohortsGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/monitoringCohortsGen.html</loc>
   </url>
   <url>
-    <loc>/reference/monitoringContinuousGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/monitoringContinuousGen.html</loc>
   </url>
   <url>
-    <loc>/reference/monitoringSurveyOptionsGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/monitoringSurveyOptionsGen.html</loc>
   </url>
   <url>
-    <loc>/reference/monitoringSurveyTimesGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/monitoringSurveyTimesGen.html</loc>
   </url>
   <url>
-    <loc>/reference/omOutputDict.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/omOutputDict.html</loc>
   </url>
   <url>
-    <loc>/reference/processFile.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/processFile.html</loc>
   </url>
   <url>
-    <loc>/reference/putCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/putCache.html</loc>
   </url>
   <url>
-    <loc>/reference/readResults.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/readResults.html</loc>
   </url>
   <url>
-    <loc>/reference/readScenarios.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/readScenarios.html</loc>
   </url>
   <url>
-    <loc>/reference/recXML.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/recXML.html</loc>
   </url>
   <url>
-    <loc>/reference/runSimulations.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/runSimulations.html</loc>
   </url>
   <url>
-    <loc>/reference/setupDirs.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/setupDirs.html</loc>
   </url>
   <url>
-    <loc>/reference/setupOM.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/setupOM.html</loc>
   </url>
   <url>
-    <loc>/reference/setupScenarios.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/setupScenarios.html</loc>
   </url>
   <url>
-    <loc>/reference/splitSeq.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/splitSeq.html</loc>
   </url>
   <url>
-    <loc>/reference/storeScenarios.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/storeScenarios.html</loc>
   </url>
   <url>
-    <loc>/reference/surveyAgeGroupsGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/surveyAgeGroupsGen.html</loc>
   </url>
   <url>
-    <loc>/reference/syncCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/syncCache.html</loc>
   </url>
   <url>
-    <loc>/reference/toggleDebug.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/toggleDebug.html</loc>
   </url>
   <url>
-    <loc>/reference/toggleVerbose.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/toggleVerbose.html</loc>
   </url>
   <url>
-    <loc>/reference/validateXML.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/validateXML.html</loc>
   </url>
   <url>
-    <loc>/reference/writeCache.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/writeCache.html</loc>
   </url>
   <url>
-    <loc>/reference/write_demography_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/write_demography_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/write_end_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/write_end_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/write_healthsys_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/write_healthsys_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/write_monitoring_compat.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/write_monitoring_compat.html</loc>
   </url>
   <url>
-    <loc>/reference/xmlTimeGen.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/xmlTimeGen.html</loc>
   </url>
 </urlset>
