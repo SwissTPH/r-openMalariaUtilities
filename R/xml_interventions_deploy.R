@@ -192,7 +192,8 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     )
 
     cumulativeCoverage_component <- ifelse(
-      is.null(subpop), "", paste0("-", subpop))
+      is.null(subpop), "", paste0("-", subpop)
+    )
     temp <- list()
     if (!is.null(subpop)) {
       temp <- append(temp, list(
@@ -387,6 +388,84 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
     baseList = baseList, component = component, cumulative = cumulative,
     effects = effects, dates = dates, minAge = minAge, maxAge = maxAge,
     coverage = coverage, subpop = subpop
+  )
+
+  return(baseList)
+}
+
+##' Deployment of an continuous intervention
+##' @param baseList List with experiment data.
+##' @param begin Start date of the intervention (yyyy-mm-dd)
+##' @param end End date of the intervention (yyyy-mm-dd)
+##' @param component Name of intervention
+##' @param varyCov Default is FALSE , for varying coverage
+##' @param targetAgeYrs Age at which intervention is received (1=1 year) e,g.
+##'   c(0.25,0.33 ,0.75)
+##' @param coverage Coverage, either fixed (integer) or as a variable
+##'   ("@@IPTcov@@"), same order as for target age years
+##' @param restrictToSubPop f this element is specified, deployment is
+##'   restricted to some sub-population
+##' @export
+deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01",
+                               end = "2030-01-01", targetAgeYrs = NULL,
+                               coverage = NULL, varyCov = FALSE,
+                               restrictToSubPop = NULL) {
+  ## Generate output list
+  outlist <- list()
+
+  if (!is.null(restrictToSubPop)) {
+    outlist <- .xmlAddList(
+      data = outlist, sublist = "continuous",
+      entry = NULL,
+      input = list(
+        restrictToSubPop = list(
+          id = restrictToSubPop
+        )
+      )
+    )
+  }
+
+  if (is.null(targetAgeYrs)) {
+    stop("No 'targetAgeYrs' defined. Please specify 'targetAgeYrs', using months as propotion of the year (e.g. 3 months = 3/12) = 0.25")
+  }
+
+  ## Varying coverage per treatment round, if not specific as integer
+  if (is.character(coverage) == TRUE & varyCov == TRUE) {
+    coverage <- paste0("@", paste0(gsub("@", "", coverage), c(1:length(targetAgeYrs))), "@")
+  }
+
+  ## If only one coverage provided, assume same coverage for all age groups
+  if (length(coverage) == 1) {
+    coverage <- rep(coverage, length(targetAgeYrs))
+  }
+
+  if (length(coverage) != length(targetAgeYrs) & length(coverage) != 1) {
+    stop("'coverage' values requried for all age groups")
+  }
+
+  when <- as.data.frame(cbind(targetAgeYrs, coverage))
+  temp <- list()
+  for (i in seq_len(nrow(when))) {
+    temp <- list(
+      deploy = list(
+        coverage = when[i, "coverage"],
+        targetAgeYrs = when[i, "targetAgeYrs"],
+        begin = begin,
+        end = end
+      )
+    )
+
+    outlist <- .xmlAddList(
+      data = outlist, sublist = "continuous",
+      entry = NULL,
+      input = temp
+    )
+  }
+
+  ## Add to base list
+  baseList <- .xmlAddList(
+    data = baseList, sublist = c("interventions", "human"),
+    entry = "deployment", input = outlist
   )
 
   return(baseList)
