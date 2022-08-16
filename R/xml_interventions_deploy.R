@@ -412,6 +412,16 @@ deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01
                                restrictToSubPop = NULL) {
   ## Generate output list
   outlist <- list()
+  outlist <- .xmlAddList(
+    data = outlist, sublist = NULL,
+    entry = NULL,
+    input = list(
+      name = component
+    )
+  )
+  outlist <- append(
+    outlist, list(component = list(id = component))
+  )
 
   if (!is.null(restrictToSubPop)) {
     outlist <- .xmlAddList(
@@ -461,6 +471,9 @@ deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01
       input = temp
     )
   }
+
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
 
   ## Add to base list
   baseList <- .xmlAddList(

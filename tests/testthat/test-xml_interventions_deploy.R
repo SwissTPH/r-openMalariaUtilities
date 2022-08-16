@@ -274,3 +274,85 @@ test_that("deploy_it_compat works", {
 
   expect_equal(actual, expected)
 })
+
+test_that("deploy_cont_compat works", {
+  testlist <- list(interventions = list())
+
+  ## Normal, dates generated
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "IPTi",
+          component = list(
+            id = "IPTi"
+          ),
+          continuous = list(
+            deploy = list(
+              coverage = 0.8,
+              targetAgeYrs = 0.8,
+              begin = "2019-01-01",
+              end = "2030-01-01"
+            ),
+            deploy = list(
+              coverage = 0.7,
+              targetAgeYrs = 0.16,
+              begin = "2019-01-01",
+              end = "2030-01-01"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_cont_compat(
+    testlist,
+    targetAgeYrs = c(0.8, 0.16),
+    coverage = c(0.8, 0.7)
+  )
+
+  expect_equal(actual, expected)
+
+  ## restrictToSubPop used
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "IPTi",
+          component = list(
+            id = "IPTi"
+          ),
+          continuous = list(
+            restrictToSubPop = list(
+              id = "foo1"
+            ),
+            deploy = list(
+              coverage = 0.8,
+              targetAgeYrs = 0.8,
+              begin = "2019-01-01",
+              end = "2030-01-01"
+            ),
+            deploy = list(
+              coverage = 0.7,
+              targetAgeYrs = 0.16,
+              begin = "2019-01-01",
+              end = "2030-01-01"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_cont_compat(
+    testlist,
+    targetAgeYrs = c(0.8, 0.16),
+    coverage = c(0.8, 0.7),
+    restrictToSubPop = "foo1"
+  )
+
+  expect_equal(actual, expected)
+})
