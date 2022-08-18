@@ -70,7 +70,7 @@ processFile <- function(f, trim = TRUE, rmdups = TRUE) {
   ## Loop over top level indices
   for (i in seq_along(l)) {
     ## Current entry is not a list
-    if (!class(l[[i]]) == "list") {
+    if (!inherits(l[[i]], what = "list")) {
       ## Build index in the form of x.y.z
       index <- paste0(c(n, i), collapse = ".")
       ## Extract name, value and index information into temporary list
