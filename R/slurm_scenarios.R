@@ -42,6 +42,7 @@ slurmPrepareScenarios <- function(expName, scenarios, full, bSize = 200,
   .writeSlurm(
     jobName = paste0(expName, "_scenarios"),
     ntasks = ntasks,
+    memCPU = memCPU,
     array = nbatches,
     time = time,
     qos = qos,
