@@ -1,6 +1,8 @@
 ## Setup
 clearCache()
+unlink(file.path(tempdir(), "test-utils"), recursive = TRUE)
 rootDir <- .useDir(file.path(tempdir(), "test-utils"))
+
 
 test_that("splitSeq works (no rest)", {
   actual <- splitSeq(1:20, 5)
@@ -183,6 +185,50 @@ test_that(".compressFiles works", {
     )
   )
   expected <- TRUE
+
+  expect_equal(actual, expected)
+})
+
+
+test_that("cleanupExperiment works", {
+  setupDirs("test", rootDir = rootDir, replace = TRUE)
+
+  ## Create dummy files
+  dummies <- c()
+  for (f in paste0("foo", c(1:10), ".txt")) {
+    for (d in c(
+      file.path(getCache(x = "logsDir"), "scenarios"),
+      file.path(getCache(x = "logsDir"), "simulation")
+    )) {
+      dummies <- c(file.path(d, f), dummies)
+    }
+  }
+  for (f in dummies) {
+    cat("bar\n", file = f)
+  }
+  dummies <- c()
+  for (f in paste0("foo", c(1:10), ".xml")) {
+    dummies <- c(file.path(getCache(x = "scenariosDir"), f), dummies)
+  }
+  for (f in dummies) {
+    cat("bar\n", file = f)
+  }
+  dummies <- c()
+  for (f in paste0("foo", c(1:10), ".txt")) {
+    dummies <- c(file.path(getCache(x = "outputsDir"), f), dummies)
+  }
+  for (f in dummies) {
+    cat("bar\n", file = f)
+  }
+
+  ## Clean everything
+  cleanupExperiment()
+
+  ## Check that zip files exist
+  actual <- file.exists(
+    list.files(path = getCache("experimentDir"), pattern = ".*\\.zip$", recursive = TRUE, full.names = TRUE)
+  )
+  expected <- rep(TRUE, 4)
 
   expect_equal(actual, expected)
 })

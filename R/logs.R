@@ -44,9 +44,6 @@ cleanLogs <- function(aggregate = TRUE, compress = TRUE) {
   ## Get only subdirs of log dir
   logdirs <- list.dirs(getCache(x = "logsDir"))
 
-  ## Get all files for deletion
-  logfiles <- c()
-
   ## Aggregate files
   if (aggregate == TRUE) {
     for (d in logdirs) {

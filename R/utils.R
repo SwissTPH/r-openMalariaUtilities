@@ -233,3 +233,17 @@ extractList <- function(l, name = NULL, value = NULL, onlyIndex = FALSE) {
   }
   return(invisible(TRUE))
 }
+
+##' @title Cleanup an experiment
+##' @description Cleaning up includes the aggregation and compression of the log
+##'   files, as well as the XML files in the scenarios folder and the output
+##'   files of Open Malaria.
+##' @export
+cleanupExperiment <- function() {
+  cleanLogs(aggregate = TRUE, compress = TRUE)
+  dirs <- c(getCache(x = "outputsDir"), getCache(x = "scenariosDir"))
+  for (d in dirs) {
+    .compressFiles(dir = d, remove = TRUE)
+  }
+  return(invisible(TRUE))
+}
