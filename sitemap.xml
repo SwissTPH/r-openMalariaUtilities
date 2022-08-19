@@ -55,6 +55,9 @@
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/cleanLogs.html</loc>
   </url>
   <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/cleanupExperiment.html</loc>
+  </url>
+  <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/clearCache.html</loc>
   </url>
   <url>
@@ -140,6 +143,9 @@
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-calculateSmoothCompactHalflife.html</loc>
+  </url>
+  <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-compressFiles.html</loc>
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createDB.html</loc>
