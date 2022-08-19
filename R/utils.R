@@ -197,3 +197,39 @@ extractList <- function(l, name = NULL, value = NULL, onlyIndex = FALSE) {
   }
   return(out)
 }
+
+##' @title Compress files into zip archive
+##' @param dir Path to directory.
+##' @param pattern An optional regular expression. See \link[base]{list.files}
+##' @param value If TRUE, files will be removed after adding them to the
+##'   archive.
+##' @keywords internal
+.compressFiles <- function(dir, pattern = NULL, remove = FALSE) {
+  ## Work around zip's annoying behavior to include the whole folder
+  ## structure in the zip file via changing the workind directory.
+  curwd <- getwd()
+  setwd(dir)
+  files <- setdiff(
+    list.files(dir, pattern = pattern),
+    list.dirs(dir, recursive = FALSE, full.names = FALSE)
+  )
+  if (length(files > 0)) {
+    utils::zip(
+      zipfile = basename(dir), files = files
+    )
+  }
+  setwd(curwd)
+  ## Remove input files
+  if (remove == TRUE) {
+    file.remove(
+      setdiff(
+        setdiff(
+          list.files(dir, pattern = pattern, full.names = TRUE),
+          list.dirs(dir, recursive = FALSE, full.names = TRUE)
+        ),
+        list.files(path = dir, pattern = ".*\\.zip$", full.names = TRUE)
+      )
+    )
+  }
+  return(invisible(TRUE))
+}

@@ -72,25 +72,8 @@ cleanLogs <- function(aggregate = TRUE, compress = TRUE) {
   ## Compress files
   if (compress == TRUE) {
     for (d in logdirs) {
-      ## Work around zip's annoying behavior to include the whole folder
-      ## structure in the zip file via changing the workind directory.
-      curwd <- getwd()
-      setwd(d)
-      files <- setdiff(
-        list.files(d), list.dirs(d, recursive = FALSE, full.names = FALSE)
-      )
-      if (length(files > 0)) {
-        utils::zip(
-          zipfile = basename(d), files = files
-        )
-      }
-      setwd(curwd)
+      .compressFiles(dir = d, pattern = ".*\\.txt$", remove = TRUE)
     }
-
-    ## Remove single log files
-    file.remove(
-      list.files(path = logdirs, pattern = ".*\\.txt$", full.names = TRUE)
-    )
   }
 
   return(invisible(TRUE))

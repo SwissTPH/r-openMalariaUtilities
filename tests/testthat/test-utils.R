@@ -1,3 +1,7 @@
+## Setup
+clearCache()
+rootDir <- .useDir(file.path(tempdir(), "test-utils"))
+
 test_that("splitSeq works (no rest)", {
   actual <- splitSeq(1:20, 5)
   expected <- list(
@@ -21,7 +25,7 @@ test_that("splitSeq works (no rest)", {
 })
 
 test_that("processFile works", {
-  tmpPath <- file.path(.useDir(file.path(tempdir(), "test-utils")), "temp.txt")
+  tmpPath <- file.path(rootDir, "temp.txt")
   ## Create test file
   fcontent <- capture.output(cat("
 foo
@@ -93,7 +97,6 @@ test_that(".getIndex works", {
 })
 
 test_that("extractList works", {
-
   testList <- list(l1 = 2, l2 = list(l3 = 2))
 
   expected <- list(
@@ -110,4 +113,76 @@ test_that("extractList works", {
   expect_equal(
     extractList(testList, name = "l3", value = "2", onlyIndex = TRUE), expected
   )
+})
+
+test_that(".compressFiles works", {
+  ## Clean
+  for (f in list.files(rootDir, full.names = TRUE)) {
+    file.remove(f)
+  }
+
+  ## Create dummy files
+  dummies <- c()
+  for (f in paste0("foo", c(1:10), ".txt")) {
+    dummies <- c(file.path(rootDir, f), dummies)
+  }
+  for (f in paste0("foo", c(1:10), ".xml")) {
+    dummies <- c(file.path(rootDir, f), dummies)
+  }
+  for (f in paste0("foo", c(1:10), ".R")) {
+    dummies <- c(file.path(rootDir, f), dummies)
+  }
+  for (f in dummies) {
+    cat("bar\n", file = f)
+  }
+
+  ## Check that files exist
+  actual <- file.exists(dummies)
+  expected <- rep(TRUE, 30)
+
+  ## Compress selected pattern
+  .compressFiles(dir = rootDir, pattern = ".*\\.R$", remove = TRUE)
+  ## Check that zip file and not selected pattern exist
+  actual <- file.exists(
+    setdiff(
+      list.files(path = rootDir, full.names = TRUE),
+      list.dirs(path = rootDir, recursive = FALSE, full.names = TRUE)
+    )
+  )
+  expected <- rep(TRUE, 21)
+
+  expect_equal(actual, expected)
+
+  ## Clean
+  for (f in list.files(rootDir, full.names = TRUE)) {
+    file.remove(f)
+  }
+
+  ## Create dummy files
+  dummies <- c()
+  for (f in paste0("foo", c(1:10), ".txt")) {
+    dummies <- c(file.path(rootDir, f), dummies)
+  }
+  for (f in paste0("foo", c(1:10), ".xml")) {
+    dummies <- c(file.path(rootDir, f), dummies)
+  }
+  for (f in paste0("foo", c(1:10), ".R")) {
+    dummies <- c(file.path(rootDir, f), dummies)
+  }
+  for (f in dummies) {
+    cat("bar\n", file = f)
+  }
+
+  ## Compress everything
+  .compressFiles(dir = rootDir, remove = TRUE)
+  ## Check that zip file and not selected pattern exist
+  actual <- file.exists(
+    setdiff(
+      list.files(path = rootDir, full.names = TRUE),
+      list.dirs(path = rootDir, recursive = FALSE, full.names = TRUE)
+    )
+  )
+  expected <- TRUE
+
+  expect_equal(actual, expected)
 })
