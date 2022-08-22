@@ -45,6 +45,12 @@ cleanLogs <- function(aggregate = TRUE, compress = TRUE) {
   logdirs <- list.dirs(getCache(x = "logsDir"))
 
   ## Aggregate files
+  ##
+  ## NOTE Using parallel's cluster here was investigated and turned out to be
+  ##      slower overall. The idea was to collect the raw output files into
+  ##      temporary files in batches of 100 to 200 files each. Finally, these
+  ##      temporary files would be added to the destination file. The first step
+  ##      was really fast but the last step much slower then expected.
   if (aggregate == TRUE) {
     for (d in logdirs) {
       files <- setdiff(
@@ -54,7 +60,7 @@ cleanLogs <- function(aggregate = TRUE, compress = TRUE) {
         for (f in files) {
           cat(
             paste0(f),
-            processFile(file.path(d, f), trim = FALSE, rmdups = FALSE),
+            data.table::fread(file.path(d, f), sep = "\n", header = FALSE)[[1]],
             paste(rep("-", options()$width), collapse = ""),
             sep = "\n", file = file.path(d, paste0(basename(d), ".txt")),
             append = TRUE
