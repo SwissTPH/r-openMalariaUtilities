@@ -10,6 +10,8 @@ deploy_cont_compat(
   begin = "2019-01-01",
   end = "2030-01-01",
   targetAgeYrs = NULL,
+  vaccMinPrevDoses = NULL,
+  vaccMaxCumDoses = NULL,
   coverage = NULL,
   varyCov = FALSE,
   restrictToSubPop = NULL
@@ -26,6 +28,16 @@ deploy_cont_compat(
 
 \item{targetAgeYrs}{Age at which intervention is received (1=1 year) e,g.
 c(0.25,0.33 ,0.75)}
+
+\item{vaccMinPrevDoses}{Applies to vaccines only: vaccine doses are only
+deployed by this deployment if the previous number of doses (for the
+component deployed) is at least this number. Needs to be of the same
+length as targetAgeYrs.}
+
+\item{vaccMaxCumDoses}{Applies to vaccines only: vaccine doses are only
+deployed by this deployment if the previous number of doses (for the
+component deployed) is less than this number. Needs to be of the same
+length as targetAgeYrs.}
 
 \item{coverage}{Coverage, either fixed (integer) or as a variable
 ("@IPTcov@"), same order as for target age years}

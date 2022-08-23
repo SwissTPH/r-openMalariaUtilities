@@ -401,6 +401,14 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
 ##' @param varyCov Default is FALSE , for varying coverage
 ##' @param targetAgeYrs Age at which intervention is received (1=1 year) e,g.
 ##'   c(0.25,0.33 ,0.75)
+##' @param vaccMinPrevDoses Applies to vaccines only: vaccine doses are only
+##'   deployed by this deployment if the previous number of doses (for the
+##'   component deployed) is at least this number. Needs to be of the same
+##'   length as targetAgeYrs.
+##' @param vaccMaxCumDoses Applies to vaccines only: vaccine doses are only
+##'   deployed by this deployment if the previous number of doses (for the
+##'   component deployed) is less than this number. Needs to be of the same
+##'   length as targetAgeYrs.
 ##' @param coverage Coverage, either fixed (integer) or as a variable
 ##'   ("@@IPTcov@@"), same order as for target age years
 ##' @param restrictToSubPop f this element is specified, deployment is
@@ -408,6 +416,7 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
 ##' @export
 deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01",
                                end = "2030-01-01", targetAgeYrs = NULL,
+                               vaccMinPrevDoses = NULL, vaccMaxCumDoses = NULL,
                                coverage = NULL, varyCov = FALSE,
                                restrictToSubPop = NULL) {
   ## Generate output list
@@ -454,14 +463,29 @@ deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01
   }
 
   when <- as.data.frame(cbind(targetAgeYrs, coverage))
+  if (!is.null(vaccMinPrevDoses)) {
+    when["vaccMinPrevDoses"] <- vaccMinPrevDoses
+  }
+  if (!is.null(vaccMaxCumDoses)) {
+    when["vaccMaxCumDoses"] <- vaccMaxCumDoses
+  }
+
   temp <- list()
   for (i in seq_len(nrow(when))) {
     temp <- list(
-      deploy = list(
-        coverage = when[i, "coverage"],
-        targetAgeYrs = when[i, "targetAgeYrs"],
-        begin = begin,
-        end = end
+      deploy = c(
+        list(coverage = when[i, "coverage"]),
+        if (!is.null(vaccMinPrevDoses)) {
+          list(vaccMinPrevDoses = when[i, "vaccMinPrevDoses"])
+        },
+        if (!is.null(vaccMaxCumDoses)) {
+          list(vaccMaxCumDoses = when[i, "vaccMaxCumDoses"])
+        },
+        list(
+          targetAgeYrs = when[i, "targetAgeYrs"],
+          begin = begin,
+          end = end
+        )
       )
     )
 
