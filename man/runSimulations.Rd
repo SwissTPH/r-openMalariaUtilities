@@ -6,7 +6,7 @@
 \title{Run openMalaria scenarios}
 \usage{
 runSimulations(
-  scenarios,
+  scenarios = NULL,
   cmd = "openMalaria",
   dryRun = FALSE,
   verbose = FALSE,
@@ -16,7 +16,7 @@ runSimulations(
 )
 
 run_simulations(
-  scenarios,
+  scenarios = NULL,
   cmd = "openMalaria",
   dryRun = FALSE,
   verbose = FALSE,

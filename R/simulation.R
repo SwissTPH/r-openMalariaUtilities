@@ -18,13 +18,24 @@ NULL
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
 ##' @export
-runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
+runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE,
                            verbose = FALSE, ncores = 1, rowStart = NULL,
                            rowEnd = NULL) {
-  ## Use all rows of given scenarios unless rowStart and rowEnd are both given
-  range <- .scenariosRowSelect(
-    scenarios = scenarios, rowStart = rowStart, rowEnd = rowEnd
-  )
+  ## If scenarios is NULL, simply copy the base xml file
+  if (is.null(scenarios)) {
+    file.copy(
+      from = getCache(x = "baseXml"),
+      to = file.path(
+        getCache(x = "scenariosDir"),
+        paste0(getCache(x = "xmlBasename"), ".xml")
+      )
+    )
+  } else {
+    ## Use all rows of given scenarios unless rowStart and rowEnd are both given
+    range <- .scenariosRowSelect(
+      scenarios = scenarios, rowStart = rowStart, rowEnd = rowEnd
+    )
+  }
 
   ## Toggle verbose output of OpenMalaria
   if (verbose == TRUE || get("debugOutput", envir = .pkgenv)) {
@@ -36,7 +47,11 @@ runSimulations <- function(scenarios, cmd = "openMalaria", dryRun = FALSE,
   cmd <- ifelse(dryRun == TRUE, cmd, Sys.which(cmd))
   scenarios <- file.path(
     getCache(x = "scenariosDir"),
-    scenarios[range, "file"]
+    if (is.null(scenarios)) {
+      paste0(getCache(x = "xmlBasename"), ".xml")
+    } else {
+      scenarios[range, "file"]
+    }
   )
 
   ## Check if openMalaria is installed and that scenarios exist in directory.
