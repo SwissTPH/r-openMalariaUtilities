@@ -159,7 +159,7 @@ define_vaccine <- defineVaccine
 ##' )
 ##' @export
 defineVectorControl <- function(baseList, vectorInterventionParameters,
-                                append = TRUE, name = NULL, verbatim = TRUE,
+                                append = TRUE, name = NULL, verbatim = FALSE,
                                 hist = FALSE, resistance = 0.1) {
 
   ## Verify input

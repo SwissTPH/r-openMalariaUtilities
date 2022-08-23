@@ -10,7 +10,7 @@ defineVectorControl(
   vectorInterventionParameters,
   append = TRUE,
   name = NULL,
-  verbatim = TRUE,
+  verbatim = FALSE,
   hist = FALSE,
   resistance = 0.1
 )
@@ -20,7 +20,7 @@ define_vector_control(
   vectorInterventionParameters,
   append = TRUE,
   name = NULL,
-  verbatim = TRUE,
+  verbatim = FALSE,
   hist = FALSE,
   resistance = 0.1
 )
