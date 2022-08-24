@@ -235,9 +235,9 @@ omOutputDict <- function() {
 ##' @description Read a '*_out.txt' file, apply modifications and return a data
 ##'   frame which should be added to the DB.
 ##' @param f File name to read from.
-##' @keywords internal
 ##' @importFrom data.table ':='
-.readOutputFile <- function(f) {
+##' @export
+readOutputFile <- function(f) {
   ## Appease NSE notes in R CMD check
   measure_index <- measure <- measure_name <- number <- rowNum <- NULL
   survey_date <- third_dimension <- NULL
@@ -475,7 +475,7 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
       file <- gsub(pattern = ".xml", replacement = "_out.txt", x = f)
       file <- file.path(getCache("outputsDir"), file)
       if (file.exists(file)) {
-        input <- .readOutputFile(file)
+        input <- readOutputFile(file)
         input <- input[, experiment_id := rep(experiment_id, times = nrow(input))]
         input <- input[, scenario_id := rep(scenario_id, times = nrow(input))]
 

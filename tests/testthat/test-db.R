@@ -162,7 +162,7 @@ test_that("omOutputDict works", {
   expect_equal(actual, expected)
 })
 
-test_that(".readOutputFile works", {
+test_that("readOutputFile works", {
   testdata <- read.delim(
     text = "
 1	1	0	71
@@ -191,7 +191,7 @@ test_that(".readOutputFile works", {
     data.table::data.table(number = seq.int(nrow(dates)), dates)
   )
 
-  actual <- .readOutputFile(file.path(rootDir, "test.txt"))
+  actual <- readOutputFile(file.path(rootDir, "test.txt"))
   expect_equal(actual, expected)
 })
 
@@ -302,7 +302,7 @@ test_that(".addPlaceholdersToDB works", {
 test_that(".addResultsToDB works", {
   testcon <- .createDB("test")
 
-  results <- .readOutputFile(file.path(rootDir, "test.txt"))
+  results <- readOutputFile(file.path(rootDir, "test.txt"))
   results <- data.table::data.table(experiment_id = 1, scenario_id = 2, results)
 
   .addResultsToDB(testcon, results)
@@ -399,7 +399,7 @@ test_that("readResults works", {
   actual <- DBI::dbReadTable(testcon, "scenarios_metadata")
   expect_equal(actual, expected)
 
-  results <- .readOutputFile(file.path(rootDir, "test.txt"))
+  results <- readOutputFile(file.path(rootDir, "test.txt"))
   results <- data.table::rbindlist(
     l = list(
       data.table::data.table(experiment_id = 1, scenario_id = 1, results),
