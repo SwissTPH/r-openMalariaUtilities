@@ -255,7 +255,7 @@
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/listCache.html">listCache</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: ageGroups  Timestamp: 2022-08-23 10:18:47 </span></span>
+<span><span class="co">#&gt; Name: ageGroups  Timestamp: 2022-08-24 11:08:41 </span></span>
 <span><span class="co">#&gt; Class: list </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;  $lowerbound</span></span>
@@ -267,7 +267,7 @@
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: surveyTimes    Timestamp: 2022-08-23 10:18:47 </span></span>
+<span><span class="co">#&gt; Name: surveyTimes    Timestamp: 2022-08-24 11:08:41 </span></span>
 <span><span class="co">#&gt; Class: data.table data.frame </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;      number       date   day timestep</span></span>
@@ -360,7 +360,7 @@
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: thirdDimension     Timestamp: 2022-08-23 10:18:47 </span></span>
+<span><span class="co">#&gt; Name: thirdDimension     Timestamp: 2022-08-24 11:08:41 </span></span>
 <span><span class="co">#&gt; Class: data.table data.frame </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;            id value name</span></span>
@@ -685,26 +685,124 @@
 <span></span>
 <span><span class="co">## Copy necessary Open Malaria files.</span></span>
 <span><span class="fu"><a href="../reference/setupOM.html">setupOM</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/setupDirs.html">setupDirs()</a></code> creates the experiment folder given as an argument in the project directory. This also includes all the sub-folders which were mentioned in the <a href="#introduction">introduction</a> .</p>
+<p>We can verify this by checking the layout of the experiment directory.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.dirs</a></span><span class="op">(</span><span class="st">"exp_test"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "exp_test"                 "exp_test/cache"          </span></span>
+<span><span class="co">#&gt; [3] "exp_test/logs"            "exp_test/logs/scenarios" </span></span>
+<span><span class="co">#&gt; [5] "exp_test/logs/simulation" "exp_test/outputs"        </span></span>
+<span><span class="co">#&gt; [7] "exp_test/scenarios"</span></span></code></pre></div>
+<p><code><a href="../reference/setupOM.html">setupOM()</a></code> will make sure that all required files for Open Malaria to run are in place. This includes the correct <code>.xsd</code> schema file (according to the specified OM version) as well as further supplementary files.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"exp_test"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "autoRegressionParameters.csv" "cache"                       </span></span>
+<span><span class="co">#&gt; [3] "densities.csv"                "logs"                        </span></span>
+<span><span class="co">#&gt; [5] "outputs"                      "scenario_44.xsd"             </span></span>
+<span><span class="co">#&gt; [7] "scenarios"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="create-xml-file">Create XML file<a class="anchor" aria-label="anchor" href="#create-xml-file"></a>
 </h2>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p>As the name implies, <code><a href="../reference/createBaseXml.html">createBaseXml()</a></code> will translate our input list to a XML document and write it to disk.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create base XML file</span></span>
-<span><span class="fu"><a href="../reference/createBaseXml.html">createBaseXml</a></span><span class="op">(</span><span class="va">baseList</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/createBaseXml.html">createBaseXml</a></span><span class="op">(</span><span class="va">baseList</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">file</a></span><span class="op">(</span><span class="st">"exp_test/exp_test_base.xml"</span>, <span class="st">"r"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;"                                                                                                                                                                                                          </span></span>
+<span><span class="co">#&gt;  [2] "&lt;om:scenario xmlns:om=\"http://openmalaria.org/schema/scenario_44\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" name=\"exp_test\" schemaVersion=\"44\" xsi:schemaLocation=\"http://openmalaria.org/schema/scenario_44 scenario_44.xsd\"&gt;"</span></span>
+<span><span class="co">#&gt;  [3] "  &lt;demography name=\"Ifakara\" popSize=\"4000\" maximumAgeYrs=\"90\"&gt;"                                                                                                                                                                               </span></span>
+<span><span class="co">#&gt;  [4] "    &lt;ageGroup lowerbound=\"0\"&gt;"                                                                                                                                                                                                                     </span></span>
+<span><span class="co">#&gt;  [5] "      &lt;group poppercent=\"3.474714994\" upperbound=\"1\"/&gt;"                                                                                                                                                                                          </span></span>
+<span><span class="co">#&gt;  [6] "      &lt;group poppercent=\"12.76004028\" upperbound=\"5\"/&gt;"                                                                                                                                                                                          </span></span>
+<span><span class="co">#&gt;  [7] "      &lt;group poppercent=\"14.52151394\" upperbound=\"10\"/&gt;"                                                                                                                                                                                         </span></span>
+<span><span class="co">#&gt;  [8] "      &lt;group poppercent=\"12.75565434\" upperbound=\"15\"/&gt;"                                                                                                                                                                                         </span></span>
+<span><span class="co">#&gt;  [9] "      &lt;group poppercent=\"10.83632374\" upperbound=\"20\"/&gt;"                                                                                                                                                                                         </span></span>
+<span><span class="co">#&gt; [10] "      &lt;group poppercent=\"8.393312454\" upperbound=\"25\"/&gt;"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="run-simulations">Run simulations<a class="anchor" aria-label="anchor" href="#run-simulations"></a>
 </h2>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>In order to run the simulation, we can simply call <code><a href="../reference/runSimulations.html">runSimulations()</a></code>.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Run simulations</span></span>
-<span><span class="fu"><a href="../reference/runSimulations.html">runSimulations</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/runSimulations.html">runSimulations</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Running scenario [1/1]"</span></span></code></pre></div>
+<p>By default, the output in the R console is fairly minimal. More detailed logs can be found in the <code>logs/simulation</code> folder.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"exp_test/logs/simulation"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "exp_test_base.log"</span></span></code></pre></div>
+<p>Open Malaria generates two <a href="https://github.com/SwissTPH/openmalaria/wiki/UserGuide#interpretation-of-the-test-scenario" class="external-link">output files</a> which are both placed in the <code>outputs</code> folder:</p>
+<ol style="list-style-type: decimal">
+<li>The <code>*_cts.txt</code> file</li>
+</ol>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="st">"exp_test/outputs/exp_test_base_cts.txt"</span>, header <span class="op">=</span> <span class="cn">TRUE</span>, sep <span class="op">=</span> <span class="st">"\t"</span>, skip <span class="op">=</span> <span class="fl">1</span>, nrows <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    timestep  input.EIR simulated.EIR human.infectiousness N_v0.gambiae_ss.</span></span>
+<span><span class="co">#&gt; 1         0 0.00995606    0.00995049            0.0179202          30147.4</span></span>
+<span><span class="co">#&gt; 2         1 0.01958060    0.15390600            0.0175667          39181.0</span></span>
+<span><span class="co">#&gt; 3         2 0.03850920    0.24658900            0.0171114          46368.5</span></span>
+<span><span class="co">#&gt; 4         3 0.07460740    0.37191900            0.0167741          49838.5</span></span>
+<span><span class="co">#&gt; 5         4 0.14030700    0.52390000            0.0164523          48641.0</span></span>
+<span><span class="co">#&gt; 6         5 0.25256000    0.68747000            0.0165751          43197.7</span></span>
+<span><span class="co">#&gt; 7         6 0.42953400    0.84148200            0.0188351          35064.0</span></span>
+<span><span class="co">#&gt; 8         7 0.68226100    0.96738200            0.0231314          26185.7</span></span>
+<span><span class="co">#&gt; 9         8 1.00214000    1.07333000            0.0296558          18146.4</span></span>
+<span><span class="co">#&gt; 10        9 1.35047000    1.18202000            0.0377866          11790.1</span></span>
+<span><span class="co">#&gt;    immunity.h immunity.Y new.infections num.transmitting.humans ITN.coverage</span></span>
+<span><span class="co">#&gt; 1     256.846   11899700              0                    2613            0</span></span>
+<span><span class="co">#&gt; 2     256.817   11900500            400                    2590            0</span></span>
+<span><span class="co">#&gt; 3     256.856   11895200            692                    2572            0</span></span>
+<span><span class="co">#&gt; 4     256.934   11896300           1054                    2549            0</span></span>
+<span><span class="co">#&gt; 5     257.109   11897600           1469                    2526            0</span></span>
+<span><span class="co">#&gt; 6     257.299   11899200           1795                    2507            0</span></span>
+<span><span class="co">#&gt; 7     257.791   11901800           2250                    2636            0</span></span>
+<span><span class="co">#&gt; 8     258.367   11903800           2643                    2798            0</span></span>
+<span><span class="co">#&gt; 9     259.013   11904600           2987                    3019            0</span></span>
+<span><span class="co">#&gt; 10    259.681   11909900           3256                    3280            0</span></span>
+<span><span class="co">#&gt;    GVI.coverage alpha_i.gambiae_ss.</span></span>
+<span><span class="co">#&gt; 1             0         0.000206347</span></span>
+<span><span class="co">#&gt; 2             0         0.000206342</span></span>
+<span><span class="co">#&gt; 3             0         0.000206349</span></span>
+<span><span class="co">#&gt; 4             0         0.000206332</span></span>
+<span><span class="co">#&gt; 5             0         0.000206344</span></span>
+<span><span class="co">#&gt; 6             0         0.000206344</span></span>
+<span><span class="co">#&gt; 7             0         0.000206347</span></span>
+<span><span class="co">#&gt; 8             0         0.000206338</span></span>
+<span><span class="co">#&gt; 9             0         0.000206330</span></span>
+<span><span class="co">#&gt; 10            0         0.000206329</span></span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>The <code>*_out.txt</code> file</li>
+</ol>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="st">"exp_test/outputs/exp_test_base_out.txt"</span>, header <span class="op">=</span> <span class="cn">FALSE</span>, sep <span class="op">=</span> <span class="st">"\t"</span>, nrows <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    V1 V2 V3          V4</span></span>
+<span><span class="co">#&gt; 1   1  1  0 6.07000e+02</span></span>
+<span><span class="co">#&gt; 2   1  2  0 3.39300e+03</span></span>
+<span><span class="co">#&gt; 3   1  1  3 1.37000e+02</span></span>
+<span><span class="co">#&gt; 4   1  2  3 1.15500e+03</span></span>
+<span><span class="co">#&gt; 5   1  1 14 3.35770e+04</span></span>
+<span><span class="co">#&gt; 6   1  2 14 2.94240e+04</span></span>
+<span><span class="co">#&gt; 7   1  1 15 7.11000e+02</span></span>
+<span><span class="co">#&gt; 8   1  2 15 4.80000e+01</span></span>
+<span><span class="co">#&gt; 9   1  0 35 2.19321e-01</span></span>
+<span><span class="co">#&gt; 10  1  0 36 2.87284e-01</span></span></code></pre></div>
+<p>The <code>*_out.txt</code> file is usually the file you are interested in, as it contains the measurement data for each survey you defined in the input list. <a href="https://github.com/SwissTPH/openmalaria/wiki/MonitoringOutput" class="external-link">See here</a> for more information.</p>
 </div>
 <div class="section level2">
-<h2 id="collect-results">Collect results<a class="anchor" aria-label="anchor" href="#collect-results"></a>
+<h2 id="read-results">Read results<a class="anchor" aria-label="anchor" href="#read-results"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/readResults.html">readResults</a></span><span class="op">(</span><span class="fu"><a href="../reference/getCache.html">getCache</a></span><span class="op">(</span><span class="st">"experimentDir"</span><span class="op">)</span>, dbName <span class="op">=</span> <span class="st">"test"</span><span class="op">)</span></span></code></pre></div>
+<p>It can be a bit difficult to interpret Open Malaria’s output files, thus OMU provides a helper function which reads an output file and assigns column names and translates certain values (e.g. the survey dates).</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/readOutputFile.html">readOutputFile</a></span><span class="op">(</span><span class="st">"exp_test/outputs/exp_test_base_out.txt"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outfile</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    survey_date third_dimension measure value</span></span>
+<span><span class="co">#&gt; 1:  1999-12-27               1   nHost   607</span></span>
+<span><span class="co">#&gt; 2:  1999-12-27               2   nHost  3393</span></span>
+<span><span class="co">#&gt; 3:  1999-12-27               1 nPatent   137</span></span>
+<span><span class="co">#&gt; 4:  1999-12-27               2 nPatent  1155</span></span>
+<span><span class="co">#&gt; 5:  1999-12-27               1 nUncomp 33577</span></span>
+<span><span class="co">#&gt; 6:  1999-12-27               2 nUncomp 29424</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
