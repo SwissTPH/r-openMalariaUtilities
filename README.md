@@ -19,7 +19,7 @@ devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = TAG)
 
 Replace `TAG` with the tag you want to use.
 
-If you want to use the latest version on `master`, please use
+If you want to use the latest development version on `master`, please use
 
 ``` R
 devtools::install_github("SwissTPH/r-openMalariaUtilities")
