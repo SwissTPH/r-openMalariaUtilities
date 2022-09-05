@@ -38,7 +38,7 @@ test_that(".placeholderCollect works", {
 })
 
 
-test_that("recXML works", {
+test_that(".recXML works", {
   expected <- xml2::read_xml(
     "
 <demography maximumAgeYrs=\"90\" name=\"Ifakara\" popSize=\"1000\">
@@ -46,7 +46,7 @@ test_that("recXML works", {
 </demography>
 "
   )
-  actual <- recXML(
+  actual <- .recXML(
     xml2::read_xml("<root> test </root>"),
     list(
       demography = list(

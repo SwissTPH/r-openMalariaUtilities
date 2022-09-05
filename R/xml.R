@@ -67,7 +67,7 @@ NULL
 ##' @param errCol Checkmate error collection
 ##' @param recLevel List containing current recursion level
 ##' @keywords internal
-recXML <- function(x, data, errCol, recLevel = list()) {
+.recXML <- function(x, data, errCol, recLevel = list()) {
   ## Name of the current entry
   top <- names(data)
   ## Store entry for debugging
@@ -125,7 +125,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
       }
     } else {
       ## Recurse
-      recXML(chunk, rest[i], errCol, recLevel)
+      .recXML(chunk, rest[i], errCol, recLevel)
     }
   }
   ## Return merged xml2 document
@@ -158,7 +158,7 @@ recXML <- function(x, data, errCol, recLevel = list()) {
   ## Run the recursion
   for (i in seq_len(length(data))) {
     if (names(data[i]) %in% xmlEntries & is.list(data[i])) {
-      recXML(x = baseXML, data = data[i], errCol = assertCol, recLevel = list())
+      .recXML(x = baseXML, data = data[i], errCol = assertCol, recLevel = list())
     }
   }
   ## Report errors
