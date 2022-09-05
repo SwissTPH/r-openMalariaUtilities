@@ -190,6 +190,9 @@
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-printVerbose.html</loc>
   </url>
   <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-recXML.html</loc>
+  </url>
+  <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-scenariosFilenames.html</loc>
   </url>
   <url>
@@ -281,9 +284,6 @@
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/readScenarios.html</loc>
-  </url>
-  <url>
-    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/recXML.html</loc>
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/runSimulations.html</loc>
