@@ -155,6 +155,11 @@ NULL
   ## Clear cached placehoders, if any
   putCache(x = "placeholders", value = NULL)
 
+  ## Handle the case that inverventions is left empty
+  if (length(data[["interventions"]]) == 0) {
+    data[["interventions"]] <- list(name = "No interventions")
+  }
+
   ## Run the recursion
   for (i in seq_len(length(data))) {
     if (names(data[i]) %in% xmlEntries & is.list(data[i])) {

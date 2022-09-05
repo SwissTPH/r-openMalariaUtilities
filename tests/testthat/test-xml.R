@@ -72,6 +72,7 @@ test_that(".xmlMakeDocRec works", {
 <demography maximumAgeYrs=\"90\" name=\"Ifakara\" popSize=\"1000\">
 <ageGroup lowerbound=\"0\"></ageGroup>
 </demography>
+<interventions name=\"No interventions\"/>
 </root>
 "
   )
@@ -85,7 +86,8 @@ test_that(".xmlMakeDocRec works", {
         ageGroup = list(
           lowerbound = 0
         )
-      )
+      ),
+      interventions = list()
     )
   )
 
