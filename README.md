@@ -14,10 +14,10 @@ A CRAN release is currently not available. You can install either a tagged
 version via
 
 ``` R
-devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = TAG)
+devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = "TAG")
 ```
 
-Replace `TAG` with the tag you want to use.
+Replace `TAG` with the tag you want to use, e.g. "22.08.0".
 
 If you want to use the latest development version on `master`, please use
 
