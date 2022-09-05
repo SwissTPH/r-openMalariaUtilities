@@ -21,6 +21,14 @@ NULL
 ##' @param rowEnd End row. Optional.
 ##' @keywords internal
 .scenariosRowSelect <- function(scenarios, rowStart = NULL, rowEnd = NULL) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(scenarios, add = assertCol)
+  checkmate::assertNumber(rowStart, null.ok = TRUE, add = assertCol)
+  checkmate::assertNumber(rowEnd, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
+
   if (is.null(rowStart) && is.null(rowEnd)) {
     range <- seq_len(nrow(scenarios))
   } else {
@@ -38,6 +46,12 @@ NULL
 ##' @param prefix Filename prefix
 ##' @keywords internal
 .scenariosFilenames <- function(scenarios, prefix) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(scenarios, add = assertCol)
+  checkmate::assertCharacter(prefix, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Store filenames of each scenario in column, if not already present
   if (is.null(scenarios$file)) {
     scenarios$file <- vapply(seq_len(nrow(scenarios)), function(row) {
@@ -60,6 +74,16 @@ NULL
 ##' @keywords internal
 .scenariosGenFiles <- function(scenarios, baseFile, range, placeholders,
                                prefix, ncores = 1) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(scenarios, add = assertCol)
+  checkmate::assertCharacter(baseFile, add = assertCol)
+  checkmate::assertNumeric(range, add = assertCol)
+  checkmate::assertCharacter(placeholders, add = assertCol)
+  checkmate::assertCharacter(prefix, add = assertCol)
+  checkmate::assertNumber(ncores, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## If scenarios is NULL, simply copy the base xml file
   if (is.null(scenarios)) {
     file.copy(
@@ -219,6 +243,16 @@ generate_scenarios <- generateScenarios
 ##' @export
 setupScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
                            ncores = 1, rowStart = NULL, rowEnd = NULL) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(baseFile, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(prefix, null.ok = TRUE, add = assertCol)
+  checkmate::assertDataFrame(scenarios, add = assertCol)
+  checkmate::assertNumber(ncores, add = assertCol)
+  checkmate::assertNumber(rowStart, null.ok = TRUE, add = assertCol)
+  checkmate::assertNumber(rowEnd, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Get values from cache if not given
   if (is.null(baseFile)) {
     baseFile <- getCache(x = "baseXml")
@@ -260,6 +294,12 @@ setup_scenarios <- setupScenarios
 ##' @param csv Additionally save scenarios as .csv file.
 ##' @export
 storeScenarios <- function(scenarios, csv = TRUE) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(scenarios, add = assertCol)
+  checkmate::assertLogical(csv, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Write csv if requested
   if (csv == TRUE) {
     utils::write.csv(
@@ -283,6 +323,11 @@ store_scenarios <- storeScenarios
 ##' @param experimentDir Directory of the experiment
 ##' @export
 readScenarios <- function(experimentDir = NULL) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(experimentDir, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Try to get the experimentDir from cache if not given as input
   if (is.null(experimentDir)) {
     experimentDir <- getCache("experimentDir")

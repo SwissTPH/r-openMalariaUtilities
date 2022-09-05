@@ -41,6 +41,12 @@ delete_logs <- deleteLogs
 ##' @param compress If TRUE, use create a zip archive per directory.
 ##' @export
 cleanLogs <- function(aggregate = TRUE, compress = TRUE) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertLogical(aggregate, add = assertCol)
+  checkmate::assertLogical(compress, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Get only subdirs of log dir
   logdirs <- list.dirs(getCache(x = "logsDir"))
 

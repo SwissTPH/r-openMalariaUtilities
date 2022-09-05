@@ -212,7 +212,8 @@ NULL
     } else {
       newEntry <- input
     }
-    ## Appen to old list
+
+    ## Append to old list
     if (!is.null(sublist)) {
       data[[sublist]] <- append(oldEntry, newEntry)
     } else {

@@ -21,6 +21,17 @@ NULL
 runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE,
                            verbose = FALSE, ncores = 1, rowStart = NULL,
                            rowEnd = NULL) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertDataFrame(scenarios, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(cmd, add = assertCol)
+  checkmate::assertLogical(dryRun, add = assertCol)
+  checkmate::assertLogical(verbose, add = assertCol)
+  checkmate::assertNumber(ncores, add = assertCol)
+  checkmate::assertNumber(rowStart, null.ok = TRUE, add = assertCol)
+  checkmate::assertNumber(rowEnd, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## If scenarios is NULL, simply copy the base xml file
   if (is.null(scenarios)) {
     file.copy(

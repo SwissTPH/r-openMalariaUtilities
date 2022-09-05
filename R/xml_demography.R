@@ -8,8 +8,14 @@
 ageGroupsGen <- function(lowerbound, ageGroups) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assert(
+    checkmate::checkCharacter(lowerbound, pattern = "@(.*?)@"),
+    checkmate::checkNumber(lowerbound),
+    add = assertCol
+  )
   checkmate::assertDataFrame(ageGroups, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
+
   ## Assign lowerbound
   outlist <- list(lowerbound = lowerbound)
   ## Apply expected data types
@@ -42,6 +48,7 @@ defineDemography <- function(baseList, name, popSize = 3000,
                              poppercent, upperbound) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
   checkmate::assertCharacter(name, add = assertCol)
   checkmate::assert(
     checkmate::checkInteger(popSize, lower = 1L, upper = 100000L),

@@ -16,6 +16,11 @@ NULL
 ##' @param path Path of directory.
 ##' @keywords internal
 .useDir <- function(path) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(path, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   if (!dir.exists(paths = path)) {
     .printDebug(paste0("Directory ", path, " does not exist, creating ..."))
     dir.create(
@@ -45,18 +50,9 @@ NULL
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(experimentName, add = assertCol)
-  checkmate::assert(
-    checkmate::checkCharacter(rootDir, null.ok = TRUE),
-    add = assertCol
-  )
-  checkmate::assert(
-    checkmate::checkCharacter(scenariosDir, null.ok = TRUE),
-    add = assertCol
-  )
-  checkmate::assert(
-    checkmate::checkCharacter(logsDir, null.ok = TRUE),
-    add = assertCol
-  )
+  checkmate::assertCharacter(rootDir, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(scenariosDir, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(logsDir, null.ok = TRUE, add = assertCol)
   checkmate::assert(
     checkmate::checkLogical(replace),
     checkmate::checkCharacter(replace, pattern = "ask"),

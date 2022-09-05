@@ -14,14 +14,12 @@ defineVaccine <- function(baseList, vaccineParameterization, append = TRUE,
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertSubset(verbatim,
-    choices = c(TRUE, FALSE),
-    add = assertCol
-  )
-  checkmate::assertSubset(hist,
-    choices = c(TRUE, FALSE),
-    add = assertCol
-  )
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertList(vaccineParameterization, add = assertCol)
+  checkmate::assertLogical(append, add = assertCol)
+  checkmate::assertCharacter(name, null.ok = TRUE, add = assertCol)
+  checkmate::assertLogical(verbatim, add = assertCol)
+  checkmate::assertLogical(hist, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
   ## Check name argument
@@ -161,13 +159,14 @@ define_vaccine <- defineVaccine
 defineVectorControl <- function(baseList, vectorInterventionParameters,
                                 append = TRUE, name = NULL, verbatim = FALSE,
                                 hist = FALSE, resistance = 0.1) {
-
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertSubset(hist,
-    choices = c(TRUE, FALSE),
-    add = assertCol
-  )
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertList(vectorInterventionParameters, add = assertCol)
+  checkmate::assertLogical(append, add = assertCol)
+  checkmate::assertCharacter(name, null.ok = TRUE, add = assertCol)
+  checkmate::assertLogical(verbatim, add = assertCol)
+  checkmate::assertLogical(hist, add = assertCol)
   checkmate::assertNumeric(
     resistance,
     lower = 0, upper = 1, null.ok = TRUE, add = assertCol
@@ -281,6 +280,8 @@ defineIRS <- function(baseList, mosquitos, component = c(
   # Verify input
   component <- match.arg(component)
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(mosquitos, add = assertCol)
   checkmate::assertSubset(noeffect,
     choices = c("indoor", "outdoor"),
     add = assertCol
@@ -479,6 +480,7 @@ defineTreatSimple <- function(baseList, component = "MDA",
                               durationBlood = "15d", durationLiver = 0) {
   # Verify input
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
   checkmate::assertCharacter(component, add = assertCol)
   checkmate::assert(
     checkmate::checkCharacter(durationBlood, pattern = "@(.*?)@"),
@@ -531,6 +533,11 @@ define_treatSimple_compat <- defineTreatSimple
 ##' @param mosquitos Name of mosquito species affected by the intervention.
 ##' @export
 defineNothing <- function(baseList, mosquitos) {
+  # Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(mosquitos, add = assertCol)
+  checkmate::reportAssertions(assertCol)
 
   ## This is simply a subset of defineIRS
   baseList <- defineIRS(
@@ -576,7 +583,9 @@ define_nothing_compat <- function(baseList, mosqs, component = "nothing") {
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertNumeric(k, lower = 0, add = assertCol)
   checkmate::assertNumeric(L, lower = 0, upper = 10, add = assertCol)
+  checkmate::assertNumeric(t, add = assertCol)
   checkmate::reportAssertions(assertCol)
+
   if (k <= 0) {
     stop("k needs to be > 0.")
   }
@@ -596,6 +605,15 @@ define_nothing_compat <- function(baseList, mosqs, component = "nothing") {
 ##' @param grid_n How fine of a grid to explore (50 x 50)
 .calculateSmoothCompactHalflife <- function(k = 2.14, L = 6.08, halflife = 2,
                                             threshold = 0.50, grid_n = 50) {
+  # Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertNumeric(k, lower = 0, add = assertCol)
+  checkmate::assertNumeric(L, lower = 0, upper = 10, add = assertCol)
+  checkmate::assertNumeric(halflife, add = assertCol)
+  checkmate::assertNumeric(threshold, add = assertCol)
+  checkmate::assertNumeric(grid_n, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   t0 <- seq(0, 10, length.out = 100)
   d <- .calculateSmoothCompact(k = k, L = L, t = t0)
   half <- t0[min(which(d < threshold))]
@@ -642,6 +660,18 @@ define_nothing_compat <- function(baseList, mosqs, component = "nothing") {
 defineITN <- function(baseList, component = "histITN", noeffect = "outdoor",
                       mosquitos, halflife = 2, resist = TRUE,
                       historical = FALSE, strong = FALSE) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(component, add = assertCol)
+  checkmate::assertCharacter(noeffect, add = assertCol)
+  checkmate::assertCharacter(mosquitos, add = assertCol)
+  checkmate::assertNumeric(halflife, add = assertCol)
+  checkmate::assertLogical(resist, add = assertCol)
+  checkmate::assertLogical(historical, add = assertCol)
+  checkmate::assertLogical(strong, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Parameters for
   ## https://swisstph.github.io/openmalaria/schema-43.html#elt-ITN, in that
   ## order
@@ -880,8 +910,54 @@ define_ITN_compat <- function(baseList, component = "histITN",
 defineLarv <- function(baseList, mosquitos, component = "LSM",
                        coverage = "@futLSMcov@",
                        decayVals = list(L = 0.25, k = NULL, funct = "step"),
-                       startDate = NULL, endDate = NULL, interval,
+                       startDate = NULL, endDate = NULL, interval = NULL,
                        dates = NULL) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(mosquitos, add = assertCol)
+  checkmate::assertCharacter(component, add = assertCol)
+  checkmate::assert(
+    checkmate::checkCharacter(coverage, pattern = "@(.*?)@"),
+    checkmate::checkCharacter(coverage),
+    add = assertCol
+  )
+  checkmate::assertList(decayVals, null.ok = TRUE, add = assertCol)
+  checkmate::assert(
+    checkmate::checkCharacter(
+      startDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(startDate),
+    checkmate::checkNull(startDate),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      endDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(endDate),
+    checkmate::checkNull(endDate),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(interval),
+    checkmate::checkList(interval),
+    checkmate::checkNull(interval),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      dates,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(dates),
+    checkmate::checkCharacter(dates, pattern = "@(.*?)@"),
+    checkmate::checkNull(dates),
+    add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
 
   ## Set decay values accordingly
   if (is.null(decayVals)) {
@@ -1053,6 +1129,13 @@ define_larv_compat <- function(baseList, mosqs, component = "LSM",
 ##' @export
 defineImportedInfections <- function(baseList, name = "importedInfections",
                                      value = 10, time = 0) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(name, add = assertCol)
+  checkmate::assertNumeric(value, add = assertCol)
+  checkmate::assertNumeric(time, add = assertCol)
+  checkmate::reportAssertions(assertCol)
 
   ## Make sure interventions header is set
   baseList <- .defineInterventionsHeader(baseList = baseList)

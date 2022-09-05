@@ -24,6 +24,74 @@ defineHealthSystem <- function(baseList, name = "Tanzania ACT",
                                pSelfTreatUncomplicated = 0.01821375,
                                pSeekOfficialCareUncomplicated2,
                                pSeekOfficialCareSevere = 0.48) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(name, add = assertCol)
+  checkmate::assert(
+    checkmate::checkCharacter(initACT, pattern = "@(.*?)@"),
+    checkmate::checkDouble(initACT),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(initQN, pattern = "@(.*?)@"),
+    checkmate::checkDouble(initQN),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(initSelf, pattern = "@(.*?)@"),
+    checkmate::checkDouble(initSelf),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(compACT, pattern = "@(.*?)@"),
+    checkmate::checkDouble(compACT),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(compQN, pattern = "@(.*?)@"),
+    checkmate::checkDouble(compQN),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(compSelf, pattern = "@(.*?)@"),
+    checkmate::checkDouble(compSelf),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSeekOfficialCareUncomplicated1,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSeekOfficialCareUncomplicated1),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSelfTreatUncomplicated,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSelfTreatUncomplicated),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSeekOfficialCareUncomplicated2,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSeekOfficialCareUncomplicated2),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSeekOfficialCareSevere,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSeekOfficialCareSevere),
+    add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
+
   baseList <- .xmlAddList(
     data = baseList,
     sublist = "healthSystem",

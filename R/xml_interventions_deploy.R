@@ -5,6 +5,12 @@
 ##' @param placeholders Character vector of names which should be processed
 ##' @keywords internal
 .placeholderseqGen <- function(x, placeholders) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(x, add = assertCol)
+  checkmate::assertCharacter(placeholders, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## We loop over the input list, checking if an entry is not in 'placeholders'
   ## and is a list. If yes, then we enclose the name in '@'s and append the
   ## values from the sequence.
@@ -35,6 +41,12 @@
 ##' @param placeholderseq List with placeholder sequences.
 ##' @keywords internal
 .equalizePlaceholders <- function(x, placeholderseq) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertVector(x, add = assertCol)
+  checkmate::assertList(placeholderseq, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Find the maximum length
   maxlen <- 0
   for (i in names(placeholderseq)) {
@@ -92,24 +104,68 @@
 ##' @export
 deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
                      effects = NULL, startDate = NULL, endDate = NULL,
-                     interval, dates = NULL, minAge = NULL, maxAge = NULL,
+                     interval = NULL, dates = NULL, minAge = NULL, maxAge = NULL,
                      coverage = NULL, subpop = NULL) {
-
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertSubset(cumulative,
-    choices = c(TRUE, FALSE),
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(component, add = assertCol)
+  checkmate::assertLogical(cumulative, add = assertCol)
+  checkmate::assertCharacter(effects, null.ok = TRUE, add = assertCol)
+  checkmate::assert(
+    checkmate::checkCharacter(
+      startDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(startDate),
+    checkmate::checkNull(startDate),
     add = assertCol
   )
-  checkmate::assertVector(subpop,
-    null.ok = TRUE,
-    len = 1,
+  checkmate::assert(
+    checkmate::checkCharacter(
+      endDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(endDate),
+    checkmate::checkNull(endDate),
     add = assertCol
   )
-  checkmate::assertVector(effects,
-    null.ok = TRUE,
+  checkmate::assert(
+    checkmate::checkCharacter(interval),
+    checkmate::checkList(interval),
+    checkmate::checkNull(interval),
     add = assertCol
   )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      dates,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(dates),
+    checkmate::checkCharacter(dates, pattern = "@(.*?)@"),
+    checkmate::checkNull(dates),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkNumeric(minAge),
+    checkmate::checkCharacter(minAge, pattern = "@(.*?)@"),
+    checkmate::checkNull(minAge),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkNumeric(maxAge),
+    checkmate::checkCharacter(maxAge, pattern = "@(.*?)@"),
+    checkmate::checkNull(maxAge),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(coverage, pattern = "@(.*?)@"),
+    checkmate::checkCharacter(coverage),
+    checkmate::checkList(coverage),
+    checkmate::checkNull(coverage),
+    add = assertCol
+  )
+  checkmate::assertCharacter(subpop, null.ok = TRUE, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
   ## Generate a list containing the placeholder sequences from the function

@@ -18,6 +18,13 @@ NULL
 ##' @param scenarios Scenario data frame.
 ##' @export
 validateXML <- function(xmlfile = NULL, schema = NULL, scenarios = NULL) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(xmlfile, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(schema, null.ok = TRUE, add = assertCol)
+  checkmate::assertDataFrame(scenarios, null.ok = TRUE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## If not given, get file path from cache
   if (is.null(xmlfile)) {
     xmlfile <- getCache(x = "baseXml")

@@ -22,6 +22,12 @@ NULL
 ##' @param path Directory of the database file. Defaults to the root directory.
 ##' @keywords internal
 .createDB <- function(dbName, path = getCache("rootDir")) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(dbName, add = assertCol)
+  checkmate::assertCharacter(path, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   con <- DBI::dbConnect(
     RSQLite::SQLite(), file.path(path, paste0(dbName, ".sqlite"))
   )
@@ -238,6 +244,11 @@ omOutputDict <- function() {
 ##' @importFrom data.table ':='
 ##' @export
 readOutputFile <- function(f) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(f, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Appease NSE notes in R CMD check
   measure_index <- measure <- measure_name <- number <- rowNum <- NULL
   survey_date <- third_dimension <- NULL
@@ -281,6 +292,7 @@ readOutputFile <- function(f) {
 ##' @title Add data to experiments table in DB
 ##' @param connection Database connection.
 ##' @param x Data to add.
+##' @param method How to handle duplicate date. Can be "ignore" or "replace".
 ##' @keywords internal
 .addExpToDB <- function(connection, x, method = "ignore") {
   ## Input verification
@@ -403,6 +415,14 @@ readOutputFile <- function(f) {
 ##' @importFrom data.table ':='
 ##' @export
 readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(expDir, add = assertCol)
+  checkmate::assertCharacter(dbName, add = assertCol)
+  checkmate::assertCharacter(dbDir, null.ok = TRUE, add = assertCol)
+  checkmate::assertLogical(replace, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Appease NSE notes in R CMD check
   name <- NULL
 

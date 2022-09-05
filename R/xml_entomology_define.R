@@ -31,25 +31,24 @@ defineEntomology <- function(baseList, seasonalityParameters,
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertList(mosquitoParameters)
-  checkmate::assertList(seasonalityParameters)
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertList(mosquitoParameters, add = assertCol)
+  checkmate::assertList(seasonalityParameters, add = assertCol)
   checkmate::assertSubset(mode,
     choices = c("dynamic", "static"),
     add = assertCol
   )
-  checkmate::assertCharacter(name)
+  checkmate::assertCharacter(name, add = assertCol)
   checkmate::assert(
-    checkmate::checkCharacter(scaledAnnualEIR, pattern = "@(.*?)@", null.ok = TRUE),
-    checkmate::checkNumber(scaledAnnualEIR, null.ok = TRUE)
-  )
-  checkmate::assertSubset(verbose,
-    choices = c(TRUE, FALSE),
+    checkmate::checkCharacter(
+      scaledAnnualEIR,
+      pattern = "@(.*?)@", null.ok = TRUE
+    ),
+    checkmate::checkNumber(scaledAnnualEIR, null.ok = TRUE),
     add = assertCol
   )
-  checkmate::assertSubset(append,
-    choices = c(TRUE, FALSE),
-    add = assertCol
-  )
+  checkmate::assertLogical(verbose, add = assertCol)
+  checkmate::assertLogical(append, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
   ## Setup, add scaledAnnualEIR if specified

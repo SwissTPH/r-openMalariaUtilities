@@ -7,8 +7,14 @@
 changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(
+    interpolation,
+    choices = c("none", "linear"),
+    add = assertCol
+  )
   checkmate::assertDataFrame(ageGroups, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
+
   ## Assign interpolation
   if (!is.null(interpolation)) {
     outlist <- list(interpolation = interpolation)
@@ -33,8 +39,14 @@ changeHSCFRGen <- function(interpolation = NULL, ageGroups) {
 changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(
+    interpolation,
+    choices = c("none", "linear"),
+    add = assertCol
+  )
   checkmate::assertDataFrame(ageGroups, add = assertCol)
   checkmate::reportAssertions(collection = assertCol)
+
   ## Assign interpolation
   if (!is.null(interpolation)) {
     outlist <- list(interpolation = interpolation)
@@ -80,13 +92,115 @@ changeHSpSeqInGen <- function(interpolation = NULL, ageGroups) {
 ##'   disease obtains appropriate care. Can be a placeholder.
 ##' @export
 defineChangeHS <- function(baseList, name = "Change in case management",
-                           startDate = NULL, endDate = NULL, interval,
+                           startDate = NULL, endDate = NULL, interval = NULL,
                            dates = NULL, initACT = 1, initQN = 1, initSelf = 1,
                            compACT = 1, compQN = 1, compSelf = 1,
                            pSeekOfficialCareUncomplicated1,
                            pSelfTreatUncomplicated = 0.01821375,
                            pSeekOfficialCareUncomplicated2,
                            pSeekOfficialCareSevere = 0.48) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(name, add = assertCol)
+  checkmate::assert(
+    checkmate::checkCharacter(
+      startDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(startDate),
+    checkmate::checkNull(startDate),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      endDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(endDate),
+    checkmate::checkNull(endDate),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(interval),
+    checkmate::checkList(interval),
+    checkmate::checkNull(interval),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      dates,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(dates),
+    checkmate::checkCharacter(dates, pattern = "@(.*?)@"),
+    checkmate::checkNull(dates),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(initACT, pattern = "@(.*?)@"),
+    checkmate::checkDouble(initACT),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(initQN, pattern = "@(.*?)@"),
+    checkmate::checkDouble(initQN),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(initSelf, pattern = "@(.*?)@"),
+    checkmate::checkDouble(initSelf),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(compACT, pattern = "@(.*?)@"),
+    checkmate::checkDouble(compACT),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(compQN, pattern = "@(.*?)@"),
+    checkmate::checkDouble(compQN),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(compSelf, pattern = "@(.*?)@"),
+    checkmate::checkDouble(compSelf),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSeekOfficialCareUncomplicated1,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSeekOfficialCareUncomplicated1),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSelfTreatUncomplicated,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSelfTreatUncomplicated),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSeekOfficialCareUncomplicated2,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSeekOfficialCareUncomplicated2),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      pSeekOfficialCareSevere,
+      pattern = "@(.*?)@"
+    ),
+    checkmate::checkDouble(pSeekOfficialCareSevere),
+    add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
+
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.
   ## Get input arguments, remove function name from list and unwanted entries

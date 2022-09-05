@@ -10,6 +10,8 @@
 \item{connection}{Database connection.}
 
 \item{x}{Data to add.}
+
+\item{method}{How to handle duplicate date. Can be "ignore" or "replace".}
 }
 \description{
 Add data to experiments table in DB

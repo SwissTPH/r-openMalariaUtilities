@@ -133,11 +133,30 @@ xmlTimeGen <- function(startDate = NULL, endDate = NULL, interval) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assert(
+    checkmate::checkCharacter(
+      startDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(startDate),
+    checkmate::checkNull(startDate),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkCharacter(
+      endDate,
+      pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
+    ),
+    checkmate::checkDate(endDate),
+    checkmate::checkNull(endDate),
+    add = assertCol
+  )
+  checkmate::assert(
     checkmate::checkCharacter(interval),
     checkmate::checkList(interval),
     add = assertCol
   )
   checkmate::reportAssertions(collection = assertCol)
+
   ## The generated sequence is either based on regular intervals and thus,
   ## specified via a string (e.g. "2 weeks") or as a list, which specifies the
   ## intervals

@@ -13,7 +13,7 @@ defineLarv(
   decayVals = list(L = 0.25, k = NULL, funct = "step"),
   startDate = NULL,
   endDate = NULL,
-  interval,
+  interval = NULL,
   dates = NULL
 )
 
@@ -25,7 +25,7 @@ define_larv(
   decayVals = list(L = 0.25, k = NULL, funct = "step"),
   startDate = NULL,
   endDate = NULL,
-  interval,
+  interval = NULL,
   dates = NULL
 )
 }

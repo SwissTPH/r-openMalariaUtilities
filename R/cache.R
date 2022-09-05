@@ -13,6 +13,11 @@ NULL
 ##' @param path Path to 'cache.rds' file.
 ##' @keywords internal
 .syncDisk <- function(path) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(path, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   saveRDS(.pkgcache, file = file.path(path, "cache.rds"))
   return(invisible(TRUE))
 }
@@ -21,6 +26,11 @@ NULL
 ##' @param diskCache Cache environment
 ##' @keywords internal
 .syncMem <- function(diskCache) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertEnvironment(diskCache, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   if (length(diskCache) == 0) {
     stop("Disk cache not found or empty. Aborting.")
   }
@@ -39,6 +49,12 @@ NULL
 ##' @param memCache Cache environment
 ##' @keywords internal
 .syncBoth <- function(diskCache, memCache) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertEnvironment(diskCache, add = assertCol)
+  checkmate::assertEnvironment(memCache, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   allObj <- union(
     ls(all.names = TRUE, envir = diskCache),
     ls(all.names = TRUE, envir = memCache)
@@ -95,6 +111,7 @@ NULL
                               direction = c("disk", "memory", "none")) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(path, null.ok = TRUE, add = assertCol)
   checkmate::assertSubset(
     direction,
     choices = c("disk", "memory", "none"),
@@ -168,6 +185,7 @@ put_cache <- putCache
 ##'   "both".
 ##' @export
 getCache <- function(x, ret = "value") {
+  ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(
     ret,
@@ -216,6 +234,11 @@ clear_cache <- clearCache
 ##' @param path Path of the experiment's folder
 ##' @export
 loadExperiment <- function(path) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(path, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   .synchronizeCache(path = file.path(path, "cache"), direction = "memory")
 }
 
@@ -235,6 +258,11 @@ load_cache <- loadExperiment
 ##' @param path Path of the experiment's folder
 ##' @export
 writeCache <- function(path) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(path, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   .synchronizeCache(path = file.path(path, "cache"), direction = "disk")
 }
 
@@ -246,6 +274,11 @@ write_cache <- writeCache
 ##' @param path Path of the experiment's folder
 ##' @export
 syncCache <- function(path) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(path, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   .synchronizeCache(path = file.path(path, "cache"), direction = "none")
 }
 
