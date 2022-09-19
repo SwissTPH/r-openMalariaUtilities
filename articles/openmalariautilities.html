@@ -258,7 +258,7 @@
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/listCache.html">listCache</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: ageGroups  Timestamp: 2022-09-05 15:55:30 </span></span>
+<span><span class="co">#&gt; Name: ageGroups  Timestamp: 2022-09-19 08:52:36 </span></span>
 <span><span class="co">#&gt; Class: list </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;  $lowerbound</span></span>
@@ -270,7 +270,14 @@
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: surveyTimes    Timestamp: 2022-09-05 15:55:30 </span></span>
+<span><span class="co">#&gt; Name: simStart   Timestamp: 2022-09-19 08:52:36 </span></span>
+<span><span class="co">#&gt; Class: character </span></span>
+<span><span class="co">#&gt; Value:</span></span>
+<span><span class="co">#&gt;  [1] "1980-01-01"</span></span>
+<span><span class="co">#&gt;  </span></span>
+<span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Name: surveyTimes    Timestamp: 2022-09-19 08:52:36 </span></span>
 <span><span class="co">#&gt; Class: data.table data.frame </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;      number       date   day timestep</span></span>
@@ -363,7 +370,7 @@
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: thirdDimension     Timestamp: 2022-09-05 15:55:30 </span></span>
+<span><span class="co">#&gt; Name: thirdDimension     Timestamp: 2022-09-19 08:52:36 </span></span>
 <span><span class="co">#&gt; Class: data.table data.frame </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;            id value name</span></span>
@@ -711,6 +718,8 @@
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create base XML file</span></span>
 <span><span class="fu"><a href="../reference/createBaseXml.html">createBaseXml</a></span><span class="op">(</span><span class="va">baseList</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in createBaseXml(baseList, replace = TRUE): startDate 2000-01-01 is not</span></span>
+<span><span class="co">#&gt; the same as simStart 1980-01-01. This can cause survey times to not appear!</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">file</a></span><span class="op">(</span><span class="st">"exp_test/exp_test_base.xml"</span>, <span class="st">"r"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;"                                                                                                                                                                                                          </span></span>
 <span><span class="co">#&gt;  [2] "&lt;om:scenario xmlns:om=\"http://openmalaria.org/schema/scenario_44\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" name=\"exp_test\" schemaVersion=\"44\" xsi:schemaLocation=\"http://openmalaria.org/schema/scenario_44 scenario_44.xsd\"&gt;"</span></span>
