@@ -33,6 +33,20 @@ createBaseXml <- function(data = NULL, replace = "ask") {
     }
   )
 
+  ## Sanity check: simStart needs to be the same as startDate, otherwise the
+  ## dates are shifted into oblivion
+  if (exists("simStart", envir = .pkgcache)) {
+    if (as.Date(data[["monitoring"]][["startDate"]]) != getCache("simStart")) {
+      warning(
+        paste0(
+          "startDate ", data[["monitoring"]][["startDate"]],
+          " is not the same as simStart ", getCache("simStart"), ".",
+          " This can cause survey times to not appear!"
+        )
+      )
+    }
+  }
+
   ## Variables
   if (is.null(data[["xmlBasename"]])) {
     xmlBasename <- paste0(getCache(x = "experimentName"), "_base")

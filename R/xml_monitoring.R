@@ -443,6 +443,12 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     x = "surveyTimes",
     value = data.table::data.table(number = seq.int(nrow(dates)), dates)
   )
+  ## Store simStart, if possible
+  if (!is.null(startDate)) {
+    putCache(
+      x = "simStart", value = ifelse(is.null(simStart), startDate, simStart)
+    )
+  }
 
   if (useRepeat == TRUE) {
     ## Add 1 timestep = 5 days to the endDates which are used for repeatEnd. We do
