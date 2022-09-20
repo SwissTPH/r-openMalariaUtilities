@@ -463,6 +463,7 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
     endDates <- endDates + 5
   }
 
+  ## HACK This should not be necessary
   if (compatSurveys == TRUE) {
     ## Adjust entries so they correspond to inclusive dates. By default,
     ## OpenMalaria handles survey dates exclusively; the survey ends before the
