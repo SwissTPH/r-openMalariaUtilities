@@ -23,7 +23,7 @@ monitoringSurveyTimesGen(
 "monthly", "quarterly", "yearly"), "X days" (e.g. "15 days"), or a list,
 e.g. (days = c(2, 5), months = c(3:7), years = c(2005:2030)). Setting the
 days in the list to 31 will always use the last day of the corresponding
-month (e.g. 28 for February, 31 for July), or a vector of survey dates}
+month (e.g. 28 for February, 31 for July).}
 
 \item{simStart}{Start date of the simulation. A good idea is to put this 100
 years in before your first survey date.}
