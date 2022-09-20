@@ -232,3 +232,19 @@ test_that("cleanupExperiment works", {
 
   expect_equal(actual, expected)
 })
+
+test_that("expInfo works", {
+
+  ## Clear cache
+  clearCache()
+
+  putCache(x = "OMVersion", value = 42)
+
+  ## Full output
+  expect_output(expInfo(what = "om_version"), "42")
+
+  ## No printing
+  expected <- list(om_version = 42)
+
+  expect_equal(expInfo(what = "om_version", print = FALSE), expected)
+})

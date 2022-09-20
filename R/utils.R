@@ -247,3 +247,46 @@ cleanupExperiment <- function() {
   }
   return(invisible(TRUE))
 }
+
+##' @title Collect information about current experiment
+##' @param what Which information to collect. Can be any of c("name", "path",
+##'   "om_version", "placeholders", "simStart", "surveyTimes")
+##' @param print If TRUE, pretty print the information. Otherwise return a list.
+##' @export
+expInfo <- function(what = NULL, print = TRUE) {
+  if (is.null(what)) {
+    what <- c(
+      "name", "path", "om_version", "placeholders", "simStart", "surveyTimes"
+    )
+  }
+  ## Remove simStart if it is not defined
+  if (!exists("simStart", envir = .pkgcache)) {
+    what[!what %in% "simStart"]
+  }
+
+  output <- list()
+  for (val in what) {
+    if (val == "name") {
+      output[["name"]] <- getCache("experimentName")
+    } else if (val == "path") {
+      output[["path"]] <- getCache("experimentDir")
+    } else if (val == "om_version") {
+      output[["om_version"]] <- getCache("OMVersion")
+    } else {
+      output[[val]] <- getCache(val)
+    }
+  }
+
+  if (print == TRUE) {
+    for (ele in names(output)) {
+      cat("
+Name:", ele, "
+Value:
+", paste(utils::capture.output(output[[ele]]), "\n", sep = ""), "
+", paste(rep("-", options()$width), collapse = ""), "
+")
+    }
+  } else {
+    return(output)
+  }
+}
