@@ -70,8 +70,16 @@ defineDemography <- function(baseList, name, popSize = 3000,
     checkmate::checkCharacter(lowerbound, pattern = "@(.*?)@"),
     add = assertCol
   )
-  checkmate::assertDouble(upperbound, lower = 0, upper = 100, add = assertCol)
-  checkmate::assertDouble(poppercent, lower = 0, upper = 100, add = assertCol)
+  checkmate::assert(
+    checkmate::checkDouble(upperbound, lower = 0, upper = 100),
+    checkmate::checkCharacter(upperbound, pattern = "@(.*?)@"),
+    add = assertCol
+  )
+  checkmate::assert(
+    checkmate::checkDouble(poppercent, lower = 0, upper = 100),
+    checkmate::checkCharacter(poppercent, pattern = "@(.*?)@"),
+    add = assertCol
+  )
   checkmate::reportAssertions(collection = assertCol)
 
   ## Assign values to output list
