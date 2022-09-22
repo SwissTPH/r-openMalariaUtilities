@@ -241,17 +241,34 @@ omOutputDict <- function() {
 ##' @description Read a '*_out.txt' file, apply modifications and return a data
 ##'   frame which should be added to the DB.
 ##' @param f File name to read from.
+##' @param translate Can be any of c("dates", "measures") or simply TRUE
+##'   (implies all) or FALSE (implies none).
 ##' @importFrom data.table ':='
 ##' @export
-readOutputFile <- function(f) {
+readOutputFile <- function(f, translate = TRUE) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(f, add = assertCol)
+  checkmate::assert(
+    checkmate::checkSubset(translate, choices = c("measures", "dates")),
+    checkmate::checkLogical(translate),
+    add = assertCol
+  )
   checkmate::reportAssertions(assertCol)
 
   ## Appease NSE notes in R CMD check
   measure_index <- measure <- measure_name <- number <- rowNum <- NULL
   survey_date <- third_dimension <- NULL
+
+  ## Which columns should be translated?
+  ## TRUE means all, FALSE none, otherwise specified
+  if (translate == TRUE) {
+    translate <- c("dates", "measures")
+  } else if (translate == FALSE) {
+    translate <- c()
+  } else {
+    translate <- translate
+  }
 
   output <- data.table::fread(f)
   ## Assing column names
@@ -259,32 +276,35 @@ readOutputFile <- function(f) {
     "survey_date", "third_dimension", "measure", "value"
   )
   ## Translate measure indices
-  ## Read dictionary
-  dict <- omOutputDict()
-  ## Add column to join on
-  output[, measure_index := measure]
-  ## Perform join and drop added column
-  output <- output[, measure := dict[output,
-    measure_name,
-    on = "measure_index"
-  ]][, c("measure_index") := NULL]
-
+  if ("measures" %in% translate) {
+    ## Read dictionary
+    dict <- omOutputDict()
+    ## Add column to join on
+    output[, measure_index := measure]
+    ## Perform join and drop added column
+    output <- output[, measure := dict[output,
+      measure_name,
+      on = "measure_index"
+    ]][, c("measure_index") := NULL]
+  }
   ## Translate survey time points into dates
-  ## Get cached dates
-  surveyTimes <- getCache("surveyTimes")
-  ## Add column to join on
-  ## The survey_date column in the file corresponds to the row number of the
-  ## cached dates (e.g. if last survey_date = 422, then we should have 422
-  ## unique cached dates)
-  output[, rowNum := survey_date]
-  surveyTimes[, rowNum := number]
-  ## Perform join and drop added column
-  output <- output[, survey_date := surveyTimes[output,
-    date,
-    on = "rowNum"
-  ]][, c("rowNum") := NULL]
-  ## Assign column types
-  output <- output[, survey_date := as.character(survey_date)]
+  if ("dates" %in% translate) {
+    ## Get cached dates
+    surveyTimes <- getCache("surveyTimes")
+    ## Add column to join on
+    ## The survey_date column in the file corresponds to the row number of the
+    ## cached dates (e.g. if last survey_date = 422, then we should have 422
+    ## unique cached dates)
+    output[, rowNum := survey_date]
+    surveyTimes[, rowNum := number]
+    ## Perform join and drop added column
+    output <- output[, survey_date := surveyTimes[output,
+      date,
+      on = "rowNum"
+    ]][, c("rowNum") := NULL]
+    ## Assign column types
+    output <- output[, survey_date := as.character(survey_date)]
+  }
   output <- output[, third_dimension := as.character(third_dimension)]
   return(output)
 }

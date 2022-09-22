@@ -3,8 +3,8 @@
 ## These functions generate entries for the monitoring/continuous part which are
 ## tedious to define by hand.
 ## This includes:
-##   - the options (for continuous and surveys), which can be passed as a list or
-##     data frame
+##   - the options (for continuous and surveys), which can be passed as a list
+##     or data frame
 ##   - the timepoints for monitoring
 ## The time points generation is more involved as it tries to take care that all
 ## generated dates are multiples of 5 days. This is done because openMalaria
@@ -331,7 +331,8 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
           interval <- "1 days"
         }
 
-        ## Check if given interval is a multiple of 5 days and adjust if necessary
+        ## Check if given interval is a multiple of 5 days and adjust if
+        ## necessary
         split <- strsplit(interval, split = " ")
         every <- as.numeric(split[[1]][1])
         unit <- split[[1]][2]

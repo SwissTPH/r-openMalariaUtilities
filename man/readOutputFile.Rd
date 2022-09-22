@@ -4,10 +4,13 @@
 \alias{readOutputFile}
 \title{Read Open Malaria output file}
 \usage{
-readOutputFile(f)
+readOutputFile(f, translate = TRUE)
 }
 \arguments{
 \item{f}{File name to read from.}
+
+\item{translate}{Can be any of c("dates", "measures") or simply TRUE
+(implies all) or FALSE (implies none).}
 }
 \description{
 Read a '*_out.txt' file, apply modifications and return a data
