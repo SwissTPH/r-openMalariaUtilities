@@ -409,7 +409,11 @@ test_that("readResults works", {
       data.table::data.table(experiment_id = 1, scenario_id = 5, results)
     )
   )
+  results <- results[, survey_date := as.numeric(
+    as.POSIXct(survey_date, origin = "1970-01-01", tz = "UTC")
+  )]
   expected <- as.data.frame(results)
+
   actual <- DBI::dbReadTable(testcon, "results")
   expect_equal(actual, expected)
 

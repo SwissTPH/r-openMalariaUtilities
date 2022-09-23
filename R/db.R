@@ -444,7 +444,7 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
   checkmate::reportAssertions(assertCol)
 
   ## Appease NSE notes in R CMD check
-  name <- NULL
+  name <- survey_date <- NULL
 
   ## Make sure the cache is up-to-date
   syncCache(path = expDir)
