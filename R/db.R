@@ -99,7 +99,7 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
     statement = "CREATE TABLE IF NOT EXISTS results (
 experiment_id INTEGER NOT NULL,
 scenario_id INTEGER NOT NULL,
-survey_date TEXT NOT NULL,
+survey_date INTEGER NOT NULL,
 third_dimension NOT NULL,
 measure TEXT NOT NULL,
 value NUMERIC NOT NULL,
@@ -516,8 +516,16 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
       file <- file.path(getCache("outputsDir"), file)
       if (file.exists(file)) {
         input <- readOutputFile(file)
-        input <- input[, experiment_id := rep(experiment_id, times = nrow(input))]
+        input <- input[, experiment_id := rep(
+          experiment_id,
+          times = nrow(input)
+        )]
         input <- input[, scenario_id := rep(scenario_id, times = nrow(input))]
+        ## Change date to unix timestamp. This leads to a nice perfomance
+        ## increase if the dates are queried.
+        input <- input[, survey_date := as.numeric(
+          as.POSIXct(survey_date, tz = "UTC")
+        )]
 
         DBI::dbWriteTable(
           conn = dbCon,
