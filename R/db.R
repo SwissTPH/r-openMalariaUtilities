@@ -540,6 +540,12 @@ readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
     if (length(fileNotFound) != 0) {
       warning(paste0("The following results could not be found:\n"), fileNotFound)
     }
+    ## Generate the indices of the results table. Indexing provides a
+    ## performance boost at the cost of larger size. We add them once at the
+    ## end.
+    DBI::dbSendQuery(
+      conn = dbCon, "CREATE INDEX scen_index ON results(scenario_id);"
+    )
   }
   DBI::dbDisconnect(conn = dbCon)
 }
