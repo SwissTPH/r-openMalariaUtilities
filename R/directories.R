@@ -144,19 +144,19 @@ NULL
       lapply(
         c(
           ## Project root
-          getCache(x = "rootDir"),
+          path.expand(getCache(x = "rootDir")),
           ## Experiment directory
-          getCache(x = "experimentDir"),
+          path.expand(getCache(x = "experimentDir")),
           ## Cache directory
-          getCache(x = "cacheDir"),
+          path.expand(getCache(x = "cacheDir")),
           ## Scenarios directory
-          getCache(x = "scenariosDir"),
+          path.expand(getCache(x = "scenariosDir")),
           ## Log directory
-          getCache(x = "logsDir"),
-          file.path(getCache(x = "logsDir"), "scenarios"),
-          file.path(getCache(x = "logsDir"), "simulation"),
+          path.expand(getCache(x = "logsDir")),
+          path.expand(file.path(getCache(x = "logsDir"), "scenarios")),
+          path.expand(file.path(getCache(x = "logsDir"), "simulation")),
           ## Open Malaria output directory
-          getCache(x = "outputsDir")
+          path.expand(getCache(x = "outputsDir"))
         ),
         function(x) {
           if (!dir.exists(x)) {
