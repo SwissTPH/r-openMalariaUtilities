@@ -159,6 +159,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     add = assertCol
   )
   checkmate::assert(
+    checkmate::checkDouble(coverage, lower = 0, upper = 1),
     checkmate::checkCharacter(coverage, pattern = "@(.*?)@"),
     checkmate::checkCharacter(coverage),
     checkmate::checkList(coverage),
