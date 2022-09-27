@@ -71,12 +71,12 @@ test_that(".scenariosGenFiles works", {
     recursive = TRUE
   )
   dir.create(getCache(x = "scenariosDir"))
-
+  
   expect_error(
     .scenariosGenFiles(
       scenarios = scenarios,
       baseFile = testthat::test_path("ref", "exp_test_base.xml"),
-      range = seq_len(nrow(scenarios)), placeholders = c("foo"),
+      range = seq_len(nrow(scenarios)), placeholders = c("pop", "foo"),
       prefix = "exp_test"
     ),
     "variables are definded in the base xml file but not in the scenarios"

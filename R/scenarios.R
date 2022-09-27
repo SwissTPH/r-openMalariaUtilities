@@ -103,8 +103,8 @@ NULL
     base <- readLines(baseFile)
     ## Check if placeholders in base file are found in scenarios
     tmp <- c()
-    for (x in getCache(x = "placeholders")) {
-      if (!(x %in% placeholders)) {
+    for (x in placeholders) {
+      if (!(x %in% colnames(scenarios))) {
         tmp <- c(x, tmp)
       }
     }
@@ -260,14 +260,6 @@ setupScenarios <- function(baseFile = NULL, prefix = NULL, scenarios,
   if (is.null(prefix)) {
     prefix <- getCache(x = "experimentName")
   }
-
-  ## Input validation
-  assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertFileExists(baseFile, add = assertCol)
-  checkmate::assertDataFrame(scenarios, add = assertCol)
-  checkmate::assertNumber(rowStart, null.ok = TRUE, add = assertCol)
-  checkmate::assertNumber(rowEnd, null.ok = TRUE, add = assertCol)
-  checkmate::reportAssertions(assertCol)
 
   ## Read placeholder names, remove '@' signs
   placeholders <- getCache("placeholders")
