@@ -163,9 +163,11 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
         cat(result, file = x[["logfile"]], sep = "\n", append = TRUE)
       },
       finally = {
-        ## Close sinks
+        ## Close sinks and connections
         sink(type = "message")
         sink()
+        close(con = zz)
+        close(con = zzErr)
 
         ## REVIEW Revert change working directory
         setwd(x[["oldWd"]])

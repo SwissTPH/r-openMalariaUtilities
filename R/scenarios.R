@@ -151,9 +151,12 @@ NULL
           ), sep = "\n")
         },
         finally = {
-          ## Close sinks
+          ## Close sinks and connections
           sink(type = "message")
           sink()
+          close(con = zz)
+          close(con = zzErr)
+
           ## Check if logfiles are empty. If yes, remove them to save a bit
           ## space.
           for (f in c(logfile, errlogfile)) {
