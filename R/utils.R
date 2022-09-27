@@ -11,14 +11,22 @@ NULL
 ##' @param n Chunk size
 ##' @export
 splitSeq <- function(x, n) {
-  ## Determine number of chunks
-  g <- length(x) %/% n
-  ## Determine rest, if any
-  rest <- length(x) %% n
-  ## Sequence of whole groups
-  d <- x[1:(n * g)]
-  ## Create chunks
-  chunks <- split(d, ceiling(seq_along(d) / n))
+  if (length(x) <= n) {
+    ## If length of sequence is shorter then the chunk size, just generate one
+    ## chunk without rest
+    rest <- 0
+    ## Create chunks
+    chunks <- list("1" = x)
+  } else {
+    ## Determine number of chunks
+    g <- length(x) %/% n
+    ## Determine rest, if any
+    rest <- length(x) %% n
+    ## Sequence of whole groups
+    d <- x[1:(n * g)]
+    ## Create chunks
+    chunks <- split(d, ceiling(seq_along(d) / n))
+  }
   ## Add rest, if any
   if (rest != 0) {
     chunks[[paste(length(chunks) + 1)]] <- x[((n * g) + 1):((n * g) + rest)]

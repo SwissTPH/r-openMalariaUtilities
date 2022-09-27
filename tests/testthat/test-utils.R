@@ -24,6 +24,13 @@ test_that("splitSeq works (no rest)", {
     "5" = 21
   )
   expect_equal(actual, expected)
+
+  ## Chunk size larger than length of x
+  actual <- splitSeq(1:10, 15)
+  expected <- list(
+    "1" = 1:10
+  )
+  expect_equal(actual, expected)
 })
 
 test_that("processFile works", {
