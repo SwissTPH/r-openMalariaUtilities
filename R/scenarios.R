@@ -304,7 +304,8 @@ storeScenarios <- function(scenarios, csv = TRUE) {
   if (csv == TRUE) {
     utils::write.csv(
       x = scenarios,
-      file = file.path(getCache("experimentDir"), "scenarios.csv")
+      file = file.path(getCache("experimentDir"), "scenarios.csv"),
+      row.names = FALSE
     )
   }
 
