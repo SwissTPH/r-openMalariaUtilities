@@ -16,7 +16,7 @@ test_that("createBaseXml works", {
   expect_error(
     createBaseXml(data = data, replace = TRUE),
     "Experiment directory could not be found"
-    )
+  )
 
   ## Test XML file creation
   setupDirs(experimentName = "Test", rootDir = testDir, replace = TRUE)

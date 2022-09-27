@@ -71,7 +71,7 @@ test_that(".scenariosGenFiles works", {
     recursive = TRUE
   )
   dir.create(getCache(x = "scenariosDir"))
-  
+
   expect_error(
     .scenariosGenFiles(
       scenarios = scenarios,
