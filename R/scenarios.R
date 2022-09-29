@@ -119,6 +119,9 @@ NULL
 
     ## Generate scenarios
     makeScen <- function(row, scenDir, logpath) {
+      ## Limit data.table to a single thread in order to avoid nested
+      ## parallelization.
+      data.table::setDTthreads(1)
       tryCatch(
         {
           ## Open new sink connections
