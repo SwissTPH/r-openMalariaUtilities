@@ -38,25 +38,24 @@ NULL
   return(con)
 }
 
-##' @title Create the DB table layout
+##' @title Create the DB table layout, except the results table
 ##' @description Creates the database schema: experiments, scenarios,
-##'   scenarios_metadata, placeholders, results. Changes are cascaded from down
-##'   from experiments table.
+##'   scenarios_metadata, placeholders. Changes are cascaded from down from
+##'   experiments table.
 ##' @param connection Database connection.
 ##' @keywords internal
 .createTables <- function(connection) {
   ## Experiments table
-  query <- DBI::dbSendQuery(
+  DBI::dbExecute(
     conn = connection,
     statement = "CREATE TABLE IF NOT EXISTS experiments (
 experiment_id INTEGER PRIMARY KEY,
 name TEXT NOT NULL UNIQUE
 );"
   )
-  DBI::dbClearResult(query)
 
   ## Scenarios table
-  query <- DBI::dbSendQuery(
+  DBI::dbExecute(
     conn = connection,
     statement = "CREATE TABLE IF NOT EXISTS scenarios (
 experiment_id INTEGER NOT NULL,
@@ -65,10 +64,9 @@ PRIMARY KEY (experiment_id, scenario_id),
 FOREIGN KEY (experiment_id) REFERENCES experiments (experiment_id)
     ON DELETE CASCADE ON UPDATE CASCADE);"
   )
-  DBI::dbClearResult(query)
 
   ## Scenarios' metadata table
-  query <- DBI::dbSendQuery(
+  DBI::dbExecute(
     conn = connection,
     statement = "CREATE TABLE IF NOT EXISTS scenarios_metadata (
 experiment_id INTEGER NOT NULL,
@@ -78,10 +76,9 @@ value NOT NULL,
 FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, scenario_id)
     ON DELETE CASCADE ON UPDATE CASCADE);"
   )
-  DBI::dbClearResult(query)
 
   ## Scenarios' placeholder table
-  query <- DBI::dbSendQuery(
+  DBI::dbExecute(
     conn = connection,
     statement = "CREATE TABLE IF NOT EXISTS placeholders (
 experiment_id INTEGER NOT NULL,
@@ -91,24 +88,41 @@ value NOT NULL,
 FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, scenario_id)
     ON DELETE CASCADE ON UPDATE CASCADE);"
   )
-  DBI::dbClearResult(query)
+}
 
+
+##' @title Create the DB result table
+##' @description Creates the database schema for the results.
+##' @param connection Database connection.
+##' @param tName Name of the results table.
+##' @param columns A list containing the column names and types, e.g. list(names
+##'   = c(scenario_id, value), types = c("INTEGER", "NUMERIC")). The column
+##'   "experiment_id" is always automatically added.
+##' @keywords internal
+.createResultsTable <- function(connection, tName, columns) {
   ## Results table
   ## Column names based on
   ## https://github.com/SwissTPH/openmalaria/wiki/MonitoringOutput#surveys
-  query <- DBI::dbSendQuery(
+
+  ## Add experiment_id
+  columns[["names"]] <- c("experiment_id", columns[["names"]])
+  columns[["types"]] <- c("INTEGER", columns[["type"]])
+  DBI::dbExecute(
     conn = connection,
-    statement = "CREATE TABLE IF NOT EXISTS results (
-experiment_id INTEGER NOT NULL,
-scenario_id INTEGER NOT NULL,
-survey_date INTEGER NOT NULL,
-third_dimension NOT NULL,
-measure TEXT NOT NULL,
-value NUMERIC NOT NULL,
-FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, scenario_id)
-    ON DELETE CASCADE ON UPDATE CASCADE);"
+    statement = paste0(
+      "CREATE TABLE IF NOT EXISTS ", paste0(tName), " (",
+      paste0(
+        columns[["names"]], " ", columns[["types"]], " NOT NULL",
+        collapse = ", "
+      ),
+      ", ",
+      "FOREIGN KEY (experiment_id",
+      ifelse("scenario_id" %in% columns[["names"]], ", scenario_id", ""),
+      ") REFERENCES scenarios (experiment_id",
+      ifelse("scenario_id" %in% columns[["names"]], ", scenario_id", ""),
+      ") ON DELETE CASCADE ON UPDATE CASCADE);"
+    )
   )
-  DBI::dbClearResult(query)
 }
 
 ##' @title Open Malaria output dictionary
