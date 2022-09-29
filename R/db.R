@@ -33,6 +33,8 @@ NULL
   )
   ## Allow the use of FOREIGN KEY
   DBI::dbExecute(conn = con, statement = "PRAGMA foreign_keys = ON;")
+  ## Use Write-Ahead Logging. This will allow multiple connections to the DB.
+  DBI::dbExecute(conn = con, statement = "PRAGMA journal_mode=WAL;")
   return(con)
 }
 
