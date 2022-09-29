@@ -257,11 +257,13 @@ omOutputDict <- function() {
 ##' @description Read a '*_out.txt' file, apply modifications and return a data
 ##'   frame which should be added to the DB.
 ##' @param f File name to read from.
+##' @param filter A data.table expression to filter rows.
 ##' @param translate Can be any of c("dates", "measures") or simply TRUE
 ##'   (implies all) or FALSE (implies none).
+##' @param scenID Scenario ID to be added.
 ##' @importFrom data.table ':='
 ##' @export
-readOutputFile <- function(f, translate = TRUE) {
+readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(f, add = assertCol)
@@ -322,47 +324,41 @@ readOutputFile <- function(f, translate = TRUE) {
     output <- output[, survey_date := as.character(survey_date)]
   }
   output <- output[, third_dimension := as.character(third_dimension)]
+
+  ## Apply row filter, if specified
+  if (!is.null(filter)) {
+    filter <- substitute(filter)
+    ## HACK This feels like a hack but in case the filter argument is quoted
+    ##      (which it is for example when used in parallel's parLapply) it needs
+    ##      to be unquoted unitl is a single expression.
+    ##      The first argument of an expression is either '&' (which is what we
+    ##      want here) or the name of the call (here: quote) which we do not
+    ##      want.
+    while (filter[[1]] == "quote" | filter[[1]] == "base::quote") {
+      filter <- eval(filter)
+    }
+    output <- output[eval(filter)]
+  }
+  if (!is.null(scenID)) {
+    output <- output[, scenario_id := rep(scenID, times = nrow(output))]
+  }
+
   return(output)
 }
 
 ##' @title Add data to experiments table in DB
 ##' @param connection Database connection.
 ##' @param x Data to add.
-##' @param method How to handle duplicate date. Can be "ignore" or "replace".
 ##' @keywords internal
-.addExpToDB <- function(connection, x, method = "ignore") {
-  ## Input verification
-  assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertSubset(
-    method,
-    choices = c("replace", "ignore"),
-    add = assertCol
-  )
-  checkmate::reportAssertions(assertCol)
-
+.addExpToDB <- function(connection, x) {
   ## Check if the experiment name is already present in the DB
   entries <- DBI::dbReadTable(conn = connection, name = "experiments")[, "name"]
-  ## If yes, either delete and re-create the entry, append a timestamp to the
-  ## name and create new entry or do not enter data
+  ## If yes, inform the user and do nothing
   if (x %in% entries) {
-    if (method == "replace") {
-      query <- DBI::dbSendQuery(
-        conn = connection,
-        statement = paste0("DELETE FROM experiments WHERE name = \"", x, "\";")
-      )
-      DBI::dbClearResult(query)
-
-      query <- DBI::dbSendQuery(
-        conn = connection,
-        statement = paste0("INSERT INTO experiments (name) VALUES(\"", x, "\")")
-      )
-      DBI::dbClearResult(query)
-      warning(paste0("An experiment with the name: ", x, " is already present and has been replaced."))
-      return(TRUE)
-    } else if (method == "ignore") {
-      warning(paste0("An experiment with the name: ", x, " is already present and has been skipped."))
-      return(FALSE)
-    }
+    message(paste0(
+      "An experiment with the name: ", x, " is already present. ",
+      "Data will be appended if possible."
+    ))
   } else {
     query <- DBI::dbSendQuery(
       conn = connection,
