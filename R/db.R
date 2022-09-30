@@ -117,9 +117,8 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
       ),
       ", ",
       "FOREIGN KEY (experiment_id",
-      ifelse("scenario_id" %in% columns[["names"]], ", scenario_id", ""),
-      ") REFERENCES scenarios (experiment_id",
-      ifelse("scenario_id" %in% columns[["names"]], ", scenario_id", ""),
+      ifelse("scenario_id" %in% columns[["names"]], ", scenario_id) REFERENCES scenarios (experiment_id, scenario_id",
+             ") REFERENCES experiments (experiment_id"),
       ") ON DELETE CASCADE ON UPDATE CASCADE);"
     )
   )
