@@ -8,8 +8,8 @@
 defineIRS(
   baseList,
   mosquitos,
-  component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8", "Actellic80",
-    "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
+  component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
+    "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
   noeffect = "outdoor",
   steplife = NULL
 )
@@ -17,8 +17,8 @@ defineIRS(
 define_IRS(
   baseList,
   mosquitos,
-  component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8", "Actellic80",
-    "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
+  component = c("Actellic50EC", "Actellic300CS", "Actellic11", "Actellic8",
+    "Actellic80", "magic_actellic", "IRS4", "IRS6", "IRS8", "Bendiocarb", "nothing"),
   noeffect = "outdoor",
   steplife = NULL
 )

@@ -85,8 +85,8 @@
 ##' @param component Name of intervention.
 ##' @param cumulative Default is FALSE. Do not set to TRUE.
 ##' @param effects Either NULL or vector of strings, e.g. c("det","pre","post")
-##' @param startDate Date in YYYY-MM-DD format.
-##' @param endDate Date in YYYY-MM-DD format.
+##' @param startDate Date in YYYY-MM-DD format. Can be a placeholder.
+##' @param endDate Date in YYYY-MM-DD format. Can be a placeholder.
 ##' @param interval A string like '1 weeks'. Same as in [seq.Date()]. Or a list
 ##'   composed of the entries 'days' (optional), 'months' (optional) and
 ##'   'years'. If a list is used, startDate and endDate are not used and can be
@@ -118,6 +118,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
       pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
     ),
     checkmate::checkDate(startDate),
+    checkmate::checkCharacter(startDate, pattern = "@(.*?)@"),
     checkmate::checkNull(startDate),
     add = assertCol
   )
@@ -127,6 +128,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
       pattern = "^\\d{4}\\-\\d{2}\\-\\d{2}"
     ),
     checkmate::checkDate(endDate),
+    checkmate::checkCharacter(endDate, pattern = "@(.*?)@"),
     checkmate::checkNull(endDate),
     add = assertCol
   )

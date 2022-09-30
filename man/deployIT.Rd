@@ -44,9 +44,9 @@ deploy_IT(
 
 \item{effects}{Either NULL or vector of strings, e.g. c("det","pre","post")}
 
-\item{startDate}{Date in YYYY-MM-DD format.}
+\item{startDate}{Date in YYYY-MM-DD format. Can be a placeholder.}
 
-\item{endDate}{Date in YYYY-MM-DD format.}
+\item{endDate}{Date in YYYY-MM-DD format. Can be a placeholder.}
 
 \item{interval}{A string like '1 weeks'. Same as in \code{\link[=seq.Date]{seq.Date()}}. Or a list
 composed of the entries 'days' (optional), 'months' (optional) and
