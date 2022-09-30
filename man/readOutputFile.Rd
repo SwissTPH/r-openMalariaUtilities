@@ -4,13 +4,17 @@
 \alias{readOutputFile}
 \title{Read Open Malaria output file}
 \usage{
-readOutputFile(f, translate = TRUE)
+readOutputFile(f, filter = NULL, translate = TRUE, scenID = NULL)
 }
 \arguments{
 \item{f}{File name to read from.}
 
+\item{filter}{A data.table expression to filter rows.}
+
 \item{translate}{Can be any of c("dates", "measures") or simply TRUE
 (implies all) or FALSE (implies none).}
+
+\item{scenID}{Scenario ID to be added.}
 }
 \description{
 Read a '*_out.txt' file, apply modifications and return a data

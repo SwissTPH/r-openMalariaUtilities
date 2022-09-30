@@ -276,7 +276,7 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 
   ## Appease NSE notes in R CMD check
   measure_index <- measure <- measure_name <- number <- rowNum <- NULL
-  survey_date <- third_dimension <- NULL
+  survey_date <- third_dimension <- scenario_id <- NULL
 
   ## Which columns should be translated?
   ## TRUE means all, FALSE none, otherwise specified
@@ -436,137 +436,46 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   )
 }
 
+
 ##' @title Collect Open Malaria results into a database
 ##' @param expDir Database connection.
 ##' @param dbName Name of the database file without extension.
 ##' @param dbDir Directory of the database file. Defaults to the root directory.
-##' @param replace How to handle duplicate experiments in the database. If TRUE,
-##'   any experiment with the same name will be replaced. If FALSE, a new entry
-##'   with the same name will be ignored.
+##' @param replace If TRUE, replace an exisiting database with same name as in
+##'   dbName. Else, try to append the date to the exisiting database.
+##' @param resultsName Name of the database table to add the results to.
+##' @param resultsCols A list containing the column names and the column types
+##'   of the results table. For example, list(names = c("scenario_id", ...),
+##'   types = c("INTEGER", ...)). The "experiment_id" is added automatically.
+##'   Types as available for SQLite.
+##' @param indexOn Define which index to create. Needs to be a lis of the form
+##'   list(c(TABLE, COLUMN), c(TABLE, COLUMN), ...).
+##' @param ncores Number of CPU cores to use.
+##' @param strategy Defines how to process the files. "batch" means that all
+##'   files are read into a single data frame first, then the aggregation
+##'   funciton is applied to that data frame and the result is added to the
+##'   database. "serial" means that each individual file is processed with the
+##'   aggregation function and added to the database.
+##' @param fileFun A function for filtering the input files. Needs to return a
+##'   vector of the scenario XML files without path as in the file column of the
+##'   scenario data frame. No default.
+##' @param fileFunArgs Arguments for fileFun as a (named) list.
+##' @param readFun A function for reading and processing OpenMalaria output
+##'   files. Needs to return as data frame. The first argument needs to be the
+##'   file name and it needs to have ... as an argument. Scenario IDs are
+##'   available by using scenID as an argument. If NULL, defaults to
+##'   readOutputFile and the scenario IDs are added automatically.
+##' @param readFunArgs Arguments for readFun as a (named) list.
+##' @param aggrFun A function for aggregating the output of readFun. First
+##'   argument needs to be the output data frame of readFun and it needs to
+##'   generate a data frame. The data frame should NOT contain an experiment_id
+##'   column as this is added automatically. The column names needs to match the
+##'   ones defined in resultsCols.
+##' @param aggrFunArgs Arguments for aggrFun as a (named) list.
 ##' @importFrom data.table ':='
 ##' @export
-readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
-  ## Input verification
-  assertCol <- checkmate::makeAssertCollection()
-  checkmate::assertCharacter(expDir, add = assertCol)
-  checkmate::assertCharacter(dbName, add = assertCol)
-  checkmate::assertCharacter(dbDir, null.ok = TRUE, add = assertCol)
-  checkmate::assertLogical(replace, add = assertCol)
-  checkmate::reportAssertions(assertCol)
-
-  ## Appease NSE notes in R CMD check
-  name <- survey_date <- NULL
-
-  ## Make sure the cache is up-to-date
-  syncCache(path = expDir)
-
-  ## Create connection
-  if (is.null(dbDir)) {
-    dbDir <- getCache("rootDir")
-  }
-  dbCon <- .createDB(dbName = dbName, path = dbDir)
-
-  ## Create table schema
-  .createTables(connection = dbCon)
-
-  ## Translate replace value
-  methodsDict <- data.frame(
-    replace = c(TRUE, FALSE),
-    method = c("replace", "ignore")
-  )
-  replace <- methodsDict[methodsDict[, "replace"] == replace, "method"]
-
-  ## Add experiment
-  expName <- getCache("experimentName")
-  continue <- .addExpToDB(connection = dbCon, x = expName, method = replace)
-  if (continue == TRUE) {
-    ## Add scenarios and placeholders
-    scenarios <- data.table::as.data.table(
-      readScenarios(experimentDir = getCache("experimentDir"))
-    )
-    experiment_id <- data.table::data.table(
-      DBI::dbReadTable(
-        dbCon, "experiments"
-      )
-    )[name == expName, experiment_id]
-    scenarios <- data.table::data.table(
-      scenarios,
-      experiment_id = rep(experiment_id, times = nrow(scenarios))
-    )
-
-    ## Placeholders can be empty in case there are none. We need to handle that
-    ## situation.
-    placeholders <- tryCatch(
-      getCache("placeholders"),
-      error = function(c) {
-        .printVerbose("No placeholders found in cache!")
-        character(0)
-      }
-    )
-    if (length(placeholders) == 0) {
-      .addScenToDB(
-        connection = dbCon, x = scenarios
-      )
-    } else {
-      .addScenToDB(
-        connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
-      )
-
-      cols <- c("ID", "experiment_id", placeholders)
-      .addPlaceholdersToDB(
-        connection = dbCon, x = scenarios[, cols, with = FALSE]
-      )
-    }
-
-    ## Add results
-    scenarioFiles <- scenarios[["file"]]
-    fileNotFound <- c()
-    for (f in scenarioFiles) {
-      scenario_id <- scenarios[file == f][["ID"]]
-      file <- gsub(pattern = ".xml", replacement = "_out.txt", x = f)
-      file <- file.path(getCache("outputsDir"), file)
-      if (file.exists(file)) {
-        input <- readOutputFile(file)
-        input <- input[, experiment_id := rep(
-          experiment_id,
-          times = nrow(input)
-        )]
-        input <- input[, scenario_id := rep(scenario_id, times = nrow(input))]
-        ## Change date to unix timestamp. This leads to a nice perfomance
-        ## increase if the dates are queried.
-        input <- input[, survey_date := as.numeric(
-          as.POSIXct(survey_date, tz = "UTC")
-        )]
-
-        DBI::dbWriteTable(
-          conn = dbCon,
-          name = "results",
-          value = input,
-          append = TRUE
-        )
-      } else {
-        fileNotFound <- c(fileNotFound, file)
-      }
-    }
-    if (length(fileNotFound) != 0) {
-      warning(paste0("The following results could not be found:\n"), fileNotFound)
-    }
-    ## Generate the indices of the results table. Indexing provides a
-    ## performance boost at the cost of larger size. We add them once at the
-    ## end.
-    DBI::dbSendQuery(
-      conn = dbCon, "CREATE INDEX scen_index ON results(scenario_id);"
-    )
-  }
-  DBI::dbDisconnect(conn = dbCon)
-}
-
-## File collection function should return a vector of filenames
-## Read file fun needs to accept a file arg !! and have ... !!; scenario ID available via scenID
-## Collection fun should read the files, process them and add to DB
-##   Needs to accept a files argument which
 collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
-                           resultsName = "results", resultsColNames = list(
+                           resultsName = "results", resultsCols = list(
                              names = c(
                                "scenario_id", "survey_date",
                                "third_dimension", "measure", "value"
@@ -577,7 +486,18 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
                            ncores = 1, strategy = "serial",
                            fileFun = NULL, fileFunArgs = NULL,
                            readFun = NULL, readFunArgs = NULL,
-                           colFun = NULL, colFunArgs = NULL) {
+                           aggrFun = NULL, aggrFunArgs = NULL) {
+  ## Input verification
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertSubset(
+    strategy,
+    choices = c("batch", "serial"), add = assertCol
+  )
+  checkmate::reportAssertions(assertCol)
+
+  ## Appease NSE notes in R CMD check
+  name <- NULL
+  
   ## Get path if not given
   if (is.null(dbDir)) {
     dbDir <- getCache("rootDir")
@@ -593,249 +513,289 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
   ## Create connection
   dbCon <- .createDB(dbName = dbName, path = dbDir)
 
+  ## Whatever happens now, we need to make sure that we close the connection.
+  ## Because we use WAL, it can happen that if a failure occurs and we do not
+  ## close the connection, the next transactions cause the wal file to grow
+  ## indefinitely. wal2 for SQLite solves that but is not released at the time
+  ## of writing.
+
   ## Create table schema
-  .createTables(connection = dbCon)
-  .createResultsTable(
-    connection = dbCon, tName = resultsName, columns = resultsColNames
-  )
-
-  ## Drop index if already present. This will speed up the addition of data but
-  ## we need to rebuild it.
-  for (i in seq_along((indexOn))) {
-    DBI::dbExecute(
-      conn = dbCon,
-      statement = paste0(
-        "DROP INDEX IF EXISTS ",
-        paste0(indexOn[[i]][1], "_", indexOn[[i]][2], "_index"), ";"
+  tryCatch(
+    {
+      .createTables(connection = dbCon)
+      .createResultsTable(
+        connection = dbCon, tName = resultsName, columns = resultsCols
       )
-    )
-  }
 
-  ## Add experiment
-  expName <- getCache("experimentName")
-  .addExpToDB(connection = dbCon, x = expName)
-
-  ## By default, select all files from scenarios data frame
-  scenarios <- data.table::as.data.table(
-    readScenarios(experimentDir = getCache("experimentDir"))
-  )
-
-  experiment_id <- data.table::data.table(
-    DBI::dbReadTable(
-      dbCon, "experiments"
-    )
-  )[name == expName, experiment_id]
-
-  if (is.null(fileFun)) {
-    files <- scenarios[, file]
-  } else {
-    files <- do.call(what = fileFun, args = fileFunArgs)
-  }
-
-  ## Limit scenarios to selected files and add experiment_id column
-  scenarios <- data.table::data.table(
-    scenarios[file %in% files],
-    experiment_id = rep(experiment_id, times = nrow(scenarios[file %in% files]))
-  )
-
-  ## Placeholders can be empty in case there are none. We need to handle that
-  ## situation.
-  placeholders <- tryCatch(
-    getCache("placeholders"),
-    error = function(c) {
-      .printVerbose("No placeholders found in cache!")
-      character(0)
-    }
-  )
-
-  if (length(placeholders) == 0) {
-    .addScenToDB(
-      connection = dbCon, x = scenarios
-    )
-  } else {
-    .addScenToDB(
-      connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
-    )
-
-    cols <- c("ID", "experiment_id", placeholders)
-    .addPlaceholdersToDB(
-      connection = dbCon, x = scenarios[, cols, with = FALSE]
-    )
-  }
-
-  ## Transform file names to match the content of the output directory
-  files <- file.path(
-    getCache("outputsDir"),
-    gsub(pattern = ".xml", replacement = "_out.txt", x = files)
-  )
-
-  ## Read files
-  if (is.null(readFun)) {
-    ## By default, we use our read function
-    readFun <- readOutputFile
-  }
-
-  ## HACK This feels like a big hack but I did not find another way to do
-  ##      this, even though I feel that there should be one. We need to pass
-  ##      the unevaluated arguments from the top level into the the lapply
-  ##      call and also get them out of the list. Here, we do this by directly
-  ##      manipulating the formals of the function.
-  for (n in names(substitute(readFunArgs))) {
-    if (n %in% names(formals(readFun))) {
-      formals(readFun)[[n]] <- substitute(readFunArgs)[[n]]
-    }
-  }
-  ## HACK Same as above
-  if (!is.null(colFun)) {
-    for (n in names(substitute(colFunArgs))) {
-      if (n %in% names(formals(colFun))) {
-        formals(colFun)[[n]] <- substitute(colFunArgs)[[n]]
-      }
-    }
-  }
-
-  ## Two strategies to process the data and add them to the DB:
-  ## "batch": Read all files into one data.table, apply aggregation function and
-  ##          add the whole output batch to the DB.
-  ## "serial": Read each file individually, apply aggregation function and add
-  ##           the output to the DB.
-  ## The reasoning is that a single transaction to the DB should be faster but
-  ## aggregating a lot of files can consume a lot of memories. Thus, depending
-  ## on the available amount of RAM, it might not be possible to use that
-  ## strategy.
-  if (strategy == "batch") {
-    if (ncores > 1) {
-      tryCatch(
-        {
-          cl <- parallel::makeCluster(ncores, outfile = "")
-          parallel::clusterEvalQ(cl, {
-            data.table::setDTthreads(1)
-          })
-          parallel::clusterExport(cl, "loadExperiment")
-          parallel::clusterCall(
-            cl, "loadExperiment", expDir
-          )
-          output <- data.table::rbindlist(
-            parallel::clusterMap(
-              cl = cl, readFun, files, scenID = scenarios[["ID"]],
-              SIMPLIFY = FALSE
+      ## Drop index if already present. This will speed up the addition of data
+      ## but we need to rebuild it.
+      if (!is.null(indexOn)) {
+        for (i in seq_along((indexOn))) {
+          DBI::dbExecute(
+            conn = dbCon,
+            statement = paste0(
+              "DROP INDEX IF EXISTS ",
+              paste0(indexOn[[i]][1], "_", indexOn[[i]][2], "_index"), ";"
             )
           )
-        },
-        finally = parallel::stopCluster(cl)
-      )
-    } else {
-      output <- data.table::rbindlist(
-        mapply(readFun, files, scenID = scenarios[["ID"]], SIMPLIFY = FALSE)
-      )
-    }
-
-    ## Run aggregation. I don't see a good way to parallelize, so if this is
-    ## done, data.table is your friend.
-    if (!is.null(colFun)) {
-      output <- do.call(what = colFun, args = list(output))
-    }
-
-    ## Add output to DB
-    output <- output[, experiment_id := rep(
-      experiment_id,
-      times = nrow(output)
-    )]
-
-    DBI::dbWriteTable(
-      conn = dbCon,
-      name = resultsName,
-      value = output,
-      append = TRUE
-    )
-  } else if (strategy == "serial") {
-    f <- function(file, readFun, colFun, db, ...) {
-      args <- list(...)
-      output <- do.call(readFun, list(file, scenID = args[["scenID"]]))
-      if (!is.null(colFun)) {
-        output <- do.call(what = colFun, args = list(output))
+        }
       }
 
-      ## Add output to DB
-      dbCon <- DBI::dbConnect(RSQLite::SQLite(), db)
-      tryCatch(
-        {
-          output <- output[, experiment_id := rep(
-            experiment_id,
-            times = nrow(output)
-          )]
+      ## Add experiment
+      expName <- getCache("experimentName")
+      .addExpToDB(connection = dbCon, x = expName)
 
-          DBI::dbWriteTable(
-            conn = dbCon,
-            name = resultsName,
-            value = output,
-            append = TRUE
-          )
-        },
-        finally = DBI::dbDisconnect(dbCon)
+      ## By default, select all files from scenarios data frame
+      scenarios <- data.table::as.data.table(
+        readScenarios(experimentDir = getCache("experimentDir"))
       )
-    }
-    if (ncores > 1) {
-      tryCatch(
-        {
-          cl <- parallel::makeCluster(ncores, outfile = "")
-          parallel::clusterEvalQ(cl, {
-            data.table::setDTthreads(1)
-          })
-          parallel::clusterExport(cl, "loadExperiment")
-          parallel::clusterCall(
-            cl, "loadExperiment", expDir
+
+      experiment_id <- data.table::data.table(
+        DBI::dbReadTable(
+          dbCon, "experiments"
+        )
+      )[name == expName, experiment_id]
+
+      if (is.null(fileFun)) {
+        files <- scenarios[, file]
+      } else {
+        files <- do.call(what = fileFun, args = fileFunArgs)
+      }
+
+      ## Limit scenarios to selected files and add experiment_id column
+      scenarios <- data.table::data.table(
+        scenarios[file %in% files],
+        experiment_id = rep(
+          experiment_id,
+          times = nrow(scenarios[file %in% files])
+        )
+      )
+
+      ## Placeholders can be empty in case there are none. We need to handle
+      ## that situation.
+      placeholders <- tryCatch(
+        getCache("placeholders"),
+        error = function(c) {
+          .printVerbose("No placeholders found in cache!")
+          character(0)
+        }
+      )
+
+      if (length(placeholders) == 0) {
+        .addScenToDB(
+          connection = dbCon, x = scenarios
+        )
+      } else {
+        .addScenToDB(
+          connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
+        )
+
+        cols <- c("ID", "experiment_id", placeholders)
+        .addPlaceholdersToDB(
+          connection = dbCon, x = scenarios[, cols, with = FALSE]
+        )
+      }
+
+      ## Transform file names to match the content of the output directory
+      files <- file.path(
+        getCache("outputsDir"),
+        gsub(pattern = ".xml", replacement = "_out.txt", x = files)
+      )
+
+      ## Read files
+      if (is.null(readFun)) {
+        ## By default, we use our read function
+        readFun <- readOutputFile
+      }
+
+      ## HACK This feels like a big hack but I did not find another way to do
+      ##      this, even though I feel that there should be one. We need to pass
+      ##      the unevaluated arguments from the top level into the the lapply
+      ##      call and also get them out of the list. Here, we do this by
+      ##      directly manipulating the formals of the function.
+      for (n in names(substitute(readFunArgs))) {
+        if (n %in% names(formals(readFun))) {
+          formals(readFun)[[n]] <- substitute(readFunArgs)[[n]]
+        }
+      }
+      ## HACK Same as above
+      if (!is.null(aggrFun)) {
+        for (n in names(substitute(aggrFunArgs))) {
+          if (n %in% names(formals(aggrFun))) {
+            formals(aggrFun)[[n]] <- substitute(aggrFunArgs)[[n]]
+          }
+        }
+      }
+
+      ## Two strategies to process the data and add them to the DB:
+      ##
+      ## "batch": Read all files into one data.table, apply aggregation function
+      ##          and add the whole output batch to the DB.
+      ##
+      ## "serial": Read each file individually, apply aggregation function and
+      ##           add the output to the DB.
+      ##
+      ## The reasoning is that a single transaction to the DB should be faster
+      ## but aggregating a lot of files can consume a lot of memories. Thus,
+      ## depending on the available amount of RAM, it might not be possible to
+      ## use that strategy.
+      if (strategy == "batch") {
+        if (ncores > 1) {
+          tryCatch(
+            {
+              cl <- parallel::makeCluster(ncores, outfile = "")
+              parallel::clusterEvalQ(cl, {
+                data.table::setDTthreads(1)
+              })
+              parallel::clusterExport(cl, "loadExperiment")
+              parallel::clusterCall(
+                cl, "loadExperiment", expDir
+              )
+              output <- data.table::rbindlist(
+                parallel::clusterMap(
+                  cl = cl, readFun, files, scenID = scenarios[["ID"]],
+                  SIMPLIFY = FALSE
+                )
+              )
+            },
+            finally = parallel::stopCluster(cl)
           )
-          parallel::clusterMap(
-            cl = cl, f, files, scenID = scenarios[["ID"]],
-            MoreArgs = list(
-              readFun = readFun, colFun = colFun,
+        } else {
+          output <- data.table::rbindlist(
+            mapply(readFun, files, scenID = scenarios[["ID"]], SIMPLIFY = FALSE)
+          )
+        }
+
+        ## Run aggregation. I don't see a good way to parallelize, so if this is
+        ## done, data.table is your friend.
+        if (!is.null(aggrFun)) {
+          output <- do.call(what = aggrFun, args = list(output))
+        }
+
+        ## Add output to DB
+        output <- output[, experiment_id := rep(
+          experiment_id,
+          times = nrow(output)
+        )]
+
+        DBI::dbWriteTable(
+          conn = dbCon,
+          name = resultsName,
+          value = output,
+          append = TRUE
+        )
+      } else if (strategy == "serial") {
+        f <- function(file, readFun, aggrFun, db, ...) {
+          args <- list(...)
+          output <- do.call(readFun, list(file, scenID = args[["scenID"]]))
+          if (!is.null(aggrFun)) {
+            output <- do.call(what = aggrFun, args = list(output))
+          }
+
+          ## Add output to DB
+          dbCon <- DBI::dbConnect(RSQLite::SQLite(), db)
+          tryCatch(
+            {
+              output <- output[, experiment_id := rep(
+                experiment_id,
+                times = nrow(output)
+              )]
+
+              DBI::dbWriteTable(
+                conn = dbCon,
+                name = resultsName,
+                value = output,
+                append = TRUE
+              )
+            },
+            finally = DBI::dbDisconnect(dbCon)
+          )
+        }
+        if (ncores > 1) {
+          tryCatch(
+            {
+              cl <- parallel::makeCluster(ncores, outfile = "")
+              parallel::clusterEvalQ(cl, {
+                data.table::setDTthreads(1)
+              })
+              parallel::clusterExport(cl, "loadExperiment")
+              parallel::clusterCall(
+                cl, "loadExperiment", expDir
+              )
+              parallel::clusterMap(
+                cl = cl, f, files, scenID = scenarios[["ID"]],
+                MoreArgs = list(
+                  readFun = readFun, aggrFun = aggrFun,
+                  db = file.path(dbDir, paste0(dbName, ".sqlite"))
+                ),
+                SIMPLIFY = FALSE
+              )
+            },
+            finally = parallel::stopCluster(cl)
+          )
+        } else {
+          for (fi in files) {
+            do.call(f, list(fi,
+              scenID = scenarios[file == gsub(
+                pattern = "_out.txt", replacement = ".xml", x = basename(fi)
+              )][["ID"]],
+              readFun = readFun, aggrFun = aggrFun,
               db = file.path(dbDir, paste0(dbName, ".sqlite"))
-            ),
-            SIMPLIFY = FALSE
-          )
-        },
-        finally = parallel::stopCluster(cl)
-      )
-    } else {
-      for (fi in files) {
-        do.call(f, list(fi,
-          scenID = scenarios[file == gsub(
-            pattern = "_out.txt", replacement = ".xml", x = basename(fi)
-          )][["ID"]],
-          readFun = readFun, colFun = colFun,
-          db = file.path(dbDir, paste0(dbName, ".sqlite"))
-        ))
+            ))
+          }
+        }
       }
-    }
-  }
 
-  ## Either aggregate file input and then put into DB
-  ## take files -> read and aggregate
-  ## Or do it sequentially
-  ## for file in files -> read file
-
-  ## Collect results from file
-
-  ## Cleanup and optimization
-  ## Indexing
-  for (i in seq_along((indexOn))) {
-    DBI::dbExecute(
-      conn = dbCon,
-      statement = paste0(
-        "CREATE INDEX ",
-        paste0(indexOn[[i]][1], "_", indexOn[[i]][2], "_index"),
-        " ON ", paste0(indexOn[[i]][1], "(", indexOn[[i]][2], ");")
+      ## Cleanup and optimization
+      ## Indexing
+      if (!is.null(indexOn)) {
+        for (i in seq_along((indexOn))) {
+          DBI::dbExecute(
+            conn = dbCon,
+            statement = paste0(
+              "CREATE INDEX ",
+              paste0(indexOn[[i]][1], "_", indexOn[[i]][2], "_index"),
+              " ON ", paste0(indexOn[[i]][1], "(", indexOn[[i]][2], ");")
+            )
+          )
+        }
+      }
+      ## Vacuum
+      DBI::dbExecute(
+        conn = dbCon,
+        statement = "VACUUM"
       )
-    )
-  }
-  DBI::dbExecute(
-    conn = dbCon,
-    statement = "VACUUM"
+      ## Analyze
+      DBI::dbExecute(
+        conn = dbCon,
+        statement = "ANALYZE"
+      )
+    },
+
+    ## Terminate connection
+    finally = {
+      DBI::dbDisconnect(conn = dbCon)
+    }
   )
-  DBI::dbExecute(
-    conn = dbCon,
-    statement = "ANALYZE"
-  )
-  DBI::dbDisconnect(conn = dbCon)
+}
+
+##' @rdname collectResults
+##' @export
+collect_results <- collectResults
+
+## DEPRECATED
+##' @title Collect Open Malaria results into a database
+##' @param expDir Database connection.
+##' @param dbName Name of the database file without extension.
+##' @param dbDir Directory of the database file. Defaults to the root directory.
+##' @param replace How to handle duplicate experiments in the database. If TRUE,
+##'   any experiment with the same name will be replaced. If FALSE, a new entry
+##'   with the same name will be ignored. DEPRECATED Database will always be
+##'   replaced.
+##' @importFrom data.table ':='
+##' @export
+readResults<- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
+  warning("readResults has been deprecated. Use collectResults instead.")
+  collectResults(
+    expDir = expDir, dbName = dbName, dbDir = dbDir, replace = TRUE)
 }
