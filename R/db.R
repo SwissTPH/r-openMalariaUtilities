@@ -437,6 +437,9 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 }
 
 
+## REVIEW collectResults is really long and really nested. This should be
+##        addressed as soon as the code is stabilized.
+
 ##' @title Collect Open Malaria results into a database
 ##' @param expDir Database connection.
 ##' @param dbName Name of the database file without extension.
