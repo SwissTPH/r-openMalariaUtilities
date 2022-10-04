@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">openMalariaUtilities</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">22.08.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">22.08.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,11 +52,24 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="22.08.0" id="openmalariautilities-22080">openMalariaUtilities 22.08.0<a class="anchor" aria-label="anchor" href="#openmalariautilities-22080"></a></h2>
+<p>Maintenance release</p>
+<ul><li>Fixes<ul><li>Allow the use of no interventions (d504923fa047fc56a5047539e523a19abb9d20f1)</li>
+<li>Fix unexpected behavior in splitSeq (cd6c0f19c6d9d2b45960f0cecd87695d662fd8e7)</li>
+<li>Fix undefined placeholder detection (4dbf142b121c0f3a1fac989e082cf46673a83cbd)</li>
+</ul></li>
+<li>Improvements<ul><li>Warn if simStart and startDate are not the same (08f6ec5b149d48cd43b9d02e881b79b0c98e41ae)</li>
+<li>Add <code>deploy_cont_compat</code> (6f8b483fc478b380580b082a48fa8eca087c1049, 4ec418936ddbce5c343901b0816036f6e04423ec, 38d634541e55ce0b17d079b50452de4445dd9256)</li>
+<li>Add experiment summary (1334d9ceb2b91cb4ab270b12d6d17b98ce1105c7)</li>
+</ul></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="22.08.0" id="openmalariautilities-22080-1">openMalariaUtilities 22.08.0<a class="anchor" aria-label="anchor" href="#openmalariautilities-22080-1"></a></h2>
 <ul><li>First major release of the complete overhaul<ul><li>Open Malaria’s results are now collected and stored in a SQLite database</li>
 <li>The major processing steps, e.g. scenario creation and simulation can now be done in parallel. Currently, the collection and storage of the results is still single-threaded.</li>
 <li>Data analysis/post-processing has been removed. It was concluded that this is too opionated and out of scope for this package.</li>
 </ul></li></ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
