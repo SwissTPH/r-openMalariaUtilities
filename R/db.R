@@ -118,7 +118,8 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
       ", ",
       "FOREIGN KEY (experiment_id",
       ifelse("scenario_id" %in% columns[["names"]], ", scenario_id) REFERENCES scenarios (experiment_id, scenario_id",
-             ") REFERENCES experiments (experiment_id"),
+        ") REFERENCES experiments (experiment_id"
+      ),
       ") ON DELETE CASCADE ON UPDATE CASCADE);"
     )
   )
@@ -499,7 +500,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
 
   ## Appease NSE notes in R CMD check
   name <- NULL
-  
+
   ## Get path if not given
   if (is.null(dbDir)) {
     dbDir <- getCache("rootDir")
@@ -796,8 +797,9 @@ collect_results <- collectResults
 ##'   replaced.
 ##' @importFrom data.table ':='
 ##' @export
-readResults<- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
+readResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE) {
   warning("readResults has been deprecated. Use collectResults instead.")
   collectResults(
-    expDir = expDir, dbName = dbName, dbDir = dbDir, replace = TRUE)
+    expDir = expDir, dbName = dbName, dbDir = dbDir, replace = TRUE
+  )
 }
