@@ -327,16 +327,11 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 
   ## Apply row filter, if specified
   if (!is.null(filter)) {
+    ## Make sure that the expression is substituted and unquoted. This can
+    ## happen if the function is called from 'do.call(..., quote = TRUE)' or
+    ## 'parallel::parLapply()'.
     filter <- substitute(filter)
-    ## HACK This feels like a hack but in case the filter argument is quoted
-    ##      (which it is for example when used in parallel's parLapply) it needs
-    ##      to be unquoted unitl is a single expression.
-    ##      The first argument of an expression is either '&' (which is what we
-    ##      want here) or the name of the call (here: quote) which we do not
-    ##      want.
-    while (filter[[1]] == "quote" | filter[[1]] == "base::quote") {
-      filter <- eval(filter)
-    }
+    filter <- .unqouteExpr(filter)
     output <- output[eval(filter)]
   }
   if (!is.null(scenID)) {
@@ -344,6 +339,15 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   }
 
   return(output)
+}
+
+.unqouteExpr <- function(expr) {
+  while (is.call(expr) &&
+    (expr[[1]] == "quote" || expr[[1]] == "base::quote" ||
+      expr[[1]] == "bquote" || expr[[1]] == "base::bquote")) {
+    expr <- eval(expr)
+  }
+  return(expr)
 }
 
 ##' @title Add data to experiments table in DB
@@ -436,6 +440,14 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   )
 }
 
+.setFunArgs <- function(f, args) {
+  for (n in names(args)) {
+    if (n %in% names(formals(f))) {
+      formals(f)[[n]] <- args[[n]]
+    }
+  }
+  return(f)
+}
 
 ## REVIEW collectResults is really long and really nested. This should be
 ##        addressed as soon as the code is stabilized.
@@ -559,10 +571,21 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         )
       )[name == expName, experiment_id]
 
+      ## Prepare functions
+      ## If readFun is NULL, use default
+      if (is.null(readFun)) {
+        readFun <- readOutputFile
+      }
+
+      ## Set the provided arguments as defaults. This makes it
+      fileFun <- .setFunArgs(f = fileFun, args = fileFunArgs)
+      readFun <- .setFunArgs(f = readFun, args = readFunArgs)
+      aggrFun <- .setFunArgs(f = aggrFun, args = aggrFunArgs)
+
       if (is.null(fileFun)) {
         files <- scenarios[, file]
       } else {
-        files <- do.call(what = fileFun, args = fileFunArgs)
+        files <- do.call(what = fileFun, args = list())
       }
 
       ## Limit scenarios to selected files and add experiment_id column
@@ -585,7 +608,10 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       if (length(fexist) > 0) {
         warning(
           paste0("The following files were not found and thus, will not be processed:\n",
-                 paste0(fexist, collapse = "\n"), sep = "\n"))
+            paste0(fexist, collapse = "\n"),
+            sep = "\n"
+          )
+        )
         files <- files[sapply(files, file.exists, USE.NAMES = FALSE)]
       }
 
