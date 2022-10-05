@@ -508,18 +508,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
 
   ## Remove database if replace is TRUE
   if (replace) {
-    file.remove(
-      file.path(dbDir, paste0(dbName, ".sqlite")),
-      showWarnings = FALSE
-    )
-    file.remove(
-      file.path(dbDir, paste0(dbName, ".sqlite-shm")),
-      showWarnings = FALSE
-    )
-    file.remove(
-      file.path(dbDir, paste0(dbName, ".sqlite-wal")),
-      showWarnings = FALSE
-    )
+    unlink(file.path(dbDir, paste0(dbName, ".sqlite")))
+    unlink(file.path(dbDir, paste0(dbName, ".sqlite-shm")))
+    unlink(file.path(dbDir, paste0(dbName, ".sqlite-wal")))
   }
 
   ## Create connection
