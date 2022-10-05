@@ -583,6 +583,21 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         )
       )
 
+      ## Transform file names to match the content of the output directory
+      files <- file.path(
+        getCache("outputsDir"),
+        gsub(pattern = ".xml", replacement = "_out.txt", x = files)
+      )
+
+      ## Check that requested files exist
+      fexist <- files[!sapply(files, file.exists, USE.NAMES = FALSE)]
+      if (length(fexist) > 0) {
+        warning(
+          paste0("The following files were not found and thus, will not be processed:\n",
+                 paste0(fexist, collapse = "\n"), sep = "\n"))
+        files <- files[sapply(files, file.exists, USE.NAMES = FALSE)]
+      }
+
       ## Placeholders can be empty in case there are none. We need to handle
       ## that situation.
       placeholders <- tryCatch(
@@ -606,37 +621,6 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         .addPlaceholdersToDB(
           connection = dbCon, x = scenarios[, cols, with = FALSE]
         )
-      }
-
-      ## Transform file names to match the content of the output directory
-      files <- file.path(
-        getCache("outputsDir"),
-        gsub(pattern = ".xml", replacement = "_out.txt", x = files)
-      )
-
-      ## Read files
-      if (is.null(readFun)) {
-        ## By default, we use our read function
-        readFun <- readOutputFile
-      }
-
-      ## HACK This feels like a big hack but I did not find another way to do
-      ##      this, even though I feel that there should be one. We need to pass
-      ##      the unevaluated arguments from the top level into the the lapply
-      ##      call and also get them out of the list. Here, we do this by
-      ##      directly manipulating the formals of the function.
-      for (n in names(substitute(readFunArgs))) {
-        if (n %in% names(formals(readFun))) {
-          formals(readFun)[[n]] <- substitute(readFunArgs)[[n]]
-        }
-      }
-      ## HACK Same as above
-      if (!is.null(aggrFun)) {
-        for (n in names(substitute(aggrFunArgs))) {
-          if (n %in% names(formals(aggrFun))) {
-            formals(aggrFun)[[n]] <- substitute(aggrFunArgs)[[n]]
-          }
-        }
       }
 
       ## Two strategies to process the data and add them to the DB:
