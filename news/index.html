@@ -51,19 +51,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="22.08.0" id="openmalariautilities-22080">openMalariaUtilities 22.08.0<a class="anchor" aria-label="anchor" href="#openmalariautilities-22080"></a></h2>
+<h2 class="pkg-version" data-toc-text="22.08.1" id="openmalariautilities-22081">openMalariaUtilities 22.08.1<a class="anchor" aria-label="anchor" href="#openmalariautilities-22081"></a></h2>
 <p>Maintenance release</p>
-<ul><li>Fixes<ul><li>Allow the use of no interventions (d504923fa047fc56a5047539e523a19abb9d20f1)</li>
-<li>Fix unexpected behavior in splitSeq (cd6c0f19c6d9d2b45960f0cecd87695d662fd8e7)</li>
-<li>Fix undefined placeholder detection (4dbf142b121c0f3a1fac989e082cf46673a83cbd)</li>
+<ul><li>Fixes<ul><li>Allow the use of no interventions (<a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/d504923fa047fc56a5047539e523a19abb9d20f1" class="external-link">d504923</a>)</li>
+<li>Fix unexpected behavior in splitSeq (<a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/cd6c0f19c6d9d2b45960f0cecd87695d662fd8e7" class="external-link">cd6c0f1</a>)</li>
+<li>Fix undefined placeholder detection (<a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/4dbf142b121c0f3a1fac989e082cf46673a83cbd" class="external-link">4dbf142</a>)</li>
 </ul></li>
-<li>Improvements<ul><li>Warn if simStart and startDate are not the same (08f6ec5b149d48cd43b9d02e881b79b0c98e41ae)</li>
-<li>Add <code>deploy_cont_compat</code> (6f8b483fc478b380580b082a48fa8eca087c1049, 4ec418936ddbce5c343901b0816036f6e04423ec, 38d634541e55ce0b17d079b50452de4445dd9256)</li>
-<li>Add experiment summary (1334d9ceb2b91cb4ab270b12d6d17b98ce1105c7)</li>
+<li>Improvements<ul><li>Warn if simStart and startDate are not the same (<a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/08f6ec5b149d48cd43b9d02e881b79b0c98e41ae" class="external-link">08f6ec5</a>)</li>
+<li>Add <code>deploy_cont_compat</code> (<a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/6f8b483fc478b380580b082a48fa8eca087c1049" class="external-link">6f8b483</a>, <a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/4ec418936ddbce5c343901b0816036f6e04423ec" class="external-link">4ec4189</a>, <a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/38d634541e55ce0b17d079b50452de4445dd9256" class="external-link">38d6345</a>)</li>
+<li>Add experiment summary (<a href="https://github.com/SwissTPH/r-openMalariaUtilities/commit/1334d9ceb2b91cb4ab270b12d6d17b98ce1105c7" class="external-link">1334d9c</a>)</li>
 </ul></li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="22.08.0" id="openmalariautilities-22080-1">openMalariaUtilities 22.08.0<a class="anchor" aria-label="anchor" href="#openmalariautilities-22080-1"></a></h2>
+<h2 class="pkg-version" data-toc-text="22.08.0" id="openmalariautilities-22080">openMalariaUtilities 22.08.0<a class="anchor" aria-label="anchor" href="#openmalariautilities-22080"></a></h2>
 <ul><li>First major release of the complete overhaul<ul><li>Open Malaria’s results are now collected and stored in a SQLite database</li>
 <li>The major processing steps, e.g. scenario creation and simulation can now be done in parallel. Currently, the collection and storage of the results is still single-threaded.</li>
 <li>Data analysis/post-processing has been removed. It was concluded that this is too opionated and out of scope for this package.</li>
