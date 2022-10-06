@@ -659,8 +659,8 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               cl <- parallel::makeCluster(ncores, outfile = "")
               parallel::clusterEvalQ(cl, {
                 data.table::setDTthreads(1)
+                library(openMalariaUtilities)
               })
-              parallel::clusterExport(cl, "loadExperiment")
               parallel::clusterCall(
                 cl, "loadExperiment", expDir
               )
@@ -730,8 +730,8 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               cl <- parallel::makeCluster(ncores, outfile = "")
               parallel::clusterEvalQ(cl, {
                 data.table::setDTthreads(1)
+                library(openMalariaUtilities)
               })
-              parallel::clusterExport(cl, "loadExperiment")
               parallel::clusterCall(
                 cl, "loadExperiment", expDir
               )
