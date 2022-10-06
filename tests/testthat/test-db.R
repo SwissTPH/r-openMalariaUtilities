@@ -339,6 +339,7 @@ test_that("readResults works", {
 
   ## Cache
   setupDirs("test", rootDir = rootDir, replace = TRUE)
+  removeDB()
 
   ## Input data
 
