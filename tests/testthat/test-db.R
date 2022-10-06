@@ -8,6 +8,11 @@ dir.create(rootDir)
 
 putCache("rootDir", rootDir)
 
+removeDB <- function() {
+  files <- list.files(rootDir, pattern = ".*sqlite.*", full.names = TRUE)
+  unlink(files)
+}
+
 test_that(".createDB works", {
   testcon <- .createDB("test")
 
@@ -31,13 +36,33 @@ test_that(".createDB works", {
 })
 
 test_that(".createTables works", {
+  removeDB()
   testcon <- .createDB("test")
 
   ## Create tables
   .createTables(testcon)
 
   expected <- c(
-    "experiments", "placeholders", "results", "scenarios", "scenarios_metadata"
+    "experiments", "placeholders", "scenarios", "scenarios_metadata"
+  )
+  actual <- DBI::dbListTables(testcon)
+  expect_equal(actual, expected)
+
+  ## Close connection
+  DBI::dbDisconnect(testcon)
+})
+
+test_that(".createResultsTable works", {
+  testcon <- .createDB("test")
+
+  ## Create tables
+  .createResultsTable(
+    testcon, "results_test", list(names = c("foo"), types = "INTEGER")
+  )
+
+  expected <- c(
+    "experiments", "placeholders", "results_test", "scenarios",
+    "scenarios_metadata"
   )
   actual <- DBI::dbListTables(testcon)
   expect_equal(actual, expected)
@@ -196,7 +221,11 @@ test_that("readOutputFile works", {
 })
 
 test_that(".addExpToDB works", {
+  removeDB()
   testcon <- .createDB("test")
+
+  ## Create tables
+  .createTables(testcon)
 
   .addExpToDB(testcon, "test")
 
@@ -205,23 +234,9 @@ test_that(".addExpToDB works", {
   expect_equal(actual, expected)
 
   ## Handle duplicate entries
-  expect_warning(
-    .addExpToDB(
-      testcon, "test",
-      method = "ignore"
-    ),
-    regexp = "and has been skipped"
-  )
-  expected <- data.frame(experiment_id = 1, name = "test")
-  actual <- DBI::dbReadTable(testcon, "experiments")
-  expect_equal(actual, expected)
-
-  expect_warning(
-    .addExpToDB(
-      testcon, "test",
-      method = "replace"
-    ),
-    regexp = "and has been replaced"
+  expect_message(
+    .addExpToDB(testcon, "test"),
+    regexp = "is already present"
   )
   expected <- data.frame(experiment_id = 1, name = "test")
   actual <- DBI::dbReadTable(testcon, "experiments")
@@ -409,9 +424,7 @@ test_that("readResults works", {
       data.table::data.table(experiment_id = 1, scenario_id = 5, results)
     )
   )
-  results <- results[, survey_date := as.numeric(
-    as.POSIXct(survey_date, origin = "1970-01-01", tz = "UTC")
-  )]
+  results <- results[, third_dimension := as.integer(third_dimension)]
   expected <- as.data.frame(results)
 
   actual <- DBI::dbReadTable(testcon, "results")
