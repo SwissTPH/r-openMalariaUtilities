@@ -384,13 +384,6 @@ test_that("readResults works", {
     expDir = getCache("experimentDir"), dbName = "test"
   )
 
-  ## Replace
-  expect_warning(
-    readResults(
-      expDir = getCache("experimentDir"), dbName = "test", replace = TRUE
-    )
-  )
-
   ## Test DB content
   testcon <- .createDB("test")
   expected <- data.frame(experiment_id = 1, name = "test")
