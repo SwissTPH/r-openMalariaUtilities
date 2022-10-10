@@ -498,7 +498,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
                              types = c("INTEGER", "TEXT", "", "TEXT", "NUMERIC")
                            ),
                            indexOn = list(c("results", "scenario_id")),
-                           ncores = 1, strategy = "serial",
+                           ncores = 1, ncoresDT = 1, strategy = "serial",
                            appendResults = FALSE,
                            fileFun = NULL, fileFunArgs = NULL,
                            readFun = NULL, readFunArgs = NULL,
@@ -661,8 +661,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           tryCatch(
             {
               cl <- parallel::makeCluster(ncores, outfile = "")
+              parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
-                data.table::setDTthreads(1)
+                data.table::setDTthreads(ncoresDT)
                 library(openMalariaUtilities)
               })
               parallel::clusterCall(
@@ -732,8 +733,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           tryCatch(
             {
               cl <- parallel::makeCluster(ncores, outfile = "")
+              parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
-                data.table::setDTthreads(1)
+                data.table::setDTthreads(ncoresDT)
                 library(openMalariaUtilities)
               })
               parallel::clusterCall(
