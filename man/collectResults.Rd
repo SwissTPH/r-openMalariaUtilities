@@ -15,7 +15,9 @@ collectResults(
     "measure", "value"), types = c("INTEGER", "TEXT", "", "TEXT", "NUMERIC")),
   indexOn = list(c("results", "scenario_id")),
   ncores = 1,
+  ncoresDT = 1,
   strategy = "serial",
+  appendResults = FALSE,
   fileFun = NULL,
   fileFunArgs = NULL,
   readFun = NULL,
@@ -34,7 +36,9 @@ collect_results(
     "measure", "value"), types = c("INTEGER", "TEXT", "", "TEXT", "NUMERIC")),
   indexOn = list(c("results", "scenario_id")),
   ncores = 1,
+  ncoresDT = 1,
   strategy = "serial",
+  appendResults = FALSE,
   fileFun = NULL,
   fileFunArgs = NULL,
   readFun = NULL,
@@ -65,11 +69,17 @@ list(c(TABLE, COLUMN), c(TABLE, COLUMN), ...).}
 
 \item{ncores}{Number of CPU cores to use.}
 
+\item{ncoresDT}{Number of data.table threads to use on each parallel
+cluster.}
+
 \item{strategy}{Defines how to process the files. "batch" means that all
 files are read into a single data frame first, then the aggregation
 funciton is applied to that data frame and the result is added to the
 database. "serial" means that each individual file is processed with the
 aggregation function and added to the database.}
+
+\item{appendResults}{If TRUE, do not add metadata to the database and only
+write results.}
 
 \item{fileFun}{A function for filtering the input files. Needs to return a
 vector of the scenario XML files without path as in the file column of the

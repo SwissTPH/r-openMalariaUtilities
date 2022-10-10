@@ -341,6 +341,9 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   return(output)
 }
 
+##' @title Unqoute expression
+##' @param expr Expression
+##' @keywords internal
 .unqouteExpr <- function(expr) {
   while (is.call(expr) &&
     (expr[[1]] == "quote" || expr[[1]] == "base::quote" ||
@@ -440,6 +443,10 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   )
 }
 
+##' @title Override default function arguments
+##' @param f Function
+##' @param args List of function arguments
+##' @keywords internal
 .setFunArgs <- function(f, args) {
   for (n in names(args)) {
     if (n %in% names(formals(f))) {
@@ -466,11 +473,15 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 ##' @param indexOn Define which index to create. Needs to be a lis of the form
 ##'   list(c(TABLE, COLUMN), c(TABLE, COLUMN), ...).
 ##' @param ncores Number of CPU cores to use.
+##' @param ncoresDT Number of data.table threads to use on each parallel
+##'   cluster.
 ##' @param strategy Defines how to process the files. "batch" means that all
 ##'   files are read into a single data frame first, then the aggregation
 ##'   funciton is applied to that data frame and the result is added to the
 ##'   database. "serial" means that each individual file is processed with the
 ##'   aggregation function and added to the database.
+##' @param appendResults If TRUE, do not add metadata to the database and only
+##'   write results.
 ##' @param fileFun A function for filtering the input files. Needs to return a
 ##'   vector of the scenario XML files without path as in the file column of the
 ##'   scenario data frame. No default.
