@@ -499,6 +499,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
                            ),
                            indexOn = list(c("results", "scenario_id")),
                            ncores = 1, strategy = "serial",
+                           appendResults = FALSE,
                            fileFun = NULL, fileFunArgs = NULL,
                            readFun = NULL, readFunArgs = NULL,
                            aggrFun = NULL, aggrFunArgs = NULL) {
@@ -615,29 +616,32 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         files <- files[sapply(files, file.exists, USE.NAMES = FALSE)]
       }
 
-      ## Placeholders can be empty in case there are none. We need to handle
-      ## that situation.
-      placeholders <- tryCatch(
-        getCache("placeholders"),
-        error = function(c) {
-          .printVerbose("No placeholders found in cache!")
-          character(0)
+      ## Skip addition of metadata if appendResults is TRUE
+      if (!appendResults) {
+        ## Placeholders can be empty in case there are none. We need to handle
+        ## that situation.
+        placeholders <- tryCatch(
+          getCache("placeholders"),
+          error = function(c) {
+            .printVerbose("No placeholders found in cache!")
+            character(0)
+          }
+        )
+
+        if (length(placeholders) == 0) {
+          .addScenToDB(
+            connection = dbCon, x = scenarios
+          )
+        } else {
+          .addScenToDB(
+            connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
+          )
+
+          cols <- c("ID", "experiment_id", placeholders)
+          .addPlaceholdersToDB(
+            connection = dbCon, x = scenarios[, cols, with = FALSE]
+          )
         }
-      )
-
-      if (length(placeholders) == 0) {
-        .addScenToDB(
-          connection = dbCon, x = scenarios
-        )
-      } else {
-        .addScenToDB(
-          connection = dbCon, x = scenarios[, !placeholders, with = FALSE]
-        )
-
-        cols <- c("ID", "experiment_id", placeholders)
-        .addPlaceholdersToDB(
-          connection = dbCon, x = scenarios[, cols, with = FALSE]
-        )
       }
 
       ## Two strategies to process the data and add them to the DB:
