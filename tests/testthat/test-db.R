@@ -33,6 +33,7 @@ test_that(".createDB works", {
   expect_s4_class(
     object = testcon, class = "SQLiteConnection"
   )
+  DBI::dbDisconnect(testcon)
 })
 
 test_that(".createTables works", {
@@ -220,6 +221,12 @@ test_that("readOutputFile works", {
   expect_equal(actual, expected)
 })
 
+test_that(".unqouteExpr works", {
+  expected <- quote(x + y)
+  actual <- .unqouteExpr(quote(quote(quote(x + y))))
+  expect_equal(actual, expected)
+})
+
 test_that(".addExpToDB works", {
   removeDB()
   testcon <- .createDB("test")
@@ -328,6 +335,116 @@ test_that(".addResultsToDB works", {
 
   ## Close connection
   DBI::dbDisconnect(testcon)
+})
+
+test_that(".setFunArgs works", {
+  f1 <- function(x, y) {
+    x + y
+  }
+  expected <- function(x = 1, y = 2) {
+    x + y
+  }
+  actual <- .setFunArgs(f1, list(x = 1, y = 2))
+  expect_equal(actual, expected)
+})
+
+
+test_that("collectResults works", {
+  clearCache()
+  ## Remove any remaining database
+  if (file.exists(file.path(rootDir, "test.sqlite"))) {
+    unlink(file.path(rootDir, "test.sqlite"))
+  }
+
+  ## Cache
+  setupDirs("test", rootDir = rootDir, replace = TRUE)
+  removeDB()
+
+  ## Input data
+
+  ## Scenarios
+  scenarios <- generateScenarios(
+    data.frame(setting = c("foo1", "foo2", "foo3", "foo4", "foo5"))
+  )
+  storeScenarios(scenarios = scenarios, csv = FALSE)
+
+  ## OM output
+  testdata <- read.delim(
+    text = "
+1	1	0	71
+1	2	0	57
+1	3	0	151
+", sep = "\t", header = FALSE
+  )
+  for (i in seq_len(5)) {
+    write.table(
+      testdata,
+      file = file.path(
+        getCache("outputsDir"),
+        paste0("test_", i, "_out.txt")
+      ), row.names = FALSE
+    )
+  }
+  expected <- data.table::data.table(testdata)
+  colnames(expected) <- c(
+    "survey_date", "third_dimension", "measure", "value"
+  )
+  dates <- .xmlMonitoringTimeRegularSeq(
+    "2000-01-01", "2000-03-20",
+    daysFilter = 5, dateFilter = "monthly"
+  )
+  putCache(
+    "surveyTimes",
+    data.table::data.table(number = seq.int(nrow(dates)), dates)
+  )
+
+  syncCache(path = getCache("experimentDir"))
+
+  collectResults(
+    expDir = getCache("experimentDir"), dbName = "test", replace = TRUE
+  )
+
+  ## Test DB content
+  testcon <- .createDB("test")
+  expected <- data.frame(experiment_id = 1, name = "test")
+  actual <- DBI::dbReadTable(testcon, "experiments")
+  expect_equal(actual, expected)
+
+  ## Check scenarios table
+  expected <- data.frame(experiment_id = rep(1, 5), scenario_id = 1:5)
+  actual <- DBI::dbReadTable(testcon, "scenarios")
+  expect_equal(actual, expected)
+
+  expected <- data.frame(
+    experiment_id = rep(1, 10),
+    scenario_id = rep(c(1:5), 2),
+    key_var = c(rep("setting", 5), rep("file", 5)),
+    value = c(
+      "foo1", "foo2", "foo3", "foo4", "foo5",
+      paste0("test_", c(1:5), ".xml")
+    )
+  )
+  actual <- DBI::dbReadTable(testcon, "scenarios_metadata")
+  expect_equal(actual, expected)
+
+  results <- readOutputFile(file.path(rootDir, "test.txt"))
+  results <- data.table::rbindlist(
+    l = list(
+      data.table::data.table(experiment_id = 1, scenario_id = 1, results),
+      data.table::data.table(experiment_id = 1, scenario_id = 2, results),
+      data.table::data.table(experiment_id = 1, scenario_id = 3, results),
+      data.table::data.table(experiment_id = 1, scenario_id = 4, results),
+      data.table::data.table(experiment_id = 1, scenario_id = 5, results)
+    )
+  )
+  results <- results[, third_dimension := as.integer(third_dimension)]
+  expected <- as.data.frame(results)
+
+  actual <- DBI::dbReadTable(testcon, "results")
+  expect_equal(actual, expected)
+
+  ## Close connection
+  DBI::dbDisconnect(conn = testcon)
 })
 
 test_that("readResults works", {
