@@ -461,7 +461,7 @@ test_that("readResults works", {
   ## Input data
 
   ## Scenarios
-  scenarios <- generateScenarios(
+  scenarios <- finalizeScenarios(
     data.frame(setting = c("foo1", "foo2", "foo3", "foo4", "foo5"))
   )
   storeScenarios(scenarios = scenarios, csv = FALSE)
