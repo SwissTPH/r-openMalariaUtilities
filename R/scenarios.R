@@ -207,7 +207,7 @@ NULL
 ##' @param x Data frame containing the values for the placeholders for each
 ##'   scenarios.
 ##' @export
-generateScenarios <- function(x) {
+finalizeScenarios <- function(x) {
   ## Input validation
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(x, add = assertCol)
@@ -215,7 +215,7 @@ generateScenarios <- function(x) {
 
   ## Warn and abort if ID and file column exist already.
   if (any(c("ID", "file") %in% colnames(x))) {
-    stop("Data frame contains already a 'file' or 'ID' column. Please remove them beforehand.")
+    warning("Data frame contains already a 'file' or 'ID' column. Present data will be overwritten!")
   }
 
   ## Add file column
@@ -227,9 +227,9 @@ generateScenarios <- function(x) {
   return(x)
 }
 
-##' @rdname generateScenarios
+##' @rdname finalizeScenarios
 ##' @export
-generate_scenarios <- generateScenarios
+finalize_scenarios <- finalizeScenarios
 
 ##' @title Generate scenarios from a base xml file
 ##' @description Function generates scenarios defined in a data frame. In this

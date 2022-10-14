@@ -3,7 +3,7 @@ rootDir <- file.path(tempdir(), "test-scenarios")
 setupDirs("test", rootDir = rootDir, replace = TRUE)
 
 test_that("runSimulations works", {
-  scenarios <- generateScenarios(data.frame(foo = rnorm(5), bar = rnorm(5)))
+  scenarios <- finalizeScenarios(data.frame(foo = rnorm(5), bar = rnorm(5)))
 
   ## Throws an error if cmd not found
   expect_error(

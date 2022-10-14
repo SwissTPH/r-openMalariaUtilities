@@ -83,7 +83,7 @@ test_that(".scenariosGenFiles works", {
   )
 })
 
-test_that("generateScenarios works", {
+test_that("finalizeScenarios works", {
   putCache("experimentName", "test")
 
   scenarios <- data.frame(
@@ -100,7 +100,7 @@ test_that("generateScenarios works", {
   )
   dir.create(getCache(x = "scenariosDir"))
 
-  actual <- generateScenarios(x = scenarios)
+  actual <- finalizeScenarios(x = scenarios)
   expected <- data.frame(
     ID = 1:10,
     futITNcov = c(.65),
@@ -116,8 +116,8 @@ test_that("generateScenarios works", {
   expect_equal(actual, expected)
 
   ## Error if ID or file column exists
-  expect_error(
-    generateScenarios(x = data.frame(
+  expect_warning(
+    finalizeScenarios(x = data.frame(
       scenarios,
       ID = seq_len(nrow(scenarios))
     ))
