@@ -60,7 +60,7 @@ frame which should be added to the DB.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">readOutputFile</span><span class="op">(</span><span class="va">f</span>, translate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">readOutputFile</span><span class="op">(</span><span class="va">f</span>, filter <span class="op">=</span> <span class="cn">NULL</span>, translate <span class="op">=</span> <span class="cn">TRUE</span>, scenID <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,9 +69,17 @@ frame which should be added to the DB.</p>
 <dd><p>File name to read from.</p></dd>
 
 
+<dt>filter</dt>
+<dd><p>A data.table expression to filter rows.</p></dd>
+
+
 <dt>translate</dt>
 <dd><p>Can be any of c("dates", "measures") or simply TRUE
 (implies all) or FALSE (implies none).</p></dd>
+
+
+<dt>scenID</dt>
+<dd><p>Scenario ID to be added.</p></dd>
 
 </dl></div>
 

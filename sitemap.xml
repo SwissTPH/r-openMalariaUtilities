@@ -64,6 +64,9 @@
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/clearCache.html</loc>
   </url>
   <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/collectResults.html</loc>
+  </url>
+  <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/createBaseXml.html</loc>
   </url>
   <url>
@@ -160,6 +163,9 @@
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createFolders.html</loc>
   </url>
   <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createResultsTable.html</loc>
+  </url>
+  <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-createTables.html</loc>
   </url>
   <url>
@@ -205,6 +211,9 @@
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-scenariosRowSelect.html</loc>
   </url>
   <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-setFunArgs.html</loc>
+  </url>
+  <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-syncBoth.html</loc>
   </url>
   <url>
@@ -215,6 +224,9 @@
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-synchronizeCache.html</loc>
+  </url>
+  <url>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-unqouteExpr.html</loc>
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/dot-useDir.html</loc>
@@ -244,7 +256,7 @@
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/extractList.html</loc>
   </url>
   <url>
-    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/generateScenarios.html</loc>
+    <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/finalizeScenarios.html</loc>
   </url>
   <url>
     <loc>https://swisstph.github.io/r-openMalariaUtilities/reference/getCache.html</loc>
