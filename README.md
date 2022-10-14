@@ -5,8 +5,8 @@
 
 # openMalariaUtilities
 
-Helper functions to provide easier usage of [Open
-Malaria](https://github.com/SwissTPH/openmalaria) from R
+Helper functions to provide easier usage of
+[OpenMalaria](https://github.com/SwissTPH/openmalaria) from R
 
 # Install instructions
 
@@ -17,9 +17,9 @@ version via
 devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = "TAG")
 ```
 
-Replace `TAG` with the tag you want to use, e.g. "22.08.0".
+Replace `TAG` with the tag you want to use, e.g. "22.10".
 
-If you want to use the latest development version on `master`, please use
+If you want to use the latest development version from `master`, please use
 
 ``` R
 devtools::install_github("SwissTPH/r-openMalariaUtilities")
@@ -34,5 +34,5 @@ devtools::install_github("SwissTPH/r-openMalariaUtilities", ref = "V2-stable")
 # Dependencies
 
 In order for this package to work, please make sure that you have correctly
-installed [Open Malaria](https://github.com/SwissTPH/openmalaria/wiki/UserGuide)
+installed [OpenMalaria](https://github.com/SwissTPH/openmalaria/wiki/UserGuide)
 and SQLite 3 on your system.
