@@ -378,7 +378,7 @@ scenarios <- data.frame(
   pop = 1000L,
   futLSMcov = "none"
 )
-scenarios <- generateScenarios(scenarios)
+scenarios <- finalizeScenarios(scenarios)
 
 setupScenarios(scenarios = scenarios)
 

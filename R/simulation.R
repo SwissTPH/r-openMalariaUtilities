@@ -127,6 +127,10 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
     ## the required objects available.
     library(openMalariaUtilities, include.only = "processFile")
 
+    ## Limit data.table to a single thread in order to avoid nested
+    ## parallelization.
+    data.table::setDTthreads(1)
+
     ## Wrap whole function into tryCatch so we can make sure that even if
     ## something fails, we close all sinks and revert the working directory.
     tryCatch(

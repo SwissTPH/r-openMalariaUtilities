@@ -2,7 +2,7 @@
 % Please edit documentation in R/db.R
 \name{.createTables}
 \alias{.createTables}
-\title{Create the DB table layout}
+\title{Create the DB table layout, except the results table}
 \usage{
 .createTables(connection)
 }
@@ -11,7 +11,7 @@
 }
 \description{
 Creates the database schema: experiments, scenarios,
-scenarios_metadata, placeholders, results. Changes are cascaded from down
-from experiments table.
+scenarios_metadata, placeholders. Changes are cascaded from down from
+experiments table.
 }
 \keyword{internal}

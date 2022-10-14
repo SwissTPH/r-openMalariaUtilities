@@ -15,7 +15,8 @@ readResults(expDir, dbName, dbDir = NULL, replace = FALSE)
 
 \item{replace}{How to handle duplicate experiments in the database. If TRUE,
 any experiment with the same name will be replaced. If FALSE, a new entry
-with the same name will be ignored.}
+with the same name will be ignored. DEPRECATED Database will always be
+replaced.}
 }
 \description{
 Collect Open Malaria results into a database
