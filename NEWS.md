@@ -6,7 +6,7 @@
 Feature release
 
 * Breaking
-  * `readResults` is superseded by `collecResults`
+  * `readResults` is superseded by `collectResults`
     ([1ec31c9](https://github.com/SwissTPH/r-openMalariaUtilities/commit/1ec31c9260f9cfa1e9bdd3861eb804ee27e9f36a))
     * Now, the collection of the results can be parallelized by two strategies
     * The data to be stored in the SQLite database can be customized by using
