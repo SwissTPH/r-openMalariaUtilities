@@ -616,11 +616,16 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       )
 
       ## Check that requested files exist
-      fexist <- files[!sapply(files, file.exists, USE.NAMES = FALSE)]
-      if (length(fexist) > 0) {
+      fNoExist <- files[!sapply(files, file.exists, USE.NAMES = FALSE)]
+      if (length(fNoExist) > 0) {
+        ## If fNoExist and files are the same, abort
+        if (length(fNoExist) == length(files)) {
+          stop("No output files found!")
+        }
+        ## Otherwise report the missing files
         warning(
           paste0("The following files were not found and thus, will not be processed:\n",
-            paste0(fexist, collapse = "\n"),
+            paste0(fNoExist, collapse = "\n"),
             sep = "\n"
           )
         )
