@@ -155,6 +155,7 @@ NULL
           path.expand(getCache(x = "logsDir")),
           path.expand(file.path(getCache(x = "logsDir"), "scenarios")),
           path.expand(file.path(getCache(x = "logsDir"), "simulation")),
+          path.expand(file.path(getCache(x = "logsDir"), "results")),
           ## Open Malaria output directory
           path.expand(getCache(x = "outputsDir"))
         ),
