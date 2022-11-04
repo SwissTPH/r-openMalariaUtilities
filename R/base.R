@@ -9,6 +9,66 @@
 ##' @include cache.R printing.R
 NULL
 
+.thirdDimensionGen <- function() {
+  ## Check which features are enabled; Age groups are by default
+  cohortsP <- ifelse(
+    "mon_cohorts" %in% ls(all.names = TRUE, envir = .pkgcache), TRUE, FALSE
+  )
+
+  ## Creat thirdDimension entry for age groups
+  ageGroups <- getCache("mon_ageGroups")
+  thirdDimension <- data.table::data.table(
+    number = seq_len(length(ageGroups$upperbounds)),
+    name = {
+      out <- c(paste0(ageGroups$lowerbound, "-", ageGroups$upperbounds[1]))
+      for (i in seq_len(length(ageGroups$upperbounds))[-length(ageGroups$upperbounds)]) {
+        out <- c(out, paste0(ageGroups$upperbounds[i], "-", ageGroups$upperbounds[i + 1]))
+      }
+      out
+    }
+  )
+
+  if (cohortsP) {
+    cohorts <- getCache("mon_cohorts")
+    cohortNum <- cohorts$number
+    cohortID <- cohorts$id
+    cohorts <- data.table::data.table(
+      number = rapply(
+        sapply(
+          1:length(cohortNum),
+          function(n) utils::combn(cohortNum, n, simplify = FALSE)
+        ), sum
+      ),
+      id = rapply(
+        sapply(
+          1:length(cohortID),
+          function(n) utils::combn(cohortID, n, simplify = FALSE)
+        ), paste0,
+        collapse = ""
+      )
+    )
+
+    ## Create updated thirdDimension table
+    cohorts$number <- cohorts$number * 1000
+
+    tmp <- list()
+    for (i in seq_len(nrow(cohorts))) {
+      tmp[[i]] <- list(
+        number = cohorts[[i, "number"]] + thirdDimension[["number"]],
+        id = paste0(cohorts[[i, "id"]], ":", thirdDimension[["name"]])
+      )
+    }
+    tmp <- c(tmp, list(list(
+      number = thirdDimension[["number"]],
+      id = thirdDimension[["name"]]
+    )))
+    thirdDimension <- data.table::rbindlist(tmp)
+  }
+
+  return(thirdDimension)
+}
+
+
 ##' @title Create a base XML file and folder structure
 ##' @description Processes a list as containing the required information to
 ##'   generate a base XML file for OpenMalaria. This file is used to generate
@@ -71,6 +131,15 @@ createBaseXml <- function(data = NULL, replace = "ask") {
     getCache(x = "experimentDir"),
     paste0(xmlBasename, ".xml")
   ))
+
+  ## Create identifiers for third_dimension table
+  ##
+  ## NOTE
+  ## Currently, we support age groups and cohorts. In case we need to expand to
+  ## drugs, genotypes, etc., this should be handled here as well.
+  thirdDimension <- .thirdDimensionGen()
+  ## Store information in cache
+  putCache(x = "thirdDimension", value = thirdDimension)
 
   ## Write base xml file
   createFile <- NULL

@@ -41,16 +41,8 @@ test_that("surveyAgeGroupsGen works", {
   expect_equal(actual, expected)
 
   ## Test cache entries
-  expected <- data.table::data.table(
-    id = "age_group",
-    value = c(1, 2),
-    name = c("0-1", "1-2")
-  )
-  actual <- getCache("thirdDimension")
-  expect_equal(actual, expected)
-
   expected <- list(lowerbound = 0, upperbounds = c(1, 2))
-  actual <- getCache("ageGroups")
+  actual <- getCache("mon_ageGroups")
   expect_equal(actual, expected)
 })
 

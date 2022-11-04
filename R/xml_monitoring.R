@@ -75,32 +75,8 @@ surveyAgeGroupsGen <- function(lowerbound, upperbounds) {
     lowerbound = lowerbound, ageGroups = data.frame(upperbound = upperbounds)
   )
 
-  ## Creat thirdDimension entry
-  thirdDimension <- data.table::data.table(
-    id = "age_group",
-    value = seq_len(length(upperbounds)),
-    name = {
-      out <- c(paste0(lowerbound, "-", upperbounds[1]))
-      for (i in seq_len(length(upperbounds))[-length(upperbounds)]) {
-        out <- c(out, paste0(upperbounds[i], "-", upperbounds[i + 1]))
-      }
-      out
-    }
-  )
-
-  ## Check if it does exist already in cache and if yes, append new data
-  if ("thirdDimension" %in% ls(all.names = TRUE, envir = .pkgcache)) {
-    old <- getCache("thirdDimension")
-    thirdDimension <- data.table::rbindlist(
-      l = list(old, thirdDimension), use.names = TRUE
-    )
-  }
-
-  ## Store information in cache
-  putCache(x = "thirdDimension", value = thirdDimension)
-
   ageGroups <- list(lowerbound = lowerbound, upperbounds = upperbounds)
-  putCache(x = "ageGroups", value = ageGroups)
+  putCache(x = "mon_ageGroups", value = ageGroups)
 
   return(outlist)
 }
@@ -520,12 +496,16 @@ monitoringCohortsGen <- function(ids) {
     number = 2^(0:maxNum),
     stringsAsFactors = FALSE
   )
+
   outlist <- list()
   ## Loop over row, generating an entry eacht time and appending it to outlist
   outlist <- .xmlAddChunks(
     outlist = outlist, element = "subPop",
     attributeList = subPops
   )
+
+  ## Cache cohorts
+  putCache("mon_cohorts", subPops)
   return(outlist)
 }
 

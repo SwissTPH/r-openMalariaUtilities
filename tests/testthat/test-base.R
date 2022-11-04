@@ -5,6 +5,9 @@ dir.create(path = testDir, recursive = TRUE)
 test_that("createBaseXml works", {
   clearCache()
 
+  putCache("mon_ageGroups", list(lowerbound = 0, upperbounds = c(1, 2)))
+  invisible(monitoringCohortsGen(c("A", "B")))
+
   data <- list(
     expName = "Test",
     OMVersion = 43L,
@@ -32,6 +35,13 @@ test_that("createBaseXml works", {
   expected <- TRUE
 
   expect_equal(actual, expected)
+
+  expected <- data.table::data.table(
+    number = c(1001, 1002, 2001, 2002, 3001, 3002, 1, 2),
+    id = c("A:0-1", "A:1-2", "B:0-1", "B:1-2", "AB:0-1", "AB:1-2", "0-1", "1-2")
+  )
+
+  expect_equal(getCache("thirdDimension"), expected)
 })
 
 test_that("setupOM works", {
