@@ -11,11 +11,12 @@ A dictionary which provides translations for the following
 outputs of Open Malaria:
 \itemize{
 \item Survey measure numbers to names
-\item Whether measures are summed up between survey dates (incident = TRUE) or
-represent prevalent characteristics (incident = FALSE)
-\item An identifier for the 'third dimension' column. This can be 'age_group',
-'vector_species', 'drug_id' or NA
+\item If a measure's output can be separated by age group, cohort, genotype,
+vector species or drug ID
+\item Whether measures are aggregated between survey dates or if their values
+is a snapshot
 }
 
-See: https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions
+See
+https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions#survey-measures
 }
