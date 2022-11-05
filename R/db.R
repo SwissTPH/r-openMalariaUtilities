@@ -305,8 +305,8 @@ omOutputDict <- function() {
 ##'   frame which should be added to the DB.
 ##' @param f File name to read from.
 ##' @param filter A data.table expression to filter rows.
-##' @param translate Can be any of c("dates", "measures") or simply TRUE
-##'   (implies all) or FALSE (implies none).
+##' @param translate Can be any of c("dates", "measures", "third_dimension") or
+##'   simply TRUE (implies all) or FALSE (implies none).
 ##' @param scenID Scenario ID to be added.
 ##' @importFrom data.table ':='
 ##' @export
@@ -315,7 +315,8 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(f, add = assertCol)
   checkmate::assert(
-    checkmate::checkSubset(translate, choices = c("measures", "dates")),
+    checkmate::checkSubset(translate,
+                           choices = c("measures", "dates", "third_dimension")),
     checkmate::checkLogical(translate),
     add = assertCol
   )
@@ -323,12 +324,12 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 
   ## Appease NSE notes in R CMD check
   measure_index <- measure <- measure_name <- number <- rowNum <- NULL
-  survey_date <- third_dimension <- scenario_id <- NULL
+  survey_date <- third_dimension <- scenario_id <- id <- NULL
 
   ## Which columns should be translated?
   ## TRUE means all, FALSE none, otherwise specified
   if (translate == TRUE) {
-    translate <- c("dates", "measures")
+    translate <- c("dates", "measures", "third_dimension")
   } else if (translate == FALSE) {
     translate <- c()
   } else {
@@ -351,6 +352,18 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
       measure_name,
       on = "measure_index"
     ]][, c("measure_index") := NULL]
+  }
+  ## Translate third_dimension numerical value to string
+  if ("third_dimension" %in% translate) {
+    ## Get table from cache
+    dict <- getCache("thirdDimension")
+    ## Add column to join on
+    output[, number := third_dimension]
+    ## Perform join and drop added column
+    output <- output[, third_dimension := dict[output,
+      id,
+      on = "number"
+    ]][, c("number") := NULL]
   }
   ## Translate survey time points into dates
   if ("dates" %in% translate) {

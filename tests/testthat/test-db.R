@@ -249,6 +249,12 @@ test_that("readOutputFile works", {
 1	3	0	151
 ", sep = "\t", header = FALSE
   )
+  putCache(
+    "thirdDimension",
+    data.table::data.table(number = c(1, 2, 3),
+                           id = c("0-1", "1-5", "5-100"))
+  )
+
   write.table(
     testdata,
     file = file.path(rootDir, "test.txt"), row.names = FALSE
@@ -259,7 +265,7 @@ test_that("readOutputFile works", {
   )
   expected <- expected[, survey_date := c("2000-01-16", "2000-01-16", "2000-01-16")]
   expected <- expected[, measure := c("nHost", "nHost", "nHost")]
-  expected <- expected[, third_dimension := as.character(third_dimension)]
+  expected <- expected[, third_dimension := c("0-1", "1-5", "5-100")]
 
   dates <- .xmlMonitoringTimeRegularSeq(
     "2000-01-01", "2000-03-20",
@@ -450,6 +456,11 @@ test_that("collectResults works", {
     "surveyTimes",
     data.table::data.table(number = seq.int(nrow(dates)), dates)
   )
+  putCache(
+    "thirdDimension",
+    data.table::data.table(number = c(1, 2, 3),
+                           id = c("0-1", "1-5", "5-100"))
+  )
 
   syncCache(path = getCache("experimentDir"))
 
@@ -490,7 +501,6 @@ test_that("collectResults works", {
       data.table::data.table(experiment_id = 1, scenario_id = 5, results)
     )
   )
-  results <- results[, third_dimension := as.integer(third_dimension)]
   expected <- as.data.frame(results)
 
   actual <- DBI::dbReadTable(testcon, "results")
@@ -548,6 +558,12 @@ test_that("readResults works", {
     "surveyTimes",
     data.table::data.table(number = seq.int(nrow(dates)), dates)
   )
+  putCache(
+    "thirdDimension",
+    data.table::data.table(number = c(1, 2, 3),
+                           id = c("0-1", "1-5", "5-100"))
+  )
+
 
   syncCache(path = getCache("experimentDir"))
 
@@ -588,7 +604,6 @@ test_that("readResults works", {
       data.table::data.table(experiment_id = 1, scenario_id = 5, results)
     )
   )
-  results <- results[, third_dimension := as.integer(third_dimension)]
   expected <- as.data.frame(results)
 
   actual <- DBI::dbReadTable(testcon, "results")

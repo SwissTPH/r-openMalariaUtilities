@@ -11,8 +11,8 @@ readOutputFile(f, filter = NULL, translate = TRUE, scenID = NULL)
 
 \item{filter}{A data.table expression to filter rows.}
 
-\item{translate}{Can be any of c("dates", "measures") or simply TRUE
-(implies all) or FALSE (implies none).}
+\item{translate}{Can be any of c("dates", "measures", "third_dimension") or
+simply TRUE (implies all) or FALSE (implies none).}
 
 \item{scenID}{Scenario ID to be added.}
 }
