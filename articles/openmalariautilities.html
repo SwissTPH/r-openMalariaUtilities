@@ -81,25 +81,42 @@
     
     
 <p><strong>This document is still work in progress</strong></p>
-<p>Open Malaria is a powerful tool for simulating and studying the epidemiology of malaria. However, it can also be daunting. This R package is designed to make the use of Open Malaria easier.</p>
+<p>Open Malaria is a powerful tool for simulating and studying the
+epidemiology of malaria. However, it can also be daunting. This R
+package is designed to make the use of Open Malaria easier.</p>
 <div class="section level2">
 <h2 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
 </h2>
-<p>Make sure that <code>SQLite</code> and <code>Open Malaria</code> are both installed and available on the system. Please note: Even though the package should work on Windows, it is developed and tested under Linux.</p>
+<p>Make sure that <code>SQLite</code> and <code>Open Malaria</code> are
+both installed and available on the system. Please note: Even though the
+package should work on Windows, it is developed and tested under
+Linux.</p>
 <p>To install the package, run</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"SwissTPH/r-openMalariaUtilities"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"SwissTPH/r-openMalariaUtilities"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Withing this tutorial, we will create and run example scenarios. Each scenario needs to be defined in a XML file which serves as an input for Open Malaria (OM). OpenMalariaUtilities (OMU) contains many functions which help to generate these input files. In this tutorial we will re-create the example from Open Malaria itself.</p>
+<p>Withing this tutorial, we will create and run example scenarios. Each
+scenario needs to be defined in a XML file which serves as an input for
+Open Malaria (OM). OpenMalariaUtilities (OMU) contains many functions
+which help to generate these input files. In this tutorial we will
+re-create the example from Open Malaria itself.</p>
 </div>
 <div class="section level2">
 <h2 id="xml-file-generation">XML file generation<a class="anchor" aria-label="anchor" href="#xml-file-generation"></a>
 </h2>
-<p>A large part of OMU is dedicated at the generation of valid OM XML files. Before we start with the generation of these files, we will explain the folder layout of your projects.</p>
-<p>In the folder hierarchy, your working or project directory is the top level. Within this folder, you can have one or more folders which correspond to the names of experiments. The simulations of these experiments are controlled via one or multiple R scripts, placed in the project directory. Please note: Most of the directories can be modified via function arguments, but for the sake of simplicity we using the defaults here.</p>
+<p>A large part of OMU is dedicated at the generation of valid OM XML
+files. Before we start with the generation of these files, we will
+explain the folder layout of your projects.</p>
+<p>In the folder hierarchy, your working or project directory is the top
+level. Within this folder, you can have one or more folders which
+correspond to the names of experiments. The simulations of these
+experiments are controlled via one or multiple R scripts, placed in the
+project directory. Please note: Most of the directories can be modified
+via function arguments, but for the sake of simplicity we using the
+defaults here.</p>
 <pre><code>MyProject
 ├── experiment_1
 ├── experiment_2
@@ -107,7 +124,8 @@
 ├── script_1.R
 ├── script_2.R
 └── ...</code></pre>
-<p>Each of the experiment folders will have a similar layout and content.</p>
+<p>Each of the experiment folders will have a similar layout and
+content.</p>
 <pre><code>MyProject/experiment_1
 ├── cache/
 ├── logs/
@@ -117,12 +135,21 @@
 ├── densities.csv
 ├── base.xml
 └── scenario_44.xsd</code></pre>
-<p>You do not need to worry about the creation of the folders and files. OMU will create necessary folders and download required files for you.</p>
-<p>The <code>cache</code> folder contains R objects which are used by OMU to store reusable information. This will speed up certain operations. Log files are stored in the <code>logs</code> folder (which will contain sub-folders for each step in the process) and OM’s raw output will be <code>outputs</code>. The XML files for each simulation scenario are stored in the <code>scenarios</code> folder.</p>
+<p>You do not need to worry about the creation of the folders and files.
+OMU will create necessary folders and download required files for
+you.</p>
+<p>The <code>cache</code> folder contains R objects which are used by
+OMU to store reusable information. This will speed up certain
+operations. Log files are stored in the <code>logs</code> folder (which
+will contain sub-folders for each step in the process) and OM’s raw
+output will be <code>outputs</code>. The XML files for each simulation
+scenario are stored in the <code>scenarios</code> folder.</p>
 <div class="section level3">
 <h3 id="starting-the-project">Starting the project<a class="anchor" aria-label="anchor" href="#starting-the-project"></a>
 </h3>
-<p>In your R script, you will probably start with <code><a href="https://swisstph.github.io/r-openMalariaUtilities">library(openMalariaUtilities)</a></code>. Thus, the beginning could look like</p>
+<p>In your R script, you will probably start with
+<code><a href="https://swisstph.github.io/r-openMalariaUtilities">library(openMalariaUtilities)</a></code>. Thus, the beginning could
+look like</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://swisstph.github.io/r-openMalariaUtilities">openMalariaUtilities</a></span><span class="op">)</span></span>
 <span></span>
@@ -146,19 +173,35 @@
 <span>  <span class="co">## diagnostics = list(),</span></span>
 <span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>For XML file generation, OMU uses a list as input (here: <code>baseList</code>). This list has a very <a href="https://swisstph.github.io/openmalaria/schema-latest.html" class="external-link">similar structure</a> as the XML file required by OM but is easier to edit from R compared to XML. The above snippet corresponds to the minimal skeleton of this input list. <code>expName</code> is the name of your experiment and <code>OMVersion</code> the version of Open Malaria. Currently, only version 44 is supported. Also note, that the OM version needs to be an integer.</p>
-<p>Each of the six nested lists <code>demography</code>, <code>monitoring</code>, <code>interventions</code>, <code>healthSystem</code>, <code>entomology</code> and <code>model</code> need to be filled for OM.</p>
+<p>For XML file generation, OMU uses a list as input (here:
+<code>baseList</code>). This list has a very <a href="https://swisstph.github.io/openmalaria/schema-latest.html" class="external-link">similar
+structure</a> as the XML file required by OM but is easier to edit from
+R compared to XML. The above snippet corresponds to the minimal skeleton
+of this input list. <code>expName</code> is the name of your experiment
+and <code>OMVersion</code> the version of Open Malaria. Currently, only
+version 44 is supported. Also note, that the OM version needs to be an
+integer.</p>
+<p>Each of the six nested lists <code>demography</code>,
+<code>monitoring</code>, <code>interventions</code>,
+<code>healthSystem</code>, <code>entomology</code> and
+<code>model</code> need to be filled for OM.</p>
 </div>
 <div class="section level3">
 <h3 id="demography">Demography<a class="anchor" aria-label="anchor" href="#demography"></a>
 </h3>
-<p>There are two ways to add the data to the <code>demography</code> entry:</p>
+<p>There are two ways to add the data to the <code>demography</code>
+entry:</p>
 <ol style="list-style-type: decimal">
-<li>Add it manually, e.g. <code>baseList[["demography"]] &lt;- list(name = "Ifakara",    ...)</code>
+<li>Add it manually,
+e.g. <code>baseList[["demography"]] &lt;- list(name = "Ifakara",    ...)</code>
 </li>
 <li>Use the provided <code><a href="../reference/defineDemography.html">defineDemography()</a></code> function</li>
 </ol>
-<p>We will use the second option in this tutorial. You can find various <code>defineXY</code> functions which are each designed to add a specific entry to the list. However, you always have the option to write parts or change specific entries manually (See also <code><a href="../reference/extractList.html">extractList()</a></code>).</p>
+<p>We will use the second option in this tutorial. You can find various
+<code>defineXY</code> functions which are each designed to add a
+specific entry to the list. However, you always have the option to write
+parts or change specific entries manually (See also
+<code><a href="../reference/extractList.html">extractList()</a></code>).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">demo_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  poppercent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -197,12 +240,17 @@
 <span><span class="co">#&gt;  $ healthSystem : list()</span></span>
 <span><span class="co">#&gt;  $ entomology   : list()</span></span>
 <span><span class="co">#&gt;  $ model        : list()</span></span></code></pre></div>
-<p>In the above snippet, we started by creating a data frame which contains the demographic data. This in turn was used as input for <code><a href="../reference/defineDemography.html">defineDemography()</a></code> among other parameters. The function will take care that the information is added at the correct position and also check, that the correct data types are used.</p>
+<p>In the above snippet, we started by creating a data frame which
+contains the demographic data. This in turn was used as input for
+<code><a href="../reference/defineDemography.html">defineDemography()</a></code> among other parameters. The function
+will take care that the information is added at the correct position and
+also check, that the correct data types are used.</p>
 </div>
 <div class="section level3">
 <h3 id="monitoring">Monitoring<a class="anchor" aria-label="anchor" href="#monitoring"></a>
 </h3>
-<p>The <code>monitoring</code> section controls the output of Open Malaria, which is generated during the conducted <a href="https://swisstph.github.io/openmalaria/schema-latest.html" class="external-link">surveys</a>.</p>
+<p>The <code>monitoring</code> section controls the output of Open
+Malaria, which is generated during the conducted <a href="https://swisstph.github.io/openmalaria/schema-latest.html" class="external-link">surveys</a>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">baseList</span><span class="op">[[</span><span class="st">"monitoring"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"Quarterly Surveys"</span>,</span>
@@ -227,8 +275,12 @@
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>We started the monitoring definition by giving it a name and defining a start date. Here, this is mandatory because it allows us to use dates as input for Open Malaria. It defines the starting point of the survey period.</p>
-<p>For the options, two generator functions are used which take the name of the option and its value as input.</p>
+<p>We started the monitoring definition by giving it a name and defining
+a start date. Here, this is mandatory because it allows us to use dates
+as input for Open Malaria. It defines the starting point of the survey
+period.</p>
+<p>For the options, two generator functions are used which take the name
+of the option and its value as input.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">baseList</span><span class="op">[[</span><span class="st">"monitoring"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="va">baseList</span><span class="op">[[</span><span class="st">"monitoring"</span><span class="op">]</span><span class="op">]</span>,</span>
@@ -252,13 +304,20 @@
 <span><span class="co">#&gt;  $ SurveyOptions:List of 7</span></span>
 <span><span class="co">#&gt;  $ surveys      :List of 86</span></span>
 <span><span class="co">#&gt;  $ ageGroup     :List of 3</span></span></code></pre></div>
-<p>Similar to the age groups in the demography section, <code><a href="../reference/surveyAgeGroupsGen.html">surveyAgeGroupsGen()</a></code> adds the desired age groups for the surveys.</p>
-<p>The definition of the survey times itself is done above. Please note, that you really should use <code><a href="../reference/monitoringSurveyTimesGen.html">monitoringSurveyTimesGen()</a></code> as this function will make sure your desired survey points are valid (and adjust them if necessary) and will store them for later use in the cache.</p>
-<p>We can inspect the cache to see if our survey times have been generated correctly.</p>
+<p>Similar to the age groups in the demography section,
+<code><a href="../reference/surveyAgeGroupsGen.html">surveyAgeGroupsGen()</a></code> adds the desired age groups for the
+surveys.</p>
+<p>The definition of the survey times itself is done above. Please note,
+that you really should use <code><a href="../reference/monitoringSurveyTimesGen.html">monitoringSurveyTimesGen()</a></code> as
+this function will make sure your desired survey points are valid (and
+adjust them if necessary) and will store them for later use in the
+cache.</p>
+<p>We can inspect the cache to see if our survey times have been
+generated correctly.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/listCache.html">listCache</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: ageGroups  Timestamp: 2022-10-19 10:32:18 </span></span>
+<span><span class="co">#&gt; Name: mon_ageGroups  Timestamp: 2022-11-05 18:43:17 </span></span>
 <span><span class="co">#&gt; Class: list </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;  $lowerbound</span></span>
@@ -270,14 +329,14 @@
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: simStart   Timestamp: 2022-10-19 10:32:18 </span></span>
+<span><span class="co">#&gt; Name: simStart   Timestamp: 2022-11-05 18:43:17 </span></span>
 <span><span class="co">#&gt; Class: character </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;  [1] "1980-01-01"</span></span>
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: surveyTimes    Timestamp: 2022-10-19 10:32:18 </span></span>
+<span><span class="co">#&gt; Name: surveyTimes    Timestamp: 2022-11-05 18:43:17 </span></span>
 <span><span class="co">#&gt; Class: data.table data.frame </span></span>
 <span><span class="co">#&gt; Value:</span></span>
 <span><span class="co">#&gt;      number       date   day timestep</span></span>
@@ -368,28 +427,27 @@
 <span><span class="co">#&gt;  85:     85 2020-12-27 14960     2992</span></span>
 <span><span class="co">#&gt;      number       date   day timestep</span></span>
 <span><span class="co">#&gt;  </span></span>
-<span><span class="co">#&gt;  -------------------------------------------------------------------------------- </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Name: thirdDimension     Timestamp: 2022-10-19 10:32:18 </span></span>
-<span><span class="co">#&gt; Class: data.table data.frame </span></span>
-<span><span class="co">#&gt; Value:</span></span>
-<span><span class="co">#&gt;            id value name</span></span>
-<span><span class="co">#&gt;  1: age_group     1  0-5</span></span>
-<span><span class="co">#&gt;  2: age_group     2 5-90</span></span>
-<span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  --------------------------------------------------------------------------------</span></span></code></pre></div>
 <p>We can notice two things:</p>
 <ol style="list-style-type: decimal">
 <li>We are expecting 81 surveys, however we have 85</li>
 <li>The dates have been adjusted</li>
 </ol>
-<p>OMU adds one more year (here: 4 surveys) two the survey period. This is done in order to ensure that all deployments show their effect. The dates are adjusted so they match OM’s internal time steps. For more details on this, <a href="https://github.com/SwissTPH/openmalaria/wiki/ModelTimeUpdates#specifying-times" class="external-link">see here</a>.</p>
-<p>Furthermore, the number of days or time steps is counted from the simulation start <code>simStart</code>, which is here the 1st January 1980. It is recommended to start the simulation 20 - 50 years before the first survey.</p>
+<p>OMU adds one more year (here: 4 surveys) two the survey period. This
+is done in order to ensure that all deployments show their effect. The
+dates are adjusted so they match OM’s internal time steps. For more
+details on this, <a href="https://github.com/SwissTPH/openmalaria/wiki/ModelTimeUpdates#specifying-times" class="external-link">see
+here</a>.</p>
+<p>Furthermore, the number of days or time steps is counted from the
+simulation start <code>simStart</code>, which is here the 1st January
+1980. It is recommended to start the simulation 20 - 50 years before the
+first survey.</p>
 </div>
 <div class="section level3">
 <h3 id="interventions">Interventions<a class="anchor" aria-label="anchor" href="#interventions"></a>
 </h3>
-<p>In this section we will define actual measures which will be used throughout the simulation.</p>
+<p>In this section we will define actual measures which will be used
+throughout the simulation.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">baseList</span><span class="op">[[</span><span class="st">"interventions"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"test"</span>,</span>
@@ -695,15 +753,21 @@
 <span></span>
 <span><span class="co">## Copy necessary Open Malaria files.</span></span>
 <span><span class="fu"><a href="../reference/setupOM.html">setupOM</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/setupDirs.html">setupDirs()</a></code> creates the experiment folder given as an argument in the project directory. This also includes all the sub-folders which were mentioned in the <a href="#introduction">introduction</a> .</p>
-<p>We can verify this by checking the layout of the experiment directory.</p>
+<p><code><a href="../reference/setupDirs.html">setupDirs()</a></code> creates the experiment folder given as an
+argument in the project directory. This also includes all the
+sub-folders which were mentioned in the <a href="#introduction">introduction</a> .</p>
+<p>We can verify this by checking the layout of the experiment
+directory.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.dirs</a></span><span class="op">(</span><span class="st">"exp_test"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "exp_test"                 "exp_test/cache"          </span></span>
 <span><span class="co">#&gt; [3] "exp_test/logs"            "exp_test/logs/results"   </span></span>
 <span><span class="co">#&gt; [5] "exp_test/logs/scenarios"  "exp_test/logs/simulation"</span></span>
 <span><span class="co">#&gt; [7] "exp_test/outputs"         "exp_test/scenarios"</span></span></code></pre></div>
-<p><code><a href="../reference/setupOM.html">setupOM()</a></code> will make sure that all required files for Open Malaria to run are in place. This includes the correct <code>.xsd</code> schema file (according to the specified OM version) as well as further supplementary files.</p>
+<p><code><a href="../reference/setupOM.html">setupOM()</a></code> will make sure that all required files for
+Open Malaria to run are in place. This includes the correct
+<code>.xsd</code> schema file (according to the specified OM version) as
+well as further supplementary files.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"exp_test"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "autoRegressionParameters.csv" "cache"                       </span></span>
@@ -714,7 +778,8 @@
 <div class="section level2">
 <h2 id="create-xml-file">Create XML file<a class="anchor" aria-label="anchor" href="#create-xml-file"></a>
 </h2>
-<p>As the name implies, <code><a href="../reference/createBaseXml.html">createBaseXml()</a></code> will translate our input list to a XML document and write it to disk.</p>
+<p>As the name implies, <code><a href="../reference/createBaseXml.html">createBaseXml()</a></code> will translate our
+input list to a XML document and write it to disk.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create base XML file</span></span>
 <span><span class="fu"><a href="../reference/createBaseXml.html">createBaseXml</a></span><span class="op">(</span><span class="va">baseList</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -735,16 +800,20 @@
 <div class="section level2">
 <h2 id="run-simulations">Run simulations<a class="anchor" aria-label="anchor" href="#run-simulations"></a>
 </h2>
-<p>In order to run the simulation, we can simply call <code><a href="../reference/runSimulations.html">runSimulations()</a></code>.</p>
+<p>In order to run the simulation, we can simply call
+<code><a href="../reference/runSimulations.html">runSimulations()</a></code>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Run simulations</span></span>
 <span><span class="fu"><a href="../reference/runSimulations.html">runSimulations</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Running scenario [1/1]"</span></span></code></pre></div>
-<p>By default, the output in the R console is fairly minimal. More detailed logs can be found in the <code>logs/simulation</code> folder.</p>
+<p>By default, the output in the R console is fairly minimal. More
+detailed logs can be found in the <code>logs/simulation</code>
+folder.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"exp_test/logs/simulation"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "exp_test_base.log"</span></span></code></pre></div>
-<p>Open Malaria generates two <a href="https://github.com/SwissTPH/openmalaria/wiki/UserGuide#interpretation-of-the-test-scenario" class="external-link">output files</a> which are both placed in the <code>outputs</code> folder:</p>
+<p>Open Malaria generates two <a href="https://github.com/SwissTPH/openmalaria/wiki/UserGuide#interpretation-of-the-test-scenario" class="external-link">output
+files</a> which are both placed in the <code>outputs</code> folder:</p>
 <ol style="list-style-type: decimal">
 <li>The <code>*_cts.txt</code> file</li>
 </ol>
@@ -799,12 +868,18 @@
 <span><span class="co">#&gt; 8   1  2 15 4.80000e+01</span></span>
 <span><span class="co">#&gt; 9   1  0 35 2.19321e-01</span></span>
 <span><span class="co">#&gt; 10  1  0 36 2.87284e-01</span></span></code></pre></div>
-<p>The <code>*_out.txt</code> file is usually the file you are interested in, as it contains the measurement data for each survey you defined in the input list. <a href="https://github.com/SwissTPH/openmalaria/wiki/MonitoringOutput" class="external-link">See here</a> for more information.</p>
+<p>The <code>*_out.txt</code> file is usually the file you are
+interested in, as it contains the measurement data for each survey you
+defined in the input list. <a href="https://github.com/SwissTPH/openmalaria/wiki/MonitoringOutput" class="external-link">See
+here</a> for more information.</p>
 </div>
 <div class="section level2">
 <h2 id="read-results">Read results<a class="anchor" aria-label="anchor" href="#read-results"></a>
 </h2>
-<p>It can be a bit difficult to interpret Open Malaria’s output files, thus OMU provides a helper function which reads an output file and assigns column names and translates certain values (e.g. the survey dates).</p>
+<p>It can be a bit difficult to interpret Open Malaria’s output files,
+thus OMU provides a helper function which reads an output file and
+assigns column names and translates certain values (e.g. the survey
+dates).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/readOutputFile.html">readOutputFile</a></span><span class="op">(</span><span class="st">"exp_test/outputs/exp_test_base_out.txt"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">outfile</span><span class="op">)</span></span>

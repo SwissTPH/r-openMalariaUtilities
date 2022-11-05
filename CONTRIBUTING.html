@@ -51,13 +51,16 @@
     </div>
 
 <div id="how-to-contribtute" class="section level1">
+
 <div class="section level2">
 <h2 id="code-style">Code style<a class="anchor" aria-label="anchor" href="#code-style"></a></h2>
 <p>We follow the <a href="https://google.github.io/styleguide/Rguide.html" class="external-link">google style guide</a>.</p>
 <p>Differences or highlights:</p>
 <ul><li>
-<code>camelCase</code> for functions and variable names<ul><li>
-<code>snake_case</code> can be used for exported functions as an alias</li></ul><pre class="{r}"><code><span><span class="co">#' Title</span></span>
+<code>camelCase</code> for functions and variable names
+<ul><li>
+<code>snake_case</code> can be used for exported functions as an alias</li>
+</ul><pre class="{r}"><code><span><span class="co">#' Title</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @param x</span></span>
 <span><span class="co">#'</span></span>
@@ -89,7 +92,8 @@
 <li>in-place modifications; with <code>apply</code> this would require the use of the <code>&lt;&lt;-</code> operator, which can be a bit tricky due to the way it works (e.g. it will look in the parent environments for a variable and assign the value to first one it finds).</li>
 </ul><p>If you use apply</p>
 <ul><li>consider preferring <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply()</a></code> as it is safer (e.g. no silent failure) vs <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply()</a></code>
-</li></ul><p>Performance considerations regarding loops vs apply are not really existent anymore. You should favor readability, correctness and robustness.</p>
+</li>
+</ul><p>Performance considerations regarding loops vs apply are not really existent anymore. You should favor readability, correctness and robustness.</p>
 </div>
 </div>
 <div class="section level2">
