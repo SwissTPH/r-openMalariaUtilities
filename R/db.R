@@ -770,7 +770,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         ## done, data.table is your friend.
         tryCatch(
           {
-            data.table::setDTthreads(ncores)
+            if (ncores > 1) {
+              data.table::setDTthreads(ncores)
+            }
             if (!is.null(aggrFun)) {
               output <- do.call(what = aggrFun, args = list(output))
             }
