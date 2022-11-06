@@ -742,7 +742,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               cl <- parallel::makeCluster(ncores, outfile = "")
               parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
-                data.table::setDTthreads(1)
+                data.table::setDTthreads(ncoresDT)
                 library(openMalariaUtilities)
               })
               parallel::clusterCall(
