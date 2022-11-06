@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   openmalariautilities: openmalariautilities.html
-last_built: 2022-11-06T23:12Z
+last_built: 2022-11-06T23:17Z
 urls:
   reference: https://swisstph.github.io/r-openMalariaUtilities/reference
   article: https://swisstph.github.io/r-openMalariaUtilities/articles
