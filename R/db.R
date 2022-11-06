@@ -597,6 +597,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
     unlink(file.path(dbDir, paste0(dbName, ".sqlite-wal")))
   }
 
+  ## Store current DT threads setting
+  curDTthreads <- data.table::getDTthreads()
+  
   ## Create connection
   dbCon <- .createDB(dbName = dbName, path = dbDir)
 
@@ -739,7 +742,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               cl <- parallel::makeCluster(ncores, outfile = "")
               parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
-                data.table::setDTthreads(ncoresDT)
+                data.table::setDTthreads(1)
                 library(openMalariaUtilities)
               })
               parallel::clusterCall(
@@ -752,7 +755,10 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
                 )
               )
             },
-            finally = parallel::stopCluster(cl)
+            finally = {
+              parallel::stopCluster(cl)
+              data.table::setDTthreads(curDTthreads)
+            }
           )
         } else {
           output <- data.table::rbindlist(
@@ -762,10 +768,15 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
 
         ## Run aggregation. I don't see a good way to parallelize, so if this is
         ## done, data.table is your friend.
-        if (!is.null(aggrFun)) {
-          output <- do.call(what = aggrFun, args = list(output))
-        }
-
+        tryCatch(
+          {
+            data.table::setDTthreads(ncores)
+            if (!is.null(aggrFun)) {
+              output <- do.call(what = aggrFun, args = list(output))
+            }
+          },
+          finally = data.table::setDTthreads(curDTthreads)
+        )
         ## Add output to DB
         output <- output[, experiment_id := rep(
           experiment_id,
@@ -826,7 +837,10 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
                 SIMPLIFY = FALSE
               )
             },
-            finally = parallel::stopCluster(cl)
+            finally = {
+              parallel::stopCluster(cl)
+              data.table::setDTthreads(curDTthreads)
+            }
           )
         } else {
           for (fi in files) {
