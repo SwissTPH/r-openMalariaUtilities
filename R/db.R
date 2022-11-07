@@ -583,8 +583,8 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
     strategy,
     choices = c("batch", "serial"), add = assertCol
   )
-  checkmate::assertInteger(ncores, add = assertCol)
-  checkmate::assertInteger(ncoresDT, add = assertCol)
+  checkmate::assertIntegerish(ncores, add = assertCol)
+  checkmate::assertIntegerish(ncoresDT, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
   ## Number of data.table threads cannot be larger than number of CPU cores
