@@ -75,7 +75,8 @@
 <span>  readFun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  readFunArgs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggrFun <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  aggrFunArgs <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  aggrFunArgs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"verboseOutput"</span>, envir <span class="op">=</span> <span class="va">.pkgenv</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">collect_results</span><span class="op">(</span></span>
@@ -96,7 +97,8 @@
 <span>  readFun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  readFunArgs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggrFun <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  aggrFunArgs <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  aggrFunArgs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"verboseOutput"</span>, envir <span class="op">=</span> <span class="va">.pkgenv</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -189,6 +191,10 @@ ones defined in resultsCols.</p></dd>
 
 <dt>aggrFunArgs</dt>
 <dd><p>Arguments for aggrFun as a (named) list.</p></dd>
+
+
+<dt>verbose</dt>
+<dd><p>Boolean, toggle verbose output.</p></dd>
 
 </dl></div>
 
