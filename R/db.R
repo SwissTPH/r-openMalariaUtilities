@@ -583,7 +583,14 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
     strategy,
     choices = c("batch", "serial"), add = assertCol
   )
+  checkmate::assertInteger(ncores, add = assertCol)
+  checkmate::assertInteger(ncoresDT, add = assertCol)
   checkmate::reportAssertions(assertCol)
+
+  ## Number of data.table threads cannot be larger than number of CPU cores
+  if (ncoresDT > ncores) {
+    stop("ncoresDT cannot be larger than ncores!")
+  }
 
   ## Appease NSE notes in R CMD check
   name <- NULL
@@ -742,6 +749,12 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       ## but aggregating a lot of files can consume a lot of memories. Thus,
       ## depending on the available amount of RAM, it might not be possible to
       ## use that strategy.
+
+      ## Divide assigned computational ressources so data.table threads
+      ## and R cluster nodes are balanced and don't compete for
+      ## ressources.
+      cl_cores <- ncores / ncoresDT
+      
       if (strategy == "batch") {
         .printVerbose(
           paste0(
@@ -750,11 +763,15 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           ),
           toggle = verbose
         )
+
         if (ncores > 1) {
           tryCatch(
             {
-              .printVerbose("Starting R cluster", toggle = verbose)
-              cl <- parallel::makeCluster(ncores, outfile = "")
+              .printVerbose(paste0(
+                "Starting R cluster with ", cl_cores,
+                " nodes, each using ", ncoresDT, " data.table threads."
+              ), toggle = verbose)
+              cl <- parallel::makeCluster(cl_cores, outfile = "")
               parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
                 data.table::setDTthreads(ncoresDT)
@@ -796,6 +813,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           {
             .printVerbose("Aggregating OM output", toggle = verbose)
             if (ncores > 1) {
+              .printVerbose(paste0(
+                "Assigning ", ncores, " data.table threads."
+              ), toggle = verbose)
               data.table::setDTthreads(ncores)
             }
             if (!is.null(aggrFun)) {
@@ -869,8 +889,11 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         if (ncores > 1) {
           tryCatch(
             {
-              .printVerbose("Starting R cluster", toggle = verbose)
-              cl <- parallel::makeCluster(ncores, outfile = "")
+              .printVerbose(paste0(
+                "Starting R cluster with ", cl_cores,
+                " nodes, each using ", ncoresDT, " data.table threads."
+              ), toggle = verbose)
+              cl <- parallel::makeCluster(cl_cores, outfile = "")
               parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
                 data.table::setDTthreads(ncoresDT)
