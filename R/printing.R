@@ -43,23 +43,39 @@ toggleDebug <- function() {
 ##' @title Print verbose messages
 ##' @description Like print, but only if 'verboseOutput' is TRUE.
 ##' @param x Object to print.
+##' @param toggle TRUE, FALSE or a boolean variable. If NULL, the state of the
+##'   package variable 'verboseOutput' is used.
 ##' @param ... Further arguments to [print()].
 ##' @keywords internal
-.printVerbose <- function(x, ...) {
-  curVal <- get("verboseOutput", envir = .pkgenv)
-  if (curVal == TRUE) {
-    cat(paste0("INFO\t", utils::capture.output(print(x, ...))), sep = "\n")
+.printVerbose <- function(x, toggle = NULL, ...) {
+  if (is.null(toggle)) {
+    toggle <- get("verboseOutput", envir = .pkgenv)
+  }
+  if (toggle == TRUE) {
+    cat(
+      paste0("INFO ", Sys.time(), "\t"),
+      utils::capture.output(print(x, ...)),
+      sep = "\n"
+    )
   }
 }
 
 ##' @title Print debug messages
 ##' @description Like print, but only if 'debugOutput' is TRUE.
 ##' @param x Object to print.
+##' @param toggle TRUE, FALSE or a boolean variable. If NULL, the state of the
+##'   package variable 'verboseOutput' is used.
 ##' @param ... Further arguments to [print()].
 ##' @keywords internal
-.printDebug <- function(x, ...) {
-  curVal <- get("debugOutput", envir = .pkgenv)
-  if (curVal == TRUE) {
-    cat(paste0("DEBUG\t", utils::capture.output(print(x, ...))), sep = "\n")
+.printDebug <- function(x, toggle = NULL, ...) {
+  if (is.null(toggle)) {
+    toggle <- get("verboseOutput", envir = .pkgenv)
+  }
+  if (toggle == TRUE) {
+    cat(
+      paste0("DEBUG ", Sys.time(), "\t"),
+      utils::capture.output(print(x, ...)),
+      sep = "\n"
+    )
   }
 }

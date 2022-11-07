@@ -4,10 +4,13 @@
 \alias{.printDebug}
 \title{Print debug messages}
 \usage{
-.printDebug(x, ...)
+.printDebug(x, toggle = NULL, ...)
 }
 \arguments{
 \item{x}{Object to print.}
+
+\item{toggle}{TRUE, FALSE or a boolean variable. If NULL, the state of the
+package variable 'verboseOutput' is used.}
 
 \item{...}{Further arguments to \code{\link[=print]{print()}}.}
 }

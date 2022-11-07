@@ -316,7 +316,8 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   checkmate::assertCharacter(f, add = assertCol)
   checkmate::assert(
     checkmate::checkSubset(translate,
-                           choices = c("measures", "dates", "third_dimension")),
+      choices = c("measures", "dates", "third_dimension")
+    ),
     checkmate::checkLogical(translate),
     add = assertCol
   )
@@ -558,6 +559,7 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 ##'   column as this is added automatically. The column names needs to match the
 ##'   ones defined in resultsCols.
 ##' @param aggrFunArgs Arguments for aggrFun as a (named) list.
+##' @param verbose Boolean, toggle verbose output.
 ##' @importFrom data.table ':='
 ##' @export
 collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
@@ -573,7 +575,8 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
                            appendResults = FALSE,
                            fileFun = NULL, fileFunArgs = NULL,
                            readFun = NULL, readFunArgs = NULL,
-                           aggrFun = NULL, aggrFunArgs = NULL) {
+                           aggrFun = NULL, aggrFunArgs = NULL,
+                           verbose = get("verboseOutput", envir = .pkgenv)) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertSubset(
@@ -599,7 +602,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
 
   ## Store current DT threads setting
   curDTthreads <- data.table::getDTthreads()
-  
+
   ## Create connection
   dbCon <- .createDB(dbName = dbName, path = dbDir)
 
@@ -612,6 +615,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
   ## Create table schema
   tryCatch(
     {
+      .printVerbose("Creating database tables", toggle = verbose)
       .createTables(connection = dbCon)
       .createResultsTable(
         connection = dbCon, tName = resultsName, columns = resultsCols
@@ -620,6 +624,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       ## Drop index if already present. This will speed up the addition of data
       ## but we need to rebuild it.
       if (!is.null(indexOn)) {
+        .printVerbose("Dropping old database index", toggle = verbose)
         for (i in seq_along((indexOn))) {
           DBI::dbExecute(
             conn = dbCon,
@@ -633,6 +638,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
 
       ## Add experiment
       expName <- getCache("experimentName")
+      .printVerbose("Adding experiment ID to database", toggle = verbose)
       .addExpToDB(connection = dbCon, x = expName)
 
       ## By default, select all files from scenarios data frame
@@ -702,11 +708,12 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         placeholders <- tryCatch(
           getCache("placeholders"),
           error = function(c) {
-            .printVerbose("No placeholders found in cache!")
+            .printVerbose("No placeholders found in cache!", toggle = verbose)
             character(0)
           }
         )
 
+        .printVerbose("Adding metadata to database", toggle = verbose)
         if (length(placeholders) == 0) {
           .addScenToDB(
             connection = dbCon, x = scenarios
@@ -736,9 +743,17 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       ## depending on the available amount of RAM, it might not be possible to
       ## use that strategy.
       if (strategy == "batch") {
+        .printVerbose(
+          paste0(
+            "Using batch strategy with ", ncores,
+            " cores and ", ncoresDT, " data.table threads."
+          ),
+          toggle = verbose
+        )
         if (ncores > 1) {
           tryCatch(
             {
+              .printVerbose("Starting R cluster", toggle = verbose)
               cl <- parallel::makeCluster(ncores, outfile = "")
               parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
@@ -748,11 +763,15 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               parallel::clusterCall(
                 cl, "loadExperiment", expDir
               )
+              .printVerbose("Reading OM output files", toggle = verbose)
               output <- data.table::rbindlist(
                 parallel::clusterMap(
                   cl = cl, readFun, files, scenID = scenarios[["ID"]],
                   SIMPLIFY = FALSE
                 )
+              )
+              .printVerbose("Finished reading OM output files",
+                toggle = verbose
               )
             },
             finally = {
@@ -761,8 +780,12 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
             }
           )
         } else {
+          .printVerbose("Reading OM output files", toggle = verbose)
           output <- data.table::rbindlist(
             mapply(readFun, files, scenID = scenarios[["ID"]], SIMPLIFY = FALSE)
+          )
+          .printVerbose("Finished reading OM output files",
+            toggle = verbose
           )
         }
 
@@ -770,6 +793,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         ## done, data.table is your friend.
         tryCatch(
           {
+            .printVerbose("Aggregating OM output", toggle = verbose)
             if (ncores > 1) {
               data.table::setDTthreads(ncores)
             }
@@ -777,9 +801,15 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               output <- do.call(what = aggrFun, args = list(output))
             }
           },
-          finally = data.table::setDTthreads(curDTthreads)
+          finally = {
+            data.table::setDTthreads(curDTthreads)
+            .printVerbose("Finished aggregating OM output",
+              toggle = verbose
+            )
+          }
         )
         ## Add output to DB
+        .printVerbose("Adding aggregated output to database", toggle = verbose)
         output <- output[, experiment_id := rep(
           experiment_id,
           times = nrow(output)
@@ -792,14 +822,31 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           append = TRUE
         )
       } else if (strategy == "serial") {
+        .printVerbose(
+          paste0(
+            "Using serial strategy with ", ncores,
+            " cores and ", ncoresDT, " data.table threads."
+          ),
+          toggle = verbose
+        )
+
         f <- function(file, readFun, aggrFun, db, ...) {
           args <- list(...)
+          .printVerbose("Reading OM output files", toggle = verbose)
           output <- do.call(readFun, list(file, scenID = args[["scenID"]]))
+          .printVerbose("Finished reading OM output files",
+            toggle = verbose
+          )
           if (!is.null(aggrFun)) {
+            .printVerbose("Aggregating OM output", toggle = verbose)
             output <- do.call(what = aggrFun, args = list(output))
+            .printVerbose("Finished aggregating OM output",
+              toggle = verbose
+            )
           }
 
           ## Add output to DB
+          .printVerbose("Adding aggregated output to database", toggle = verbose)
           dbCon <- DBI::dbConnect(RSQLite::SQLite(), db)
           tryCatch(
             {
@@ -860,6 +907,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       ## Cleanup and optimization
       ## Indexing
       if (!is.null(indexOn)) {
+        .printVerbose("Creating database index", toggle = verbose)
         for (i in seq_along((indexOn))) {
           DBI::dbExecute(
             conn = dbCon,
@@ -871,6 +919,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           )
         }
       }
+      .printVerbose("Running database optimizations", toggle = verbose)
       ## Vacuum
       DBI::dbExecute(
         conn = dbCon,

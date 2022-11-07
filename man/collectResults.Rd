@@ -23,7 +23,8 @@ collectResults(
   readFun = NULL,
   readFunArgs = NULL,
   aggrFun = NULL,
-  aggrFunArgs = NULL
+  aggrFunArgs = NULL,
+  verbose = get("verboseOutput", envir = .pkgenv)
 )
 
 collect_results(
@@ -44,7 +45,8 @@ collect_results(
   readFun = NULL,
   readFunArgs = NULL,
   aggrFun = NULL,
-  aggrFunArgs = NULL
+  aggrFunArgs = NULL,
+  verbose = get("verboseOutput", envir = .pkgenv)
 )
 }
 \arguments{
@@ -102,6 +104,8 @@ column as this is added automatically. The column names needs to match the
 ones defined in resultsCols.}
 
 \item{aggrFunArgs}{Arguments for aggrFun as a (named) list.}
+
+\item{verbose}{Boolean, toggle verbose output.}
 }
 \description{
 Collect Open Malaria results into a database

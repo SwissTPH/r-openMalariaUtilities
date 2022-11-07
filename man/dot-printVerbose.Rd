@@ -4,10 +4,13 @@
 \alias{.printVerbose}
 \title{Print verbose messages}
 \usage{
-.printVerbose(x, ...)
+.printVerbose(x, toggle = NULL, ...)
 }
 \arguments{
 \item{x}{Object to print.}
+
+\item{toggle}{TRUE, FALSE or a boolean variable. If NULL, the state of the
+package variable 'verboseOutput' is used.}
 
 \item{...}{Further arguments to \code{\link[=print]{print()}}.}
 }

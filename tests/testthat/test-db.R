@@ -251,8 +251,10 @@ test_that("readOutputFile works", {
   )
   putCache(
     "thirdDimension",
-    data.table::data.table(number = c(1, 2, 3),
-                           id = c("0-1", "1-5", "5-100"))
+    data.table::data.table(
+      number = c(1, 2, 3),
+      id = c("0-1", "1-5", "5-100")
+    )
   )
 
   write.table(
@@ -458,11 +460,20 @@ test_that("collectResults works", {
   )
   putCache(
     "thirdDimension",
-    data.table::data.table(number = c(1, 2, 3),
-                           id = c("0-1", "1-5", "5-100"))
+    data.table::data.table(
+      number = c(1, 2, 3),
+      id = c("0-1", "1-5", "5-100")
+    )
   )
 
   syncCache(path = getCache("experimentDir"))
+
+  expect_output(
+    collectResults(
+      expDir = getCache("experimentDir"), dbName = "test",
+      replace = TRUE, verbose = TRUE, strategy = "batch"
+    )
+  )
 
   collectResults(
     expDir = getCache("experimentDir"), dbName = "test", replace = TRUE
@@ -560,15 +571,19 @@ test_that("readResults works", {
   )
   putCache(
     "thirdDimension",
-    data.table::data.table(number = c(1, 2, 3),
-                           id = c("0-1", "1-5", "5-100"))
+    data.table::data.table(
+      number = c(1, 2, 3),
+      id = c("0-1", "1-5", "5-100")
+    )
   )
 
 
   syncCache(path = getCache("experimentDir"))
 
-  readResults(
-    expDir = getCache("experimentDir"), dbName = "test"
+  expect_warning(
+    readResults(
+      expDir = getCache("experimentDir"), dbName = "test"
+    )
   )
 
   ## Test DB content
