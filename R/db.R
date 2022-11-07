@@ -775,6 +775,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               )
             },
             finally = {
+              .printVerbose("Stopping R cluster", toggle = verbose)
               parallel::stopCluster(cl)
               data.table::setDTthreads(curDTthreads)
             }
@@ -888,6 +889,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               )
             },
             finally = {
+              .printVerbose("Stopping R cluster", toggle = verbose)
               parallel::stopCluster(cl)
               data.table::setDTthreads(curDTthreads)
             }
@@ -935,6 +937,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
 
     ## Terminate connection
     finally = {
+      .printVerbose("Done", toggle = verbose)
       DBI::dbDisconnect(conn = dbCon)
     }
   )
