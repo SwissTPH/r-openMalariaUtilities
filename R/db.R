@@ -809,7 +809,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           }
         )
         ## Add output to DB
-        .printVerbose("Adding aggregated output to database", toggle = verbose)
+        .printVerbose("Adding output to database", toggle = verbose)
         output <- output[, experiment_id := rep(
           experiment_id,
           times = nrow(output)
@@ -846,7 +846,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           }
 
           ## Add output to DB
-          .printVerbose("Adding aggregated output to database", toggle = verbose)
+          .printVerbose("Adding output to database", toggle = verbose)
           dbCon <- DBI::dbConnect(RSQLite::SQLite(), db)
           tryCatch(
             {
@@ -868,6 +868,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         if (ncores > 1) {
           tryCatch(
             {
+              .printVerbose("Starting R cluster", toggle = verbose)
               cl <- parallel::makeCluster(ncores, outfile = "")
               parallel::clusterExport(cl, "ncoresDT", envir = environment())
               parallel::clusterEvalQ(cl, {
