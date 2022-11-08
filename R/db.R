@@ -329,10 +329,12 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 
   ## Which columns should be translated?
   ## TRUE means all, FALSE none, otherwise specified
-  if (translate == TRUE) {
-    translate <- c("dates", "measures", "third_dimension")
-  } else if (translate == FALSE) {
-    translate <- c()
+  if (is.logical(translate)) {
+    if (translate == TRUE) {
+      translate <- c("dates", "measures", "third_dimension")
+    } else {
+      translate <- c()
+    }
   } else {
     translate <- translate
   }
