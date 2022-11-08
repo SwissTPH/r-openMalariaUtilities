@@ -55,6 +55,7 @@ Collate:
     'db.R'
     'directories.R'
     'logs.R'
+    'om_output_dict.R'
     'scenarios.R'
     'simulation.R'
     'time.R'
