@@ -112,7 +112,7 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
     statement = paste0(
       "CREATE TABLE IF NOT EXISTS ", paste0(tName), " (",
       paste0(
-        columns[["names"]], " ", columns[["types"]], " NOT NULL",
+        columns[["names"]], " ", columns[["types"]],
         collapse = ", "
       ),
       ", ",
