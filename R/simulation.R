@@ -150,7 +150,7 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
 
         ## Execute command, store output
         if (dryRun == TRUE) {
-          result <- paste0(x[["cmd"]], " ", x[["args"]])
+          result <- paste0(x[["cmd"]], " ", x[["args"]], "\n")
         } else {
           result <- system2(command = x[["cmd"]], args = x[["args"]], stdout = TRUE, stderr = TRUE)
         }

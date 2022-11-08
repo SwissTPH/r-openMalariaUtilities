@@ -11,7 +11,7 @@ NULL
 
 .thirdDimensionGen <- function() {
   ## Check which features are enabled; Age groups are by default
-  cohortsP <- ifelse(
+  isCohorts <- ifelse(
     "mon_cohorts" %in% ls(all.names = TRUE, envir = .pkgcache), TRUE, FALSE
   )
 
@@ -19,7 +19,7 @@ NULL
   ageGroups <- getCache("mon_ageGroups")
   thirdDimension <- data.table::data.table(
     number = seq_len(length(ageGroups$upperbounds)),
-    name = {
+    id = {
       out <- c(paste0(ageGroups$lowerbound, "-", ageGroups$upperbounds[1]))
       for (i in seq_len(length(ageGroups$upperbounds))[-length(ageGroups$upperbounds)]) {
         out <- c(out, paste0(ageGroups$upperbounds[i], "-", ageGroups$upperbounds[i + 1]))
@@ -28,7 +28,7 @@ NULL
     }
   )
 
-  if (cohortsP) {
+  if (isCohorts) {
     cohorts <- getCache("mon_cohorts")
     cohortNum <- cohorts$number
     cohortID <- cohorts$id
@@ -55,12 +55,12 @@ NULL
     for (i in seq_len(nrow(cohorts))) {
       tmp[[i]] <- list(
         number = cohorts[[i, "number"]] + thirdDimension[["number"]],
-        id = paste0(cohorts[[i, "id"]], ":", thirdDimension[["name"]])
+        id = paste0(cohorts[[i, "id"]], ":", thirdDimension[["id"]])
       )
     }
     tmp <- c(tmp, list(list(
       number = thirdDimension[["number"]],
-      id = thirdDimension[["name"]]
+      id = thirdDimension[["id"]]
     )))
     thirdDimension <- data.table::rbindlist(tmp)
   }
