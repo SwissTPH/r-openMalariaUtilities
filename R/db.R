@@ -756,7 +756,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       ## and R cluster nodes are balanced and don't compete for
       ## ressources.
       cl_cores <- ncores / ncoresDT
-      
+
       if (strategy == "batch") {
         .printVerbose(
           paste0(
@@ -813,7 +813,6 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
         ## done, data.table is your friend.
         tryCatch(
           {
-            .printVerbose("Aggregating OM output", toggle = verbose)
             if (ncores > 1) {
               .printVerbose(paste0(
                 "Assigning ", ncores, " data.table threads."
@@ -821,14 +820,13 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
               data.table::setDTthreads(ncores)
             }
             if (!is.null(aggrFun)) {
+              .printVerbose("Aggregating OM output", toggle = verbose)
               output <- do.call(what = aggrFun, args = list(output))
+              .printVerbose("Finished aggregating OM output", toggle = verbose)
             }
           },
           finally = {
             data.table::setDTthreads(curDTthreads)
-            .printVerbose("Finished aggregating OM output",
-              toggle = verbose
-            )
           }
         )
         ## Add output to DB
@@ -947,6 +945,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
           )
         }
       }
+
       .printVerbose("Running database optimizations", toggle = verbose)
       ## Vacuum
       DBI::dbExecute(

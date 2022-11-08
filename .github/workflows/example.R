@@ -79,11 +79,7 @@ testExp <- list(
       surveyTime = list(repeatStep = "1y", repeatEnd = "20.027y", "37t"),
       surveyTime = list(repeatStep = "1y", repeatEnd = "20.027y", "55t")
     ),
-    ageGroup = list(
-      lowerbound = 0,
-      group = list(upperbound = 5),
-      group = list(upperbound = 90)
-    )
+    ageGroup = surveyAgeGroupsGen(0, c(5,90))
   ),
   interventions = list(
     name = "test",
@@ -397,4 +393,6 @@ putCache(
 ## Run simulations
 runSimulations(scenarios = scenarios)
 
-readResults(getCache("experimentDir"), dbName = "test")
+collectResults(
+  expDir =  getCache("experimentDir"), dbName = "test", replace = TRUE,
+  verbose = TRUE)

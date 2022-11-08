@@ -65,6 +65,12 @@ NULL
     thirdDimension <- data.table::rbindlist(tmp)
   }
 
+  ## Add the special number 0, which corresponds to id = "none". This is
+  ## reserved for measures like simulatedEIR, which are not segregated by age
+  ## group or similar.
+  thirdDimension <- data.table::rbindlist(
+    list(thirdDimension, list(number = 0, id = "none")))
+
   return(thirdDimension)
 }
 
