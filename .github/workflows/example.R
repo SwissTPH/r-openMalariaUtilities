@@ -401,7 +401,7 @@ collectResults(
 con <- DBI::dbConnect(RSQLite::SQLite(), "test.sqlite")
 db_tables <- DBI::dbListTables(con)
 for (t in db_tables) {
-  tbl <- data.table::as.data.table(DBI::dbReadTable(con, "results"))
+  tbl <- data.table::as.data.table(DBI::dbReadTable(con, t))
   print(tbl)
 }
 DBI::dbDisconnect(con)
