@@ -593,7 +593,7 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
       ## Divide assigned computational ressources so data.table threads
       ## and R cluster nodes are balanced and don't compete for
       ## ressources.
-      cl_cores <- ncores / ncoresDT
+      cl_cores <- floor(ncores / ncoresDT)
 
       if (strategy == "batch") {
         .printVerbose(
