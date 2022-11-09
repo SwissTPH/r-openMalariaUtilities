@@ -336,10 +336,23 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
 ##' @param args List of function arguments
 ##' @keywords internal
 .setFunArgs <- function(f, args) {
+  fails <- c()
   for (n in names(args)) {
     if (n %in% names(formals(f))) {
       formals(f)[[n]] <- args[[n]]
+    } else {
+      fails <- c(fails, n)
     }
+  }
+  if (length(fails) > 0) {
+    stop(paste(
+      paste0(
+        "The following arguments are not used in ",
+        as.list(match.call())[[2]], ":"
+      ),
+      paste0(fails, collapse = "\n"),
+      sep = "\n"
+    ))
   }
   return(f)
 }

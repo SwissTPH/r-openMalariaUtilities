@@ -407,6 +407,11 @@ test_that(".setFunArgs works", {
   }
   actual <- .setFunArgs(f1, list(x = 1, y = 2))
   expect_equal(actual, expected)
+
+  ## Throw error
+  expect_error(
+    .setFunArgs(f1, list(x = 1, y = 2, foo = 1, bar = NA, baz = NULL))
+  )
 })
 
 
