@@ -11,20 +11,21 @@ NULL
 ##'   parameters for each scenario found in the directory. It is assumed that
 ##'   OpenMalaria is available in the PATH.
 ##' @param scenarios Scenario data frame
-##' @param cmd Command to run openMalaria.
+##' @param cmd Command to run openMalaria. Either NULL (we will try to find
+##'   OpenMalaria) or a full path ("/usr/bin/openMalaria").
 ##' @param dryRun If TRUE, only the final command is printed but not executed.
 ##' @param verbose If TRUE, use OpenMalaria's verbose output.
 ##' @param ncores Number of parallel processes to use.
 ##' @param rowStart Starting row. Optional.
 ##' @param rowEnd End row. Optional.
 ##' @export
-runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE,
+runSimulations <- function(scenarios = NULL, cmd = NULL, dryRun = FALSE,
                            verbose = FALSE, ncores = 1, rowStart = NULL,
                            rowEnd = NULL) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(scenarios, null.ok = TRUE, add = assertCol)
-  checkmate::assertCharacter(cmd, add = assertCol)
+  checkmate::assertCharacter(cmd, null.ok = TRUE, add = assertCol)
   checkmate::assertLogical(dryRun, add = assertCol)
   checkmate::assertLogical(verbose, add = assertCol)
   checkmate::assertNumber(ncores, add = assertCol)
@@ -55,7 +56,8 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
     verbose <- NULL
   }
 
-  cmd <- ifelse(dryRun == TRUE, cmd, Sys.which(cmd))
+  cmd <- ifelse(is.null(cmd), Sys.which("openMalaria"), cmd)
+
   scenarios <- file.path(
     getCache(x = "scenariosDir"),
     if (is.null(scenarios)) {
