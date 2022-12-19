@@ -192,7 +192,7 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
   if (ncores > 1) {
     tryCatch(
       {
-        cl <- parallel::makeCluster(ncores - 1, outfile = "")
+        cl <- parallel::makeCluster(ncores, outfile = "")
         invisible(
           parallel::parLapply(
             cl = cl, cmds, runSim, l = length(cmds), dryRun = dryRun

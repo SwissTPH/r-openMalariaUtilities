@@ -177,7 +177,7 @@ NULL
     if (ncores > 1) {
       tryCatch(
         {
-          cl <- parallel::makeCluster(ncores - 1, outfile = "")
+          cl <- parallel::makeCluster(ncores, outfile = "")
           invisible(
             parallel::parLapply(
               cl = cl, range, makeScen, scenDir = getCache(x = "scenariosDir"),
