@@ -30,7 +30,7 @@ jobs:
         run : |
           wget https://github.com/SwissTPH/openmalaria/releases/download/schema-44.0/openMalaria-ubuntu-20.04.tar.gz -O openMalaria-ubuntu-20.04.tar.gz
           tar -xf openMalaria-ubuntu-20.04.tar.gz && rm openMalaria-ubuntu-20.04.tar.gz
-          sudo apt-get install -y libxerces-c3.2
+          sudo apt-get install -y libboost-dev libgsl-dev libxerces-c-dev xsdcxx
           echo "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04" >> $GITHUB_PATH
 
       - name: Run OpenMalaria example xml
@@ -76,7 +76,7 @@ jobs:
         run : |
           wget https://github.com/SwissTPH/openmalaria/releases/download/schema-44.0/openMalaria-ubuntu-20.04.tar.gz -O openMalaria-ubuntu-20.04.tar.gz
           tar -xf openMalaria-ubuntu-20.04.tar.gz && rm openMalaria-ubuntu-20.04.tar.gz
-          sudo apt-get install -y libxerces-c3.2
+          sudo apt-get install -y libboost-dev libgsl-dev libxerces-c-dev xsdcxx
           echo "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04" >> $GITHUB_PATH
 
       - name: Run OMU script in R
