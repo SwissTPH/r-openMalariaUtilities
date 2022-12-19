@@ -7,7 +7,7 @@ test_that("runSimulations works", {
 
   ## Throws an error if cmd not found
   expect_error(
-    runSimulations(scenarios = scenarios, cmd = NULL),
+    runSimulations(scenarios = scenarios, cmd = "NotOpenMalaria"),
     "openMalaria could not be found"
   )
 

@@ -7,7 +7,7 @@
 \usage{
 runSimulations(
   scenarios = NULL,
-  cmd = NULL,
+  cmd = "openMalaria",
   dryRun = FALSE,
   verbose = FALSE,
   ncores = 1,
@@ -17,7 +17,7 @@ runSimulations(
 
 run_simulations(
   scenarios = NULL,
-  cmd = NULL,
+  cmd = "openMalaria",
   dryRun = FALSE,
   verbose = FALSE,
   ncores = 1,
@@ -28,8 +28,7 @@ run_simulations(
 \arguments{
 \item{scenarios}{Scenario data frame}
 
-\item{cmd}{Command to run openMalaria. Either NULL (we will try to find
-OpenMalaria) or a full path ("/usr/bin/openMalaria").}
+\item{cmd}{Command to run openMalaria.}
 
 \item{dryRun}{If TRUE, only the final command is printed but not executed.}
 
