@@ -1,8 +1,8 @@
 ---
-title: "Introduction to openMalariaUtilities"
+title: "Multi-Scenario Experiments"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to openMalariaUtilities}
+  %\VignetteIndexEntry{Multi-Scenario Experiments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,88 +13,285 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(openMalariaUtilities)
+source("./om_example.R")
 ```
 
 **This document is still work in progress**
 
-OpenMalaria is a powerful tool for simulating and studying the epidemiology of
-malaria. This R package allows the use of OpenMalaria from R.
-
-## Prerequisites
-
-Make sure that `SQLite` and `OpenMalaria` are both installed and available on
-the system. Please note: Even though the package should work on Windows, it is
-developed and tested under Linux.
-
-To install the package, run
-
-```{r, eval = FALSE}
-devtools::install_github("SwissTPH/r-openMalariaUtilities")
-```
-
+User of OpenMalaria will often have to answer research questions which require
+multiple simulations with varying input parameters. Thus, for each input
+combination a separate input XML file needs to be created. openMalariaUtilities
+(OMU) provides the facilities to make this task easier for the user.
 
 ## Introduction
 
-Within this tutorial, we will create and run example scenarios. Each scenario
-needs to be defined in a XML file which serves as an input for OpenMalaria
-(OM). OpenMalariaUtilities (OMU) contains many functions which help to generate
-these input files. In this tutorial we will re-create the example from 
-OpenMalaria itself.
+This tutorial will outline the requirements and the process of running multiple
+scenarios. The input is based on OpenMalaria's example. The code the generate
+the input list can be found in the [Appendix](#appendix).
 
-## XML file generation
+First, we set up our experiment as usual.
 
-A large part of OMU is dedicated at the generation of valid OM XML files. Before
-we start with the generation of these files, we will explain the folder layout
-of your projects.
+```{r}
+## Setup dirs
+setupDirs(experimentName = "exp_test", replace = TRUE)
 
-In the folder hierarchy, your working or project directory is the top level.
-Within this folder, you can have one or more folders which correspond to the
-names of experiments. The simulations of these experiments are controlled via
-one or multiple R scripts, placed in the project directory. Please note: Most of
-the directories can be modified via function arguments, but for the sake of
-simplicity we using the defaults here.
-
-```
-MyProject
-├── experiment_1
-├── experiment_2
-├── ...
-├── script_1.R
-├── script_2.R
-└── ...
+## Copy necessary OpenMalaria files.
+setupOM()
 ```
 
-Each of the experiment folders will have a similar layout and content.
+## Placeholders
 
+OMU provides a special syntax which can be used to define placeholders with
+varying values. Nearly any value in the input list can replaced by a
+`@placeholder@`. We will demonstrate that in the following example:
+
+```{r eval=FALSE}
+baseList[["interventions"]] <- list(
+  name = "test",
+  human = list(
+    component = list(
+      id = "GVI",
+      name = "DDT test",
+      GVI = list(
+        decay = list(
+          L = "0.5",
+          "function" = "exponential"
+        ),
+        anophelesParams = list(
+          mosquito = "gambiae_ss", propActive = "1",
+          deterrency = list(value = "0.56"),
+          preprandialKillingEffect = list(value = "0"),
+          postprandialKillingEffect = list(value = "0.24")
+        )
+      )
+    ),
+    deployment = list(
+      name = "DDT test",
+      component = list(id = "GVI"),
+      timed = list(
+        deploy = list(coverage = "0.9", time = "10y") # <- Coverage
+      )
+    )
+  )
+)
 ```
-MyProject/experiment_1
-├── cache/
-├── logs/
-├── outputs/
-├── scenarios/
-├── autoRegressionParameters.csv
-├── densities.csv
-├── base.xml
-└── scenario_44.xsd
+
+The above code specifies the deployment of the intervention "DDT test" which is
+done after 10 years. For our (trivial) example, we want to vary the coverage
+parameter. Here, we override the intervention section with a new definition:
+
+```{r}
+baseList[["interventions"]] <- list(
+  name = "test",
+  human = list(
+    component = list(
+      id = "GVI",
+      name = "DDT test",
+      GVI = list(
+        decay = list(
+          L = "0.5",
+          "function" = "exponential"
+        ),
+        anophelesParams = list(
+          mosquito = "gambiae_ss", propActive = "1",
+          deterrency = list(value = "0.56"),
+          preprandialKillingEffect = list(value = "0"),
+          postprandialKillingEffect = list(value = "0.24")
+        )
+      )
+    ),
+    deployment = list(
+      name = "DDT test",
+      component = list(id = "GVI"),
+      timed = list(
+        deploy = list(coverage = "@coverage@", time = "10y") # <- Coverage
+      )
+    )
+  )
+)
 ```
 
-You do not need to worry about the creation of the folders and files. OMU will
-create necessary folders and download required files for you.
+Note, that we replaced the numerical value of `coverage` with a placeholder.
 
-The `cache` folder contains R objects which are used by OMU to store reusable
-information. This will speed up certain operations. Log files are stored in the
-`logs` folder (which will contain sub-folders for each step in the process) and
-OpenMalaria's raw output will be `outputs`. The XML files for each simulation 
-scenario are stored in the `scenarios` folder.
+## Scenarios' Data Frame
 
-### Starting the project
+For each placeholder we defined, we also need to have a table with the
+corresponding values. This is done in the scenarios data frame, which need to
+have the following structure:
 
-In your R script, you will probably start with `library(openMalariaUtilities)`.
-Thus, the beginning could look like
+- Each column corresponds to a placeholder
+- The column names are the same as the placeholders, without the `@` enclosement
+- Each row corresponds to a scenario
 
-```{r start}
-library(openMalariaUtilities)
+Thus, for our example, the scenario data frame should look like this:
 
+```{r}
+scens <- data.frame(coverage = c(0.1, 0.3, 0.5, 0.8, 1))
+scens
+```
+
+The placeholder names are up to the users, however the names should follow good
+practices of naming R column names, e.g. no spaces or special characters which
+also R operators like `+` or `-`.
+
+OMU will check if the placeholders used in the XML file are present in the
+scenario data frame and warn the user if not. On the other hand, users can add
+non-placeholder columns to the scenario data frame which are used for metadata
+(more on that later).
+
+Before the scenarios can be generated, it is important to run the following
+steps:
+
+```{r}
+scens <- finalizeScenarios(scens)
+storeScenarios(scens, csv = FALSE)
+scens
+```
+
+The above command will add the two columns `ID` and `file` to the scenario data
+frame which are later used to uniquely identify each individual scenario.
+Furthermore, the scenarios are stored in the cache and optionally written as a
+CSV file to disk.
+
+Please note, that the `finalizeScenarios()` and `storeScenarios()` should be the
+last commands you run on the scenarios.
+
+## Create XML files
+
+```{r}
+## Create base XML file
+createBaseXml(baseList, replace = TRUE)
+
+## Create each scenarios' XML file
+setupScenarios(scenarios = scens)
+
+## Validate
+validateXML(scenarios = scens)
+```
+
+`setupScenarios()` will take care of the scenario generation and place the resulting files
+in the `scenarios` directory of you experiment. 
+
+`validateXML()` will verify that all values in the XML file, and also the
+scenario data frame if specified, are valid according to the XSD schema.
+
+## Running simulations
+
+The simulations can be run by using:
+
+```{r eval=FALSE}
+runSimulations(scenarios = scens, cmd = "openMalaria", ncores = 3)
+#> starting worker pid=50911 on localhost:11193 at 10:02:30.825
+#> starting worker pid=50909 on localhost:11193 at 10:02:30.831
+#> starting worker pid=50910 on localhost:11193 at 10:02:30.836
+#> [1] "Running scenario [3/5]"
+#> [1] "Running scenario [1/5]"
+#> [1] "Running scenario [4/5]"
+#> [1] "Running scenario [5/5]"
+#> [1] "Running scenario [2/5]"
+```
+
+Here, we pass the scenarios to the corresponding argument. Additionally, we can
+specify how many CPU cores should be used for the simulations via the `ncores`
+argument. Setting it to `3` implies that up to three simulations will be run in
+parallel, as can be seen from the console output.
+
+OpenMalaria simulations are usually fully independent processes, thus they
+should scale well with more CPU cores. If you have the computational resources,
+this can greatly speed up the total run time.
+
+The individual output files will be placed in the `outputs` folder.
+
+## Collecting the results
+
+openMalariaUtilities provides the facilities to collect the simulation results,
+aggregate and store them in a SQLite database.
+
+This whole process is handled by `collectResults()`. This function accepts a
+variety of input arguments which are part of a different vignette.
+
+`collectResults()` has fore main parts:
+1. Determine which output files are needed
+2. Read the requested files
+3. Run aggregation on the collected data
+4. Store data in database
+
+In this tutorial we will stick mainly to the default options.
+
+We specify the directory where the output folders is stored and assign the name
+`test` to the database. By default, the database will be created in the project
+directory.
+
+```{r eval=FALSE}
+collectResults(expDir = getCache("experimentDir"), dbName = "test")
+```
+
+Using the `RSQLite` and the `DBI` package, we can now take a look a the database
+and the stored data.
+
+```{r eval=FALSE}
+con <- DBI::dbConnect(RSQLite::SQLite(), "test.sqlite")
+DBI::dbListTables(con)
+#> [1] "experiments"        "placeholders"       "results"            "scenarios"         
+#> [5] "scenarios_metadata" "sqlite_stat1"       "sqlite_stat4"     
+```
+The first five tables are relevant for us.
+
+```{r eval=FALSE}
+DBI::dbReadTable(con, "experiments")
+#>   experiment_id     name
+#> 1             1 exp_test
+```
+The `experiments` table maps each experiment in the database to an ID. The `scenarios` table
+list all scenarios per experiment.
+
+```{r eval=FALSE}
+DBI::dbReadTable(con, "scenarios")
+#>   experiment_id scenario_id
+#> 1             1           1
+#> 2             1           2
+#> 3             1           3
+#> 4             1           4
+#> 5             1           5
+
+DBI::dbReadTable(con, "placeholders")
+#>   experiment_id scenario_id placeholder value
+#> 1             1           1    coverage   0.1
+#> 2             1           2    coverage   0.3
+#> 3             1           3    coverage   0.5
+#> 4             1           4    coverage   0.8
+#> 5             1           5    coverage   1.0
+
+DBI::dbReadTable(con, "scenarios_metadata")
+#>   experiment_id scenario_id key_var          value
+#> 1             1           1    file exp_test_1.xml
+#> 2             1           2    file exp_test_2.xml
+#> 3             1           3    file exp_test_3.xml
+#> 4             1           4    file exp_test_4.xml
+#> 5             1           5    file exp_test_5.xml
+```
+All placeholders are stored in the `placeholders` table and all non-placeholder columns from the scenarios
+data frame is stored in the `scenarios_metadata` table.
+
+The results are stored in the `results` table,
+
+```{r eval=FALSE}
+#> head(DBI::dbReadTable(con, "results"))
+#>   experiment_id scenario_id survey_date third_dimension measure value
+#> 1             1           1  2000-03-27             0-5   nHost   609
+#> 2             1           1  2000-03-27            5-90   nHost  3391
+#> 3             1           1  2000-03-27             0-5 nPatent   514
+#> 4             1           1  2000-03-27            5-90 nPatent  2423
+#> 5             1           1  2000-03-27             0-5 nUncomp   806
+#> 6             1           1  2000-03-27            5-90 nUncomp   769
+```
+
+which can be used for further analysis.
+
+
+## Appendix
+
+```{r eval=FALSE}
 ## Basic skeleton
 baseList <- list(
   ## Mandatory
@@ -115,33 +312,7 @@ baseList <- list(
   ## diagnostics = list(),
   model = list()
 )
-```
 
-For XML file generation, OMU uses a list as input (here: `baseList`). This list
-has a very [similar structure](https://swisstph.github.io/openmalaria/schema-latest.html)
-as the XML file required by OM but is easier to edit from R compared
-to XML. The above snippet corresponds to the minimal skeleton of this input
-list. `expName` is the name of your experiment and `OMVersion` the version of
-OpenMalaria. Currently, only version 44 is supported. Also note, that the OM
-version needs to be an integer.
-
-Each of the six nested lists `demography`, `monitoring`, `interventions`,
-`healthSystem`, `entomology` and `model` need to be filled for OM.
-
-### Demography
-
-There are two ways to add the data to the `demography` entry:
-
-1. Add it manually, e.g. `baseList[["demography"]] <- list(name = "Ifakara",
-   ...)`
-2. Use the provided `defineDemography()` function
-
-We will use the second option in this tutorial. You can find various `defineXY`
-functions which are each designed to add a specific entry to the list. However,
-you always have the option to write parts or change specific entries manually
-(See also `extractList()`).
-
-```{r demography}
 demo_data <- data.frame(
   poppercent = c(
     3.474714994, 12.76004028, 14.52151394, 12.75565434, 10.83632374,
@@ -154,7 +325,6 @@ demo_data <- data.frame(
   )
 )
 
-
 baseList <- defineDemography(
   baseList,
   name = "Ifakara",
@@ -165,21 +335,6 @@ baseList <- defineDemography(
   upperbound = demo_data$upperbound
 )
 
-str(baseList, max.level = 2)
-```
-
-In the above snippet, we started by creating a data frame which contains the
-demographic data. This in turn was used as input for `defineDemography()` among
-other parameters. The function will take care that the information is added at
-the correct position and also check, that the correct data types are used.
-
-### Monitoring
-
-The `monitoring` section controls the output of OpenMalaria, which is generated
-during the conducted
-[surveys](https://swisstph.github.io/openmalaria/schema-latest.html).
-
-```{r monitoring-1}
 baseList[["monitoring"]] <- list(
   name = "Quarterly Surveys",
   ## Mandatory, different from OM schema
@@ -203,22 +358,13 @@ baseList[["monitoring"]] <- list(
     )
   )
 )
-```
 
-We started the monitoring definition by giving it a name and defining a start
-date. Here, this is mandatory because it allows us to use dates as input for
-OpenMalaria. It defines the starting point of the survey period.
-
-For the options, two generator functions are used which take the name of the
-option and its value as input.
-
-```{r monitoring-2}
 baseList[["monitoring"]] <- c(
   baseList[["monitoring"]],
   list(
     surveys =  monitoringSurveyTimesGen(
       detectionLimit = 40, startDate = "2000-01-01", endDate = "2020-01-01",
-      interval = "quarterly", simStart = "1980-01-01"
+      interval = "quarterly"
     ),
     ageGroup = surveyAgeGroupsGen(
       lowerbound = 0,
@@ -227,44 +373,6 @@ baseList[["monitoring"]] <- c(
   )
 )
 
-str(baseList[["monitoring"]], max.level = 1)
-```
-
-Similar to the age groups in the demography section, `surveyAgeGroupsGen()` adds
-the desired age groups for the surveys.
-
-The definition of the survey times itself is done above. Please note, that you
-really should use `monitoringSurveyTimesGen()` as this function will make sure
-your desired survey points are valid (and adjust them if necessary) and will
-store them for later use in the cache.
-
-We can inspect the cache to see if our survey times have been generated
-correctly.
-
-```{r monitoring-3}
-listCache()
-```
-
-We can notice two things:
-
-1. We are expecting 81 surveys, however we have 85
-2. The dates have been adjusted
-
-OMU adds one more year (here: 4 surveys) to the survey period. This is done in
-order to ensure that all deployments show their effect. The dates are adjusted
-so they match OM's internal time steps. For more details on this, [see
-here](https://github.com/SwissTPH/openmalaria/wiki/ModelTimeUpdates#specifying-times).
-
-Furthermore, the number of days or time steps is counted from the simulation
-start `simStart`, which is here the 1st January 1980. It is recommended to start
-the simulation 20 - 50 years before the first survey.
-
-### Interventions
-
-In this section we will define actual measures which will be used throughout the
-simulation.
-
-```{r interventions}
 baseList[["interventions"]] <- list(
   name = "test",
   human = list(
@@ -293,11 +401,7 @@ baseList[["interventions"]] <- list(
     )
   )
 )
-```
 
-### Health system
-
-```{r healtsys}
 baseList[["healthSystem"]] <- list(
   ImmediateOutcomes = list(
     name = "Tanzania ACT",
@@ -359,11 +463,7 @@ baseList[["healthSystem"]] <- list(
     group = list(lowerbound = "5.0", value = 0.005)
   )
 )
-```
 
-### Entomology
-
-```{r entomology}
 baseList[["entomology"]] <- list(
   mode = "dynamic", name = "Namawala",
   vector = list(
@@ -404,11 +504,7 @@ baseList[["entomology"]] <- list(
     nonHumanHosts = list(name = "unprotectedAnimals", number = "1.0")
   )
 )
-```
 
-### Model
-
-```{r model}
 baseList[["model"]] <- list(
   ModelOptions = list(
     option = list(name = "LOGNORMAL_MASS_ACTION", value = "true"),
@@ -560,143 +656,3 @@ baseList[["model"]] <- list(
 )
 ```
 
-## Prepare to run the simulations
-
-```{r setup-1}
-## Setup dirs
-setupDirs(experimentName = "exp_test", replace = TRUE)
-
-## Copy necessary OpenMalaria files.
-setupOM()
-```
-
-`setupDirs()` creates the experiment folder given as an argument in the project
-directory. This also includes all the sub-folders which were mentioned in the
-[introduction](#introduction) .
-
-We can verify this by checking the layout of the experiment directory.
-
-```{r setup-2}
-list.dirs("exp_test")
-```
-
-`setupOM()` will make sure that all required files for OpenMalaria to run are
-in place. This includes the correct `.xsd` schema file (according to the
-specified OM version) as well as further supplementary files.
-
-```{r setup-3}
-list.files("exp_test")
-```
-
-## Create XML file
-
-As the name implies, `createBaseXml()` will translate our input list to a XML
-document and write it to disk.
-
-```{r setup-4}
-## Create base XML file
-createBaseXml(baseList, replace = TRUE)
-readLines(file("exp_test/exp_test_base.xml", "r"), n = 10)
-```
-
-## Run simulations
-
-In order to run the simulation, we can simply call `runSimulations()`.
-
-```{r sim-1, eval = FALSE}
-## Run simulations
-runSimulations()
-#> [1] "Running scenario [1/1]"
-```
-
-By default, the output in the R console is fairly minimal. More detailed logs
-can be found in the `logs/simulation` folder.
-
-```{r sim-2, eval = FALSE}
-list.files("exp_test/logs/simulation")
-#> [1] "exp_test_base.log"
-```
-
-OpenMalaria generates two [output
-files](https://github.com/SwissTPH/openmalaria/wiki/UserGuide#interpretation-of-the-test-scenario)
-which are both placed in the `outputs` folder:
-
-1. The `*_cts.txt` file
-
-```{r sim-3, eval = FALSE}
-read.table("exp_test/outputs/exp_test_base_cts.txt", header = TRUE, sep = "\t", skip = 1, nrows = 10)
-#>    timestep  input.EIR simulated.EIR human.infectiousness N_v0.gambiae_ss.
-#> 1         0 0.00995606    0.00995049            0.0179202          30147.4
-#> 2         1 0.01958060    0.15390600            0.0175667          39181.0
-#> 3         2 0.03850920    0.24658900            0.0171114          46368.5
-#> 4         3 0.07460740    0.37191900            0.0167741          49838.5
-#> 5         4 0.14030700    0.52390000            0.0164523          48641.0
-#> 6         5 0.25256000    0.68747000            0.0165751          43197.7
-#> 7         6 0.42953400    0.84148200            0.0188351          35064.0
-#> 8         7 0.68226100    0.96738200            0.0231314          26185.7
-#> 9         8 1.00214000    1.07333000            0.0296558          18146.4
-#> 10        9 1.35047000    1.18202000            0.0377866          11790.1
-#>    immunity.h immunity.Y new.infections num.transmitting.humans ITN.coverage
-#> 1     256.846   11899700              0                    2613            0
-#> 2     256.817   11900500            400                    2590            0
-#> 3     256.856   11895200            692                    2572            0
-#> 4     256.934   11896300           1054                    2549            0
-#> 5     257.109   11897600           1469                    2526            0
-#> 6     257.299   11899200           1795                    2507            0
-#> 7     257.791   11901800           2250                    2636            0
-#> 8     258.367   11903800           2643                    2798            0
-#> 9     259.013   11904600           2987                    3019            0
-#> 10    259.681   11909900           3256                    3280            0
-#>    GVI.coverage alpha_i.gambiae_ss.
-#> 1             0         0.000206347
-#> 2             0         0.000206342
-#> 3             0         0.000206349
-#> 4             0         0.000206332
-#> 5             0         0.000206344
-#> 6             0         0.000206344
-#> 7             0         0.000206347
-#> 8             0         0.000206338
-#> 9             0         0.000206330
-#> 10            0         0.000206329
-```
-
-2. The `*_out.txt` file
-
-```{r sim-4, eval = FALSE}
-read.table("exp_test/outputs/exp_test_base_out.txt", header = FALSE, sep = "\t", nrows = 10)
-#>    V1 V2 V3          V4
-#> 1   1  1  0 6.07000e+02
-#> 2   1  2  0 3.39300e+03
-#> 3   1  1  3 1.37000e+02
-#> 4   1  2  3 1.15500e+03
-#> 5   1  1 14 3.35770e+04
-#> 6   1  2 14 2.94240e+04
-#> 7   1  1 15 7.11000e+02
-#> 8   1  2 15 4.80000e+01
-#> 9   1  0 35 2.19321e-01
-#> 10  1  0 36 2.87284e-01
-```
-
-The `*_out.txt` file is usually the file you are interested in, as it contains
-the measurement data for each survey you defined in the input list. [See
-here](https://github.com/SwissTPH/openmalaria/wiki/MonitoringOutput) for more
-information.
-
-## Read results
-
-OpenMalaria's output files use numerical indiccators in the second column which
-can make the interpretation of the values difficult for new users. Thus OMU
-provides a helper function which reads an output file and assigns column names
-and translates certain values (e.g. the survey dates).
-
-```{r results-1, eval = FALSE}
-outfile <- readOutputFile("exp_test/outputs/exp_test_base_out.txt")
-head(outfile)
-#>    survey_date third_dimension measure value
-#> 1:  1999-12-27               1   nHost   607
-#> 2:  1999-12-27               2   nHost  3393
-#> 3:  1999-12-27               1 nPatent   137
-#> 4:  1999-12-27               2 nPatent  1155
-#> 5:  1999-12-27               1 nUncomp 33577
-#> 6:  1999-12-27               2 nUncomp 29424
-```

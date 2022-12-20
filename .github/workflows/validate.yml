@@ -23,7 +23,7 @@ name: OpenMalaria validation
 jobs:
   job_1:
     name: OpenMalaria example
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Setup OpenMalaria
         shell: bash
@@ -47,12 +47,9 @@ jobs:
 
   job_2:
     name: openMalariaUtilities example
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      matrix:
-        config:
-          - {os: ubuntu-latest,   r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
