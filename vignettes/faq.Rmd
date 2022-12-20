@@ -1,0 +1,20 @@
+---
+title: "Frequently Asked Questions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Frequently Asked Questions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## How can I restore a previous experiment?
+
+You can use `loadExperiment()` and enter the path to the experiment as an
+argument. This will restore the cached data.

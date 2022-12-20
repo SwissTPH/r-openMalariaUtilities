@@ -158,7 +158,7 @@ last commands you run on the scenarios.
 
 ## Create XML files
 
-```{r}
+```{r eval=FALSE}
 ## Create base XML file
 createBaseXml(baseList, replace = TRUE)
 
@@ -276,7 +276,7 @@ data frame is stored in the `scenarios_metadata` table.
 The results are stored in the `results` table,
 
 ```{r eval=FALSE}
-#> head(DBI::dbReadTable(con, "results"))
+head(DBI::dbReadTable(con, "results"))
 #>   experiment_id scenario_id survey_date third_dimension measure value
 #> 1             1           1  2000-03-27             0-5   nHost   609
 #> 2             1           1  2000-03-27            5-90   nHost  3391
@@ -284,6 +284,7 @@ The results are stored in the `results` table,
 #> 4             1           1  2000-03-27            5-90 nPatent  2423
 #> 5             1           1  2000-03-27             0-5 nUncomp   806
 #> 6             1           1  2000-03-27            5-90 nUncomp   769
+DBI::dbDisconnect(con)
 ```
 
 which can be used for further analysis.
