@@ -41,6 +41,7 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/collectResults.html">collectResults</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
     <a class="dropdown-item" href="../articles/openmalariautilities.html">Introduction to openMalariaUtilities</a>
     <a class="dropdown-item" href="../articles/scenarios.html">Multi-Scenario Experiments</a>
@@ -279,9 +280,13 @@ simulation results, aggregate and store them in a SQLite database.</p>
 <p>This whole process is handled by <code><a href="../reference/collectResults.html">collectResults()</a></code>. This
 function accepts a variety of input arguments which are part of a
 different vignette.</p>
-<p><code><a href="../reference/collectResults.html">collectResults()</a></code> has fore main parts: 1. Determine which
-output files are needed 2. Read the requested files 3. Run aggregation
-on the collected data 4. Store data in database</p>
+<p><code><a href="../reference/collectResults.html">collectResults()</a></code> has fore main parts:</p>
+<ol style="list-style-type: decimal">
+<li>Determine which output files are needed</li>
+<li>Read the requested files</li>
+<li>Run aggregation on the collected data</li>
+<li>Store data in database</li>
+</ol>
 <p>In this tutorial we will stick mainly to the default options.</p>
 <p>We specify the directory where the output folders is stored and
 assign the name <code>test</code> to the database. By default, the
