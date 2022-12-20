@@ -1,0 +1,59 @@
+---
+title: "collectResults"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{collectResults}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`collectResults()` is a powerful function and the aim of this vignette is to
+explain its options in more detail.
+
+## Output database
+
+`collectResults()` creates the following database tables: experiments,
+placeholders, scenarios, scenarios_metadata and results. 
+
+The table containing the simulation output (results) can be renamed by using the
+`resultsName` argument and its layout can be adjusted as needed via
+`resultsCols`. `resultsCols` needs to be a list where the `names` entry defines
+the column names and the `types` entry the SQLite column types.
+
+The creation of an index can be controlled by the `indexOn` argument, which
+accepts a list of vectors. Each vector is a pair of the SQLlite table name and
+the column the index should be created on.
+
+## fileFun, readFun and aggrFun
+
+These three arguments allow the user to modify greatly what `collectResults()`
+is doing. Users can write their own function with nearly no limitations and can
+pass them to `collectResults()`.
+
+`fileFun`: A function for filtering the input files. Needs to return a vector of
+the scenario XML files without path as in the file column of the scenario data
+frame. No default.
+
+`fileFunArgs`: Arguments for `fileFun` as a (named) list.
+
+`readFun`: A function for reading and processing OpenMalaria output files. Needs
+to return as data frame. The first argument needs to be the file name and it
+needs to have ... as an argument. Scenario IDs are available by using scenID as
+an argument. If NULL, defaults to readOutputFile and the scenario IDs are added
+automatically.
+   
+`readFunArgs`: Arguments for `readFun` as a (named) list.
+
+`aggrFun` A function for aggregating the output of readFun. First argument needs
+to be the output data frame of readFun and it needs to generate a data frame.
+The data frame should NOT contain an experiment_id column as this is added
+automatically. The column names needs to match the ones defined in resultsCols.
+   
+`aggrFunArgs` Arguments for `aggrFun` as a (named) list.

@@ -211,6 +211,7 @@ This whole process is handled by `collectResults()`. This function accepts a
 variety of input arguments which are part of a different vignette.
 
 `collectResults()` has fore main parts:
+
 1. Determine which output files are needed
 2. Read the requested files
 3. Run aggregation on the collected data
