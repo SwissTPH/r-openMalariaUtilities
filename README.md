@@ -1,5 +1,5 @@
 ![Latest commit](https://img.shields.io/github/last-commit/SwissTPH/r-openMalariaUtilities/master?style=flat-square)
-![Build status: master](https://img.shields.io/github/workflow/status/SwissTPH/r-openMalariaUtilities/R-CMD-check/master?style=flat-square)
+![Build status: master](https://img.shields.io/github/actions/workflow/status/SwissTPH/r-openMalariaUtilities/check.yml?branch=master&style=flat-square)
 ![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rogoersTPH/db82500941e9bea7d7a5c0bfd5e6db8d/raw/cover.json)
 
 
