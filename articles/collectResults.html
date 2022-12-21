@@ -88,9 +88,26 @@ this vignette is to explain its options in more detail.</p>
 <div class="section level2">
 <h2 id="output-database">Output database<a class="anchor" aria-label="anchor" href="#output-database"></a>
 </h2>
-<p><code><a href="../reference/collectResults.html">collectResults()</a></code> creates the following database tables:
-experiments, placeholders, scenarios, scenarios_metadata and
-results.</p>
+<p><code><a href="../reference/collectResults.html">collectResults()</a></code> creates the following database
+tables:</p>
+<ul>
+<li>
+<code>experiments</code>: Which experiments are stored in the
+DB?</li>
+<li>
+<code>scenarios</code>: Which scenarios per experiment are
+available?</li>
+<li>
+<code>placeholders</code>: What placeholders are used per
+scenario?</li>
+<li>
+<code>scenarios_metadata</code>: What metadata is available per
+scenario?</li>
+<li>
+<code>results</code>: OpenMalaria output (per scenario).</li>
+</ul>
+<p>Please note that all data are identified by experiment and possibly
+by scenario.</p>
 <p>The table containing the simulation output (results) can be renamed
 by using the <code>resultsName</code> argument and its layout can be
 adjusted as needed via <code>resultsCols</code>.
@@ -99,36 +116,91 @@ entry defines the column names and the <code>types</code> entry the
 SQLite column types.</p>
 <p>The creation of an index can be controlled by the
 <code>indexOn</code> argument, which accepts a list of vectors. Each
-vector is a pair of the SQLlite table name and the column the index
-should be created on.</p>
+vector is a pair of the SQLite table and column name the index should be
+created on.</p>
 </div>
 <div class="section level2">
 <h2 id="filefun-readfun-and-aggrfun">fileFun, readFun and aggrFun<a class="anchor" aria-label="anchor" href="#filefun-readfun-and-aggrfun"></a>
 </h2>
-<p>These three arguments allow the user to modify greatly what
-<code><a href="../reference/collectResults.html">collectResults()</a></code> is doing. Users can write their own
-function with nearly no limitations and can pass them to
-<code><a href="../reference/collectResults.html">collectResults()</a></code>.</p>
-<p><code>fileFun</code>: A function for filtering the input files. Needs
-to return a vector of the scenario XML files without path as in the file
-column of the scenario data frame. No default.</p>
-<p><code>fileFunArgs</code>: Arguments for <code>fileFun</code> as a
-(named) list.</p>
-<p><code>readFun</code>: A function for reading and processing
-OpenMalaria output files. Needs to return as data frame. The first
-argument needs to be the file name and it needs to have … as an
-argument. Scenario IDs are available by using scenID as an argument. If
-NULL, defaults to readOutputFile and the scenario IDs are added
-automatically.</p>
-<p><code>readFunArgs</code>: Arguments for <code>readFun</code> as a
-(named) list.</p>
-<p><code>aggrFun</code> A function for aggregating the output of
-readFun. First argument needs to be the output data frame of readFun and
-it needs to generate a data frame. The data frame should NOT contain an
-experiment_id column as this is added automatically. The column names
-needs to match the ones defined in resultsCols.</p>
-<p><code>aggrFunArgs</code> Arguments for <code>aggrFun</code> as a
-(named) list.</p>
+<p><code><a href="../reference/collectResults.html">collectResults()</a></code> is performing three steps during the
+result collection:</p>
+<ol style="list-style-type: decimal">
+<li>Determine which OpenMalaria output files should be read</li>
+<li>Reading these files</li>
+<li>Perform aggregation</li>
+</ol>
+<p>These three steps can be modified by the user and allow changing the
+behavior of <code><a href="../reference/collectResults.html">collectResults()</a></code>. Users can write their own
+functions with nearly no limitations and can pass them to
+<code><a href="../reference/collectResults.html">collectResults()</a></code>’s dedicated arguments.</p>
+<div class="section level3">
+<h3 id="filefun">fileFun<a class="anchor" aria-label="anchor" href="#filefun"></a>
+</h3>
+<p><code>fileFun</code>’s job is to return a vector of scenario XML file
+names. By default, the <code>file</code> column of the scenario data
+frame is loaded from the cache. Usually this would be a function which
+applies filtering to the scenarios data frame in order to determine the
+files.</p>
+</div>
+<div class="section level3">
+<h3 id="readfun">readFun<a class="anchor" aria-label="anchor" href="#readfun"></a>
+</h3>
+<p><code>readFun</code> will called upon each found output file and has
+to return a data frame which is used by <code>aggrFun</code> or put into
+the database. <code><a href="../reference/readOutputFile.html">readOutputFile()</a></code> should be sufficient for
+most uses. In case you want to write your own implementation, make sure
+that the first argument the function accepts is the file name and it has
+R’s ellipsis <code>...</code> in the arguments. This is necessary so the
+scenario ID can be passed automatically and can be used by your function
+via <code>scenID</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="aggrfun">aggrFun<a class="anchor" aria-label="anchor" href="#aggrfun"></a>
+</h3>
+<p><code>aggrFun</code> is probably the function most users want to
+ajust to their needs and where we do not provide any default. It needs
+to accept the data frame generated from <code>readFun</code> as a first
+argument and should provide the final data frame which will be put into
+the database. This data frame must not have a column named
+<code>experiment_id</code> and can contain a column named
+<code>scenario_id</code>. Furthermore, the output needs to match the
+layout defined in <code>resultsCols</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="function-arguments">Function arguments<a class="anchor" aria-label="anchor" href="#function-arguments"></a>
+</h3>
+<p>The arguments for the above three functions have to be (named) list.
+If you need to pass unevaluated arguments, consider using
+<code><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote()</a></code> and <code><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote()</a></code>.
+<code><a href="../reference/collectResults.html">collectResults()</a></code> will try to remove all quotes before the
+arguments are passed to the functions.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="parallelization-and-strategy">Parallelization and strategy<a class="anchor" aria-label="anchor" href="#parallelization-and-strategy"></a>
+</h2>
+<p>Users can control the number of CPU cores used for the calculations
+by the parameters <code>ncores</code> and <code>ncoresDT</code>. Similar
+to the scenario generation and simulation step, <code>ncores</code>
+determines how many R cluster nodes will be launched to perform the
+calculations. <code>ncoresDT</code> sets the number of threads available
+for <code>data.table</code>, which is used by us extensively. By default
+this is set to one in order to avoid nested parallelization.</p>
+<p>The <code>strategy</code> argument accepts <code>"serial"</code> and
+<code>"batch"</code> as input values and defines how
+<code><a href="../reference/collectResults.html">collectResults()</a></code> is processing the files.</p>
+<p><code>"batch"</code> means that we will launch an R cluster to read
+all files in parallel into one single data table. Then we will apply
+aggregation function and add the whole output batch to the database.
+This process is the fastest by our experience when using SQLite but can
+require a lot of memory, depending on how many scenarios are
+aggregated.</p>
+<p><code>"serial"</code> means that we will launch an R cluster and each
+node will read a file, apply the aggregation function and send the
+result to the database. With SQLite, this process has been slower than
+the <code>"batch"</code> stragety but also less memory intensive. We
+expect it to be quite performant when a database system like PostgresSQL
+is used which allows multiple simultaneous write connections.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
