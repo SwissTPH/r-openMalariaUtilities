@@ -19,8 +19,15 @@ explain its options in more detail.
 
 ## Output database
 
-`collectResults()` creates the following database tables: experiments,
-placeholders, scenarios, scenarios_metadata and results. 
+`collectResults()` creates the following database tables: 
+
+- `experiments`: Which experiments are stored in the DB?
+- `scenarios`: Which scenarios per experiment are available?
+- `placeholders`: What placeholders are used per scenario?
+- `scenarios_metadata`: What metadata is available per scenario?
+- `results`: OpenMalaria output (per scenario).
+
+Please note that all data are identified by experiment and possibly by scenario.
 
 The table containing the simulation output (results) can be renamed by using the
 `resultsName` argument and its layout can be adjusted as needed via
@@ -28,32 +35,72 @@ The table containing the simulation output (results) can be renamed by using the
 the column names and the `types` entry the SQLite column types.
 
 The creation of an index can be controlled by the `indexOn` argument, which
-accepts a list of vectors. Each vector is a pair of the SQLlite table name and
-the column the index should be created on.
+accepts a list of vectors. Each vector is a pair of the SQLite table and column
+name the index should be created on.
 
 ## fileFun, readFun and aggrFun
 
-These three arguments allow the user to modify greatly what `collectResults()`
-is doing. Users can write their own function with nearly no limitations and can
-pass them to `collectResults()`.
+`collectResults()` is performing three steps during the result collection: 
 
-`fileFun`: A function for filtering the input files. Needs to return a vector of
-the scenario XML files without path as in the file column of the scenario data
-frame. No default.
+1. Determine which OpenMalaria output files should be read
+2. Reading these files
+3. Perform aggregation
 
-`fileFunArgs`: Arguments for `fileFun` as a (named) list.
+These three steps can be modified by the user and allow changing the behavior of
+`collectResults()`. Users can write their own functions with nearly no
+limitations and can pass them to `collectResults()`'s dedicated arguments.
 
-`readFun`: A function for reading and processing OpenMalaria output files. Needs
-to return as data frame. The first argument needs to be the file name and it
-needs to have ... as an argument. Scenario IDs are available by using scenID as
-an argument. If NULL, defaults to readOutputFile and the scenario IDs are added
-automatically.
-   
-`readFunArgs`: Arguments for `readFun` as a (named) list.
+### fileFun
 
-`aggrFun` A function for aggregating the output of readFun. First argument needs
-to be the output data frame of readFun and it needs to generate a data frame.
-The data frame should NOT contain an experiment_id column as this is added
-automatically. The column names needs to match the ones defined in resultsCols.
-   
-`aggrFunArgs` Arguments for `aggrFun` as a (named) list.
+`fileFun`'s job is to return a vector of scenario XML file names. By default,
+the `file` column of the scenario data frame is loaded from the cache. Usually
+this would be a function which applies filtering to the scenarios data frame in
+order to determine the files.
+
+### readFun
+
+`readFun` will called upon each found output file and has to return a data frame
+which is used by `aggrFun` or put into the database. `readOutputFile()` should
+be sufficient for most uses. In case you want to write your own implementation,
+make sure that the first argument the function accepts is the file name and it
+has R's ellipsis `...` in the arguments. This is necessary so the scenario ID
+can be passed automatically and can be used by your function via `scenID`.
+
+### aggrFun
+
+`aggrFun` is probably the function most users want to ajust to their needs and
+where we do not provide any default. It needs to accept the data frame generated
+from `readFun` as a first argument and should provide the final data frame which
+will be put into the database. This data frame must not have a column named
+`experiment_id` and can contain a column named `scenario_id`. Furthermore, the
+output needs to match the layout defined in `resultsCols`.
+
+### Function arguments
+
+The arguments for the above three functions have to be (named) list. If you need
+to pass unevaluated arguments, consider using `quote()` and `bquote()`.
+`collectResults()` will try to remove all quotes before the arguments are passed
+to the functions.
+
+## Parallelization and strategy
+
+Users can control the number of CPU cores used for the calculations by the parameters 
+`ncores` and `ncoresDT`. Similar to the scenario generation and simulation step, `ncores` 
+determines how many R cluster nodes will be launched to perform the calculations. `ncoresDT` sets
+the number of threads available for `data.table`, which is used by us extensively. By default this
+is set to one in order to avoid nested parallelization.
+
+The `strategy` argument accepts `"serial"` and `"batch"` as input values and
+defines how `collectResults()` is processing the files.
+
+`"batch"` means that we will launch an R cluster to read all files in parallel
+into one single data table. Then we will apply aggregation function and add the
+whole output batch to the database. This process is the fastest by our
+experience when using SQLite but can require a lot of memory, depending on how
+many scenarios are aggregated.
+
+`"serial"` means that we will launch an R cluster and each node will read a
+file, apply the aggregation function and send the result to the database. With
+SQLite, this process has been slower than the `"batch"` stragety but also less
+memory intensive. We expect it to be quite performant when a database system
+like PostgresSQL is used which allows multiple simultaneous write connections.
