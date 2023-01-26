@@ -545,6 +545,9 @@ collectResults <- function(expDir, dbName, dbDir = NULL, replace = FALSE,
             sep = "\n"
           )
         )
+
+        ## Remove the missing files from scenarios
+        scenarios <- scenarios[sapply(files, file.exists, USE.NAMES = FALSE)]
         files <- files[sapply(files, file.exists, USE.NAMES = FALSE)]
       }
 
