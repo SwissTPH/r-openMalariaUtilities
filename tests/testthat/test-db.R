@@ -480,6 +480,30 @@ test_that("collectResults works", {
     )
   )
 
+  ## Test that missing output files get detected
+  sapply(file.path(
+    getCache("outputsDir"),
+    paste0("test_", 2:3, "_out.txt")
+  ), unlink)
+
+  expect_warning(
+    collectResults(
+      expDir = getCache("experimentDir"), dbName = "test",
+      replace = TRUE, strategy = "batch"
+    ), "The following files were not found and thus, will not be processed"
+  )
+
+  ## Restore output files
+  for (i in seq_len(5)) {
+    write.table(
+      testdata,
+      file = file.path(
+        getCache("outputsDir"),
+        paste0("test_", i, "_out.txt")
+      ), row.names = FALSE
+    )
+  }
+
   collectResults(
     expDir = getCache("experimentDir"), dbName = "test", replace = TRUE
   )
