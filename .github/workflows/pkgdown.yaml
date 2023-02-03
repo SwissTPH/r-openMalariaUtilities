@@ -11,6 +11,11 @@ on:
 
 name: pkgdown
 
+permissions:
+  pull-requests: write
+  issues: write
+  repository-projects: write
+  
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
