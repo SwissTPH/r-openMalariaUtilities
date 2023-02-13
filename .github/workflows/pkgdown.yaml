@@ -11,10 +11,7 @@ on:
 
 name: pkgdown
 
-permissions:
-  pull-requests: write
-  issues: write
-  repository-projects: write
+permissions: write-all
   
 jobs:
   pkgdown:
