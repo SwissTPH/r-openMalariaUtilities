@@ -1,7 +1,7 @@
 # **NEWS**
 
 
-# openMalariaUtilities 22.10
+# openMalariaUtilities 23.02
 
 Feature release
 
@@ -12,6 +12,8 @@ Feature release
     * The data to be stored in the SQLite database can be customized by using
       three function which can be passed by arguments
   * `generateScenarios` has been deprecated and replaced by `finalizeScenarios`
+
+* Various bug fixes and improvements
 
 # openMalariaUtilities 22.08.1
 
