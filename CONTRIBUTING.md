@@ -26,7 +26,7 @@ Differences or highlights:
   snake_case <- camelCase
   ```
 
-- Use `##` for comments
+- Use `##` for comments and `###` for headlines
 - Non-exported functions should be prefixed with a `.`
 - Use sections and headlines to organize the code
 - Insert a newline between functions and two lines between sections
@@ -121,9 +121,16 @@ Explain exactly what was done in this commit with more depth than the
 Include any additional notes, relevant links, or co-authors.
 ```
 
+The summary line should have a prefix like:
+
+- fix: fixes a bug or unexpected behavior (e.g. `fix: Function does not crash anymore`)
+- tweak: improves, refactors or changes something (e.g. `tweak: Function is now 5% faster`)
+- doc: add or update documentation (e.g. `doc: Updated vigentte XY`)
+- feat: add a new feature (e.g. `feat: Add function XY`)
+
 ## Versioning & Releases
 
-We follow the `YY.MM.minorversion` (e.g. `22.08.0`) schema for version names. 
+We follow the `YY.MM.minorversion` (e.g. `22.08.1`) schema for version names. 
 
 Minor, non-breaking changes should only cause an increase of the minor version,
 e.g. `.1 -> .2`. 
