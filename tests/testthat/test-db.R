@@ -13,28 +13,42 @@ removeDB <- function() {
   unlink(files)
 }
 
-test_that(".createDB works", {
-  testcon <- .createDB("test")
+##
+### .createDB
 
-  ## DB connection exists
-  expect_s4_class(
-    object = testcon, class = "SQLiteConnection"
-  )
-
-  ## DB exist
-  expect_equal(
-    object = file.exists(file.path(rootDir, "test.sqlite")), expected = TRUE
-  )
-
-  ## Close and open connection again
-  DBI::dbDisconnect(testcon)
-  rm(testcon)
-  testcon <- .createDB("test")
-  expect_s4_class(
-    object = testcon, class = "SQLiteConnection"
-  )
-  DBI::dbDisconnect(testcon)
+## Test 1: Check the return value of the function
+test_that(".createDB function returns a database connection", {
+  removeDB()
+  con <- .createDB("test_db")
+  expect_s4_class(con, "SQLiteConnection")
+  DBI::dbDisconnect(con)
 })
+
+## Test 2: Check if the database file is created with the correct name and path
+test_that(".createDB creates a SQLite database with the correct name and path", {
+  removeDB()
+  .createDB("test_db")
+  expect_true(file.exists(file.path(rootDir, "test_db.sqlite")))
+})
+
+## Test 3: Check if the function sets PRAGMA foreign_keys = ON
+test_that(".createDB sets PRAGMA foreign_keys = ON", {
+  removeDB()
+  con <- .createDB("test_db")
+  result <- DBI::dbGetQuery(con, "PRAGMA foreign_keys")
+  DBI::dbDisconnect(con)
+  expect_equal(result[1, 1], 1)
+})
+
+## Test 4: Check if the function sets PRAGMA journal_mode = WAL
+test_that(".createDB sets PRAGMA journal_mode = WAL", {
+  removeDB()
+  con <- .createDB("test_db")
+  result <- DBI::dbGetQuery(con, "PRAGMA journal_mode")
+  DBI::dbDisconnect(con)
+  expect_equal(result[1, 1], "wal")
+})
+
 
 test_that(".createTables works", {
   removeDB()
