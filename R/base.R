@@ -89,14 +89,21 @@ setupOM <- function(version = 44, dir = NULL) {
     ## Utility files
     for (f in c("autoRegressionParameters.csv", "densities.csv")) {
       if (!file.exists(file.path(dir, f))) {
-        utils::download.file(
-          url = paste0(
-            "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
-            version,
-            "/test/", f
+        # Copy shipped file
+        file.copy(
+          from = file.path(
+            system.file(package = "openMalariaUtilities"), "extdata", f
           ),
-          destfile = file.path(dir, f)
+          to = file.path(dir, f), overwrite = TRUE
         )
+        ## utils::download.file(
+        ##   url = paste0(
+        ##     "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
+        ##     version,
+        ##     "/test/", f
+        ##   ),
+        ##   destfile = file.path(dir, f)
+        ## )
       } else {
         message(paste0("File ", f, " already exists, skipping."))
       }
@@ -105,14 +112,21 @@ setupOM <- function(version = 44, dir = NULL) {
     ## Schema file
     f <- paste0("scenario_", major, ".xsd")
     if (!file.exists(file.path(dir, f))) {
-      utils::download.file(
-        url = paste0(
-          "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
-          version,
-          "/schema/", f
+      # Copy shipped file
+      file.copy(
+        from = file.path(
+          system.file(package = "openMalariaUtilities"), "extdata", f
         ),
-        destfile = file.path(dir, f)
+        to = file.path(dir, f), overwrite = TRUE
       )
+      ## utils::download.file(
+      ##   url = paste0(
+      ##     "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
+      ##     version,
+      ##     "/schema/", f
+      ##   ),
+      ##   destfile = file.path(dir, f)
+      ## )
     } else {
       message(paste0("File ", f, " already exists, skipping."))
     }
@@ -122,17 +136,16 @@ setupOM <- function(version = 44, dir = NULL) {
       suppVers
     ))
   }
-  
+
   ## Data type validation of baseXml against schema
   baseXml <- xml2::read_xml(get(x = "baseXml", envir = .pkgcache))
   schema <- xml2::read_xml(file.path(dir, f))
-  stdout <- attr(xml2::xml_validate(baseXml, schema),"errors")
-  errors_other_than_placeholders <- stdout[!grepl("@(.*?)@",stdout)]
-  if(length(errors_other_than_placeholders)>0){
-    warning(paste0("Validation against schema ",f," failed:"))
+  stdout <- attr(xml2::xml_validate(baseXml, schema), "errors")
+  errors_other_than_placeholders <- stdout[!grepl("@(.*?)@", stdout)]
+  if (length(errors_other_than_placeholders) > 0) {
+    warning(paste0("Validation against schema ", f, " failed:"))
     warning(errors_other_than_placeholders)
   }
-  
 }
 
 ##' @rdname setupOM
