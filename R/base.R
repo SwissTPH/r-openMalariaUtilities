@@ -226,14 +226,21 @@ setupOM <- function(version = 44, dir = NULL) {
     for (f in c("autoRegressionParameters.csv", "densities.csv")) {
       .printDebug(paste0("Trying to download ", f))
       if (!file.exists(file.path(dir, f))) {
-        utils::download.file(
-          url = paste0(
-            "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
-            version,
-            "/test/", f
+        # Copy shipped file
+        file.copy(
+          from = file.path(
+            system.file(package = "openMalariaUtilities"), "extdata", f
           ),
-          destfile = file.path(dir, f)
+          to = file.path(dir, f), overwrite = TRUE
         )
+        ## utils::download.file(
+        ##   url = paste0(
+        ##     "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
+        ##     version,
+        ##     "/test/", f
+        ##   ),
+        ##   destfile = file.path(dir, f)
+        ## )
       } else {
         message(paste0("File ", f, " already exists, skipping."))
       }
@@ -243,14 +250,21 @@ setupOM <- function(version = 44, dir = NULL) {
     f <- paste0("scenario_", major, ".xsd")
     .printDebug(paste0("Trying to download ", f))
     if (!file.exists(file.path(dir, f))) {
-      utils::download.file(
-        url = paste0(
-          "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
-          version,
-          "/schema/", f
+      # Copy shipped file
+      file.copy(
+        from = file.path(
+          system.file(package = "openMalariaUtilities"), "extdata", f
         ),
-        destfile = file.path(dir, f)
+        to = file.path(dir, f), overwrite = TRUE
       )
+      ## utils::download.file(
+      ##   url = paste0(
+      ##     "https://raw.githubusercontent.com/SwissTPH/openmalaria/schema-",
+      ##     version,
+      ##     "/schema/", f
+      ##   ),
+      ##   destfile = file.path(dir, f)
+      ## )
     } else {
       message(paste0("File ", f, " already exists, skipping."))
     }
