@@ -97,8 +97,8 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
     )
     ## Print current step
     args <- paste0(
-      "--resource-path ", resources, " --scenario ", scenario, " --output ",
-      output, " --ctsout ", ctsout, verbose
+      "--resource-path \"", resources, "\" --scenario \"", scenario, "\" --output \"",
+      output, "\" --ctsout \"", ctsout, "\"", verbose
     )
     ## Collect required information to run Open Malaria
     cmds[[i]] <- list(
