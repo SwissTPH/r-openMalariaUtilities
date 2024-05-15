@@ -105,19 +105,19 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
   ## https://github.com/SwissTPH/openmalaria/wiki/MonitoringOutput#surveys
 
   ## Add experiment_id
-  columns[["names"]] <- c("experiment_id", columns[["names"]])
-  columns[["types"]] <- c("INTEGER", columns[["type"]])
+  colNames <- c("experiment_id", columns[["names"]])
+  colTypes <- c("INTEGER", columns[["types"]])
   DBI::dbExecute(
     conn = connection,
     statement = paste0(
       "CREATE TABLE IF NOT EXISTS ", paste0(tName), " (",
       paste0(
-        columns[["names"]], " ", columns[["types"]],
+        colNames, " ", colTypes,
         collapse = ", "
       ),
       ", ",
       "FOREIGN KEY (experiment_id",
-      ifelse("scenario_id" %in% columns[["names"]], ", scenario_id) REFERENCES scenarios (experiment_id, scenario_id",
+      ifelse("scenario_id" %in% colNames, ", scenario_id) REFERENCES scenarios (experiment_id, scenario_id",
         ") REFERENCES experiments (experiment_id"
       ),
       ") ON DELETE CASCADE ON UPDATE CASCADE);"
