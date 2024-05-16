@@ -59,6 +59,8 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
     cmd <- cmd
   } else if (startsWith(x = cmd, prefix = "C:/")) {
     cmd <- cmd
+  } else if (dryRun == TRUE) {
+    cmd <- cmd
   } else {
     cmd <- Sys.which(cmd)
   }
