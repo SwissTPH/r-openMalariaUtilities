@@ -55,7 +55,14 @@ runSimulations <- function(scenarios = NULL, cmd = "openMalaria", dryRun = FALSE
     verbose <- NULL
   }
 
-  cmd <- ifelse(dryRun == TRUE, cmd, Sys.which(cmd))
+  if (startsWith(x = cmd, prefix = "/")) {
+    cmd <- cmd
+  } else if (startsWith(x = cmd, prefix = "C:/")) {
+    cmd <- cmd
+  } else {
+    cmd <- Sys.which(cmd)
+  }
+
   scenarios <- file.path(
     getCache(x = "scenariosDir"),
     if (is.null(scenarios)) {
