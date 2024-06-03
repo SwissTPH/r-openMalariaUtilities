@@ -135,9 +135,12 @@ def node_extractor(nodes: etree.Element, data_dict: dict, namespaces: dict[str, 
     Parameters
     ----------
     nodes (etree.Element): The XML schema elements to process.
+
     data_dict (dict): The dictionary to populate with extracted information.
+
     namespaces (dict[str, str]): A dictionary mapping namespace prefixes to
       their URIs.
+
     is_top_level (bool, optional): A flag indicating if the nodes are top-level
       elements. Default is False.
 
