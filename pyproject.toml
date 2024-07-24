@@ -1,0 +1,54 @@
+[project]
+name = "r-openMalariaUtilities"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "rogoersTPH", email = "roland.goers@swisstph.ch"},
+]
+dependencies = [
+    "lxml>=5.2.2",
+    "types-lxml",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "ruff>=0.5.4",
+    "ruff-lsp>=0.0.54",
+]
+
+[tool.ruff.lint]
+# Recommended rules from https://docs.astral.sh/ruff/linter/#rule-selection
+select = [
+    # pydocstyle
+    "D",
+    # pycodestyle
+    "E", "W",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignored the following rules in the auto-generated files:
+# E501 line too long
+# W291 trailing whitespace
+"python/new/foo.py" = ["E501", "W291"]
+
+[tool.ruff.lint.pydocstyle]
+# Limit pydocstyle to those that adhere to the NumPy convention via `convention
+# = "numpy"`.
+convention = "numpy"

@@ -10,5 +10,9 @@ trim_trailing_whitespace = true
 [*.{r,R,md,Rmd}]
 indent_size = 2
 
+[*.py]
+indent_size = 4
+max_line_length = 88
+
 [{NEWS.md,DESCRIPTION,LICENSE}]
 max_line_length = 80
