@@ -9,7 +9,8 @@ class OMExperiment:
     """Prototype super-class for OM classes."""
 
     def __init__(self, om_version):
-        om_module_name = f"om_{str(om_version)}_classes"
+        om_version = str(om_version)
+        om_module_name = f"om_{om_version}_classes"
         om_classes = importlib.import_module(om_module_name)
         xml_string = (
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
@@ -25,5 +26,6 @@ class OMExperiment:
         self.scenario = om_classes.OM0Scenario(self.xml_tree)
         self.scenario_configs = []
 
-
-foo = OMExperiment(44)
+    def write_xml(self, file):
+        """Write stored xml to file."""
+        self.xml_tree.write(file, pretty_print=True)

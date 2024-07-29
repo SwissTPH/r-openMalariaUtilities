@@ -6,11 +6,9 @@ setwd("~/Projekte/r-openMalariaUtilities/python/")
 
 demo <- import_from_path("demo_class")
 
-my_cool_experiment <- demo$OMExperiment()
+my_cool_experiment <- demo$OMExperiment(44L)
 
 my_cool_experiment$scenario$demography$help()
-
-my_cool_experiment <- OMExperiment(44)
 
 my_cool_experiment$scenario$help()
 
@@ -124,3 +122,5 @@ demo_groups
 
 define_demography(my_cool_experiment, name = "Ifakara", maximumAgeYrs = 90, popSize = 2000L, lowerbound = 0, groups = demo_groups)
 my_cool_experiment$scenario$view()
+
+my_cool_experiment$write_xml("output.xml")
