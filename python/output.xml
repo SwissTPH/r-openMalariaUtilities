@@ -1,0 +1,3 @@
+<om:scenario xmlns:om="http://openmalaria.org/schema/scenario_44" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openmalaria.org/schema/scenario_44 scenario_44.xsd">
+  <demography name="blaaa"/>
+</om:scenario>

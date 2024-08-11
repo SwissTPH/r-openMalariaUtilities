@@ -1,0 +1,5 @@
+#+title: Todo
+
+* TODO Class generator [0/2]
+ - [ ] Make sure that etree._XYZ is used as a type
+ - [ ] Use full name for subclasses, e.g. ~OM0Scenario._SchemaVersion~
