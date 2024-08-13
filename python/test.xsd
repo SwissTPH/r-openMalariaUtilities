@@ -1,0 +1,8 @@
+<xs:schema xmlns:om="http://openmalaria.org/schema/scenario_47" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://openmalaria.org/schema/scenario_47">
+  <xs:element name="scenario">
+    <xs:annotation>
+      <xs:documentation>Description of scenario</xs:documentation>
+      <xs:appinfo>name:Scenario;</xs:appinfo>
+    </xs:annotation>
+  </xs:element>
+</xs:schema>
