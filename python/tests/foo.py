@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-import unittest
 import tempfile
+import unittest
+
 from python.xsd_parser import XSDparser
+
 
 class TestXSDparser(unittest.TestCase):
 
@@ -18,10 +20,10 @@ class TestXSDparser(unittest.TestCase):
             </xs:schema>
             """
             tmp.write(content)
+            tmp.close()
             print(tmp.name)
-            tmp.__hash__
-            xsd_init = XSDparser(47, tmp.name)
-            self.assertEqual(xsd_init.om_version, 47, "OM version does not match.")
+            xsd_init = XSDparser(47, str(tmp.name))
+            self.assertEqual(xsd_init.om_version, "47", "OM version does not match.")
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,9 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
 [project]
-name = "r-openMalariaUtilities"
+name = "py-core"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
@@ -13,14 +17,15 @@ requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
 
+[project.scripts]
+om_classgen = "libxsd.classgen:main"
 
 [tool.pdm]
-distribution = false
+distribution = true
 
 [tool.pdm.dev-dependencies]
 lint = [
     "ruff>=0.5.4",
-    "ruff-lsp>=0.0.54",
 ]
 
 [tool.ruff.lint]

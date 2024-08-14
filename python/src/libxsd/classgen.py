@@ -2,11 +2,12 @@
 
 import argparse
 import os
-import xsd_parser
+
+import libxsd.parser as xsd_parser
 
 
 def main(
-    om_version: int | str, input_file: str | os.PathLike, output_file: str | os.PathLike
+    # om_version: int | str, input_file: str | os.PathLike, output_file: str | os.PathLike
 ) -> None:
     """Parse OpenMalaria schema and generate Python classes.
 
@@ -25,12 +26,6 @@ def main(
       Path to the output file.
 
     """
-    parser = xsd_parser.XSDparser(om_version, input_file)
-    parser.check_handled_tags()
-    parser.generate_classes(output_file)
-
-
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Parse OpenMalaria schema and generate Python classes"
     )
@@ -39,4 +34,10 @@ if __name__ == "__main__":
     parser.add_argument("output_file", type=str, help="output file")
     args = parser.parse_args()
 
-    main(args.om_version, args.input_file, args.output_file)
+    parser = xsd_parser.XSDparser(args.om_version, args.input_file)
+    parser.check_handled_tags()
+    parser.generate_classes(args.output_file)
+
+
+if __name__ == "__main__":
+    main()
