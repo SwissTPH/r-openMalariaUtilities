@@ -29,10 +29,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: true
+        cache-dependency-path: |
+          ./python/pdm.lock
 
-    # - name: Install dependencies
-    #   run: pdm install
+    - name: Install dependencies
+      run: pdm install
 
-    # - name: Run tests
-    #   run: |
-    #     pdm run -v python -m unittest discover -s tests
+    - name: Run tests
+      run: |
+        pdm run -v python -m unittest discover -s tests
