@@ -12,6 +12,7 @@ authors = [
 dependencies = [
     "lxml>=5.2.2",
     "types-lxml",
+    "basedpyright>=1.17.0",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"

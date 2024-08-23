@@ -3,7 +3,7 @@
 import argparse
 import os
 
-import libxsd.parser as xsd_parser
+import om_schema.parser as xsd_parser
 
 
 def main(
