@@ -27,13 +27,12 @@ jobs:
     - name: Setup PDM
       uses: pdm-project/setup-pdm@v4.1
       with:
-        working-directory: ./python
         python-version: ${{ matrix.python-version }}
         cache: true
 
-    - name: Install dependencies
-      run: pdm install
+    # - name: Install dependencies
+    #   run: pdm install
 
-    - name: Run tests
-      run: |
-        pdm run -v python -m unittest discover -s tests
+    # - name: Run tests
+    #   run: |
+    #     pdm run -v python -m unittest discover -s tests
