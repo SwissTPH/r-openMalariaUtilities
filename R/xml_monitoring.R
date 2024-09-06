@@ -145,8 +145,9 @@ surveyAgeGroupsGen <- function(lowerbound, upperbounds) {
     ## This is supposed to be faster than
     ## dates[, .SD[month == min(month)], by = data.table::month(dates$date)]
     ## Also sort the dates again and remove the month column
+    months <- data.table::month(dateDF$date)
     dateDF <- dateDF[dateDF[, .I[month == min(month)],
-      by = data.table::month(dateDF$date)
+      by = months
     ]$V1][, month := NULL][order(date)]
   } else if (dateFilter == "quarterly") {
     ## Similar to above, generate a date sequence and only keep dates
