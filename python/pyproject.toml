@@ -12,7 +12,6 @@ authors = [
 dependencies = [
     "lxml>=5.2.2",
     "types-lxml",
-    "basedpyright>=1.17.0",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
@@ -27,6 +26,7 @@ distribution = true
 [tool.pdm.dev-dependencies]
 lint = [
     "ruff>=0.5.4",
+    "ruff-lsp>=0.0.55",
 ]
 
 [tool.ruff.lint]

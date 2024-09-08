@@ -182,5 +182,84 @@ class TestXSDparser(unittest.TestCase):
                 },
             )
 
+    def test_merge_dicts(self):
+        with tempfile.NamedTemporaryFile(delete_on_close=False) as tmp:
+            content = b"""
+            <xs:schema xmlns:om="http://openmalaria.org/schema/scenario_47" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://openmalaria.org/schema/scenario_47">
+                <xs:element name="demography" type="om:Demography">
+                    <xs:annotation>
+                        <xs:documentation>
+                        Description of demography
+                        </xs:documentation>
+                        <xs:appinfo>name:Human age distribution;</xs:appinfo>
+                    </xs:annotation>
+                </xs:element>
+                <xs:complexType name="Demography">
+                    <xs:sequence>
+                        <xs:element name="ageGroup" type="om:DemogAgeGroup">
+                            <xs:annotation>
+                            <xs:documentation>
+                                list of age groups included in demography
+                            </xs:documentation>
+                            <xs:appinfo>name:Age groups;</xs:appinfo>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:schema>
+            """
+            tmp.write(content)
+            tmp.close()
+
+            xsd_init = XSDparser(47, str(tmp.name))
+            self.assertEqual(
+                xsd_init.node_extractor(
+                    xsd_init.xml_root.iter(f"{xsd_init.xs_ns}element"),
+                    {},
+                    xsd_init.namespaces,
+                    True,
+                ),
+                {
+                    (0, "scenario"): {
+                        "attributes": {},
+                        "children": {
+                            "demography": "om:Demography",
+                            "monitoring": "om:Monitoring",
+                        },
+                        "docs": "\nDescription of scenario\nname:\tScenario",
+                        "info": {
+                            "children_metadata": {
+                                "order": ["demography", "monitoring"],
+                                "ordered": "all",
+                            }
+                        },
+                    },
+                    (1, "demography"): {
+                        "attributes": {},
+                        "children": {},
+                        "docs": "\n"
+                        "Description of demography\n"
+                        "\n"
+                        "name:\tHuman age distribution",
+                        "info": {
+                            "children_metadata": {"order": [], "ordered": None},
+                            "type": "om:Demography",
+                        },
+                    },
+                    (2, "monitoring"): {
+                        "attributes": {},
+                        "children": {},
+                        "docs": "\n"
+                        "Description of surveys\n"
+                        "\n"
+                        "name:\tMeasures to be reported",
+                        "info": {
+                            "children_metadata": {"order": [], "ordered": None},
+                            "type": "om:Monitoring",
+                        },
+                    },
+                },
+            )
+
 if __name__ == "__main__":
     unittest.main()

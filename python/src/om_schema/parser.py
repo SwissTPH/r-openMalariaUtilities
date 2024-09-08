@@ -756,7 +756,7 @@ class XSDparser:
         return element_data_copy
 
     def child_finder(
-        self, child_name: str, child_type: str, data: dict
+        self, child_name: str, child_type: str | None, data: dict
     ) -> tuple[int, str] | None:
         """Find a child element in the data based on its name and type.
 
