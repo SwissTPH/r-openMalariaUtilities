@@ -23,7 +23,8 @@ deploy_it_compat(
   coverage = NULL,
   byyear = FALSE,
   deployvar = NULL,
-  subpop = FALSE
+  subpop = FALSE,
+  cohort = NULL
 )
 }
 \arguments{
@@ -67,6 +68,9 @@ y2)}
 
 \item{subpop}{If TRUE, then restricts to a subpopulation (see
 restrictToSubPop in OpenMalaria)}
+
+\item{cohort}{Either NULL or character vector of cohort component ids.
+Recipients of this deployment will also be recruited into these cohorts.}
 }
 \description{
 Writes the deployment of an intervention. Compatibility version.

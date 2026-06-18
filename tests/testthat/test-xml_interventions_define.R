@@ -1,3 +1,28 @@
+test_that("defineCohort works", {
+  testlist <- list(interventions = list())
+
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        component = list(
+          id = "LLINusers",
+          recruitmentOnly = list()
+        ),
+        component = list(
+          id = "SMCusers",
+          recruitmentOnly = list()
+        )
+      )
+    )
+  )
+
+  actual <- defineCohort(testlist, ids = c("LLINusers", "SMCusers"))
+
+  expect_equal(actual, expected)
+  expect_error(defineCohort(testlist, ids = c("A", "A")), "unique")
+})
+
 test_that("defineIRS works", {
   testlist <- list(interventions = list())
 

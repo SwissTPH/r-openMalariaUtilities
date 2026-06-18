@@ -483,6 +483,9 @@ monitoringSurveyTimesGen <- function(startDate = NULL, endDate = NULL, interval,
 ## Cohorts
 
 ##' @title Generate list for 'monitoring/Cohorts'
+##' @description Generates cohort sub-population entries and caches the cohort
+##'   identifiers so `createBaseXml()` can build the cohort-aware
+##'   `thirdDimension` table for postprocessing.
 ##' @param ids Vector containg cohort names
 ##' @export
 monitoringCohortsGen <- function(ids) {

@@ -10,5 +10,7 @@ monitoringCohortsGen(ids)
 \item{ids}{Vector containg cohort names}
 }
 \description{
-Generate list for 'monitoring/Cohorts'
+Generates cohort sub-population entries and caches the cohort
+identifiers so \code{createBaseXml()} can build the cohort-aware
+\code{thirdDimension} table for postprocessing.
 }

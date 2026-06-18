@@ -24,6 +24,23 @@ test_that(".thirdDimensionGen works", {
   actual <- .thirdDimensionGen()
 
   expect_equal(actual, expected)
+
+  ## Test with feature-request LLIN cohort and age groups
+  clearCache()
+  putCache("mon_ageGroups", list(lowerbound = 0, upperbounds = c(1, 2, 5, 10, 100)))
+  invisible(monitoringCohortsGen("LLINusers"))
+
+  expected <- data.table::data.table(
+    number = c(1001:1005, 1:5, 0),
+    id = c(
+      "LLINusers:0-1", "LLINusers:1-2", "LLINusers:2-5",
+      "LLINusers:5-10", "LLINusers:10-100",
+      "0-1", "1-2", "2-5", "5-10", "10-100", "none"
+    )
+  )
+  actual <- .thirdDimensionGen()
+
+  expect_equal(actual, expected)
 })
 
 test_that("createBaseXml works", {

@@ -80,6 +80,18 @@
 
 ## TODO cumulative=TRUE && is.null(subpop)
 
+.addCohortComponents <- function(outlist, cohort) {
+  if (is.null(cohort)) {
+    return(outlist)
+  }
+
+  for (id in cohort) {
+    outlist <- append(outlist, list(component = list(id = id)))
+  }
+
+  return(outlist)
+}
+
 ##' @title Writes the deployment of an intervention.
 ##' @param baseList List with experiment data.
 ##' @param component Name of intervention.
@@ -101,11 +113,13 @@
 ##' @param subpop Either NULL or string. Concatenation component+"-"+subpop will
 ##'   be id in subpopulation intervention should be restricted to (see
 ##'   restrictToSubPop in OpenMalaria)
+##' @param cohort Either NULL or character vector of cohort component ids.
+##'   Recipients of this deployment will also be recruited into these cohorts.
 ##' @export
 deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
                      effects = NULL, startDate = NULL, endDate = NULL,
                      interval = NULL, dates = NULL, minAge = NULL, maxAge = NULL,
-                     coverage = NULL, subpop = NULL) {
+                     coverage = NULL, subpop = NULL, cohort = NULL) {
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertList(baseList, add = assertCol)
@@ -167,6 +181,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     add = assertCol
   )
   checkmate::assertCharacter(subpop, null.ok = TRUE, add = assertCol)
+  checkmate::assertCharacter(cohort, null.ok = TRUE, any.missing = FALSE, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
   ## Generate a list containing the placeholder sequences from the function
@@ -235,18 +250,21 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
         }))
       )
     }
+    outlist <- .addCohortComponents(outlist = outlist, cohort = cohort)
   }
 
   if (is.null(effects) && is.null(subpop) && cumulative == FALSE) {
     outlist <- append(
       outlist, list(component = list(id = component))
     )
+    outlist <- .addCohortComponents(outlist = outlist, cohort = cohort)
   }
 
   if (is.null(effects) && cumulative == TRUE) {
     outlist <- append(
       outlist, list(component = list(id = component))
     )
+    outlist <- .addCohortComponents(outlist = outlist, cohort = cohort)
 
     cumulativeCoverage_component <- ifelse(
       is.null(subpop), "", paste0("-", subpop)
@@ -284,6 +302,7 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     outlist <- append(
       outlist, list(component = list(id = component))
     )
+    outlist <- .addCohortComponents(outlist = outlist, cohort = cohort)
 
     temp <- list()
     temp <- append(temp, list(
@@ -372,6 +391,8 @@ deploy_IT <- deployIT
 ##' @param coverage Value or variable of coverage
 ##' @param subpop If TRUE, then restricts to a subpopulation (see
 ##'   restrictToSubPop in OpenMalaria)
+##' @param cohort Either NULL or character vector of cohort component ids.
+##'   Recipients of this deployment will also be recruited into these cohorts.
 ##' @param byyear If TRUE, allows coverage to vary by year
 ##'   ('histITNcov2000',...)
 ##' @param deployvar Allows for deployment dates to vary (across years y1, ...,
@@ -382,7 +403,8 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
                              m2 = NULL, d1 = 1, d2 = NULL, every = 1,
                              interval = "month", SIMSTART = "1918-01-01",
                              minAge = NULL, maxAge = NULL, coverage = NULL,
-                             byyear = FALSE, deployvar = NULL, subpop = FALSE) {
+                             byyear = FALSE, deployvar = NULL, subpop = FALSE,
+                             cohort = NULL) {
 
   ## Translate time information
   if (is.null(deployvar)) {
@@ -444,7 +466,7 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
   baseList <- deployIT(
     baseList = baseList, component = component, cumulative = cumulative,
     effects = effects, dates = dates, minAge = minAge, maxAge = maxAge,
-    coverage = coverage, subpop = subpop
+    coverage = coverage, subpop = subpop, cohort = cohort
   )
 
   return(baseList)
@@ -470,12 +492,19 @@ deploy_it_compat <- function(baseList, component = "ITN", cumulative = FALSE,
 ##'   ("@@IPTcov@@"), same order as for target age years
 ##' @param restrictToSubPop f this element is specified, deployment is
 ##'   restricted to some sub-population
+##' @param cohort Either NULL or character vector of cohort component ids.
+##'   Recipients of this deployment will also be recruited into these cohorts.
 ##' @export
 deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01",
                                end = "2030-01-01", targetAgeYrs = NULL,
                                vaccMinPrevDoses = NULL, vaccMaxCumDoses = NULL,
                                coverage = NULL, varyCov = FALSE,
-                               restrictToSubPop = NULL) {
+                               restrictToSubPop = NULL, cohort = NULL) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertCharacter(cohort, null.ok = TRUE, any.missing = FALSE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
   ## Generate output list
   outlist <- list()
   outlist <- .xmlAddList(
@@ -488,6 +517,7 @@ deploy_cont_compat <- function(baseList, component = "IPTi", begin = "2019-01-01
   outlist <- append(
     outlist, list(component = list(id = component))
   )
+  outlist <- .addCohortComponents(outlist = outlist, cohort = cohort)
 
   if (!is.null(restrictToSubPop)) {
     outlist <- .xmlAddList(

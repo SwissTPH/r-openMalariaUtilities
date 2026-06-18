@@ -14,7 +14,8 @@ deploy_cont_compat(
   vaccMaxCumDoses = NULL,
   coverage = NULL,
   varyCov = FALSE,
-  restrictToSubPop = NULL
+  restrictToSubPop = NULL,
+  cohort = NULL
 )
 }
 \arguments{
@@ -46,6 +47,9 @@ length as targetAgeYrs.}
 
 \item{restrictToSubPop}{f this element is specified, deployment is
 restricted to some sub-population}
+
+\item{cohort}{Either NULL or character vector of cohort component ids.
+Recipients of this deployment will also be recruited into these cohorts.}
 }
 \description{
 Deployment of an continuous intervention

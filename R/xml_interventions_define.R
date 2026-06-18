@@ -90,6 +90,44 @@ defineVaccine <- function(baseList, vaccineParameterization, append = TRUE,
 define_vaccine <- defineVaccine
 
 
+##' @title Writes cohort recruitment-only component XML chunks
+##' @param baseList List with experiment data.
+##' @param ids Character vector of cohort component identifiers.
+##' @export
+defineCohort <- function(baseList, ids) {
+  ## Verify input
+  assertCol <- checkmate::makeAssertCollection()
+  checkmate::assertList(baseList, add = assertCol)
+  checkmate::assertCharacter(ids, min.len = 1, any.missing = FALSE, add = assertCol)
+  checkmate::reportAssertions(assertCol)
+
+  if (anyDuplicated(ids)) {
+    stop("Cohort ids must be unique.")
+  }
+
+  ## Make sure interventions header is set
+  baseList <- .defineInterventionsHeader(baseList = baseList)
+
+  for (id in ids) {
+    baseList <- .xmlAddList(
+      data = baseList,
+      sublist = c("interventions", "human"),
+      entry = "component",
+      input = list(
+        id = id,
+        recruitmentOnly = list()
+      )
+    )
+  }
+
+  return(baseList)
+}
+
+##' @rdname defineCohort
+##' @export
+define_cohort <- defineCohort
+
+
 ##' Adds vector control intervention parameterisation to baseList
 ##' @param baseList List with experiment data.
 ##' @param vectorInterventionParameters Vector control intervention

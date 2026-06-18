@@ -259,6 +259,20 @@ Furthermore, the number of days or time steps is counted from the simulation
 start `simStart`, which is here the 1st January 1980. It is recommended to start
 the simulation 20 - 50 years before the first survey.
 
+If survey outputs should be disaggregated by intervention cohort membership,
+add a `cohorts` entry with `monitoringCohortsGen()`. This function also writes
+the cohort IDs to the experiment cache so `createBaseXml()` can create the
+`thirdDimension` lookup table used when reading OpenMalaria output files.
+
+```{r monitoring-cohorts, eval=FALSE}
+baseList[["monitoring"]] <- c(
+  baseList[["monitoring"]],
+  list(
+    cohorts = monitoringCohortsGen(c("LLINusers", "SMCusers"))
+  )
+)
+```
+
 ### Interventions
 
 In this section we will define actual measures which will be used throughout the
@@ -294,6 +308,37 @@ baseList[["interventions"]] <- list(
   )
 )
 ```
+
+For cohort deployment, first define a recruitment-only component and then pass
+the same component ID through the `cohort` argument when deploying the
+intervention. In the generated XML, recipients receive both the intervention
+component and the cohort component in the same deployment block.
+
+```{r intervention-cohorts, eval=FALSE}
+baseList <- defineCohort(baseList, ids = c("LLINusers", "SMCusers"))
+
+baseList <- deployIT(
+  baseList = baseList,
+  component = "LLIN",
+  dates = "2021-06-05",
+  coverage = 0.8,
+  cohort = "LLINusers"
+)
+
+baseList <- deployIT(
+  baseList = baseList,
+  component = "SMC",
+  dates = "2021-07-05",
+  coverage = 0.8,
+  minAge = 0.25,
+  maxAge = 5,
+  cohort = "SMCusers"
+)
+```
+
+Postprocessing functions which aggregate translated output should split
+`third_dimension` values such as `LLINusers:0-1` into cohort and age-group
+columns before aggregating by cohort-specific age groups.
 
 ### Health system
 

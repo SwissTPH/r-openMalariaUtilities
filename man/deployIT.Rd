@@ -17,7 +17,8 @@ deployIT(
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
-  subpop = NULL
+  subpop = NULL,
+  cohort = NULL
 )
 
 deploy_IT(
@@ -32,7 +33,8 @@ deploy_IT(
   minAge = NULL,
   maxAge = NULL,
   coverage = NULL,
-  subpop = NULL
+  subpop = NULL,
+  cohort = NULL
 )
 }
 \arguments{
@@ -67,6 +69,9 @@ placeholder.}
 \item{subpop}{Either NULL or string. Concatenation component+"-"+subpop will
 be id in subpopulation intervention should be restricted to (see
 restrictToSubPop in OpenMalaria)}
+
+\item{cohort}{Either NULL or character vector of cohort component ids.
+Recipients of this deployment will also be recruited into these cohorts.}
 }
 \description{
 Writes the deployment of an intervention.

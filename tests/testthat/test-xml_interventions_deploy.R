@@ -52,6 +52,78 @@ test_that("deployIT works", {
   ## Normal
   expect_equal(actual, expected)
 
+  ## cohort
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "ITN",
+          component = list(
+            id = "ITN-det"
+          ),
+          component = list(
+            id = "ITN-pre"
+          ),
+          component = list(
+            id = "LLINusers"
+          ),
+          timed = list(
+            deploy = list(
+              coverage = 0.7,
+              time = "2001-03-15"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deployIT(
+    baseList = testlist, effects = c("det", "pre"), dates = "2001-03-15",
+    coverage = 0.7, cohort = "LLINusers"
+  )
+
+  expect_equal(actual, expected)
+
+  ## cumulative + subpop + cohort
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
+          component = list(
+            id = "LLINusers"
+          ),
+          timed = list(
+            restrictToSubPop = list(
+              id = "ITN-users"
+            ),
+            cumulativeCoverage = list(
+              component = "ITN-users"
+            ),
+            deploy = list(
+              coverage = 0.7,
+              time = "2001-03-15"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deployIT(
+    baseList = testlist, component = "ITN", cumulative = TRUE,
+    dates = "2001-03-15", coverage = 0.7, subpop = "users",
+    cohort = "LLINusers"
+  )
+
+  expect_equal(actual, expected)
+
   ## minAge and maxAge
   expected <- list(
     interventions = list(
@@ -127,6 +199,42 @@ test_that("deploy_it_compat works", {
     byyear = FALSE,
     y1 = 2021, y2 = 2021, every = 1, interval = "month",
     m1 = 6, m2 = 7, d1 = 5, d2 = 5, SIMSTART = "1918-01-01"
+  )
+
+  expect_equal(actual, expected)
+
+  ## cohort
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "ITN",
+          component = list(
+            id = "ITN"
+          ),
+          component = list(
+            id = "LLINusers"
+          ),
+          timed = list(
+            deploy = list(
+              coverage = "futITNcov",
+              time = as.Date("2021-06-05")
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_it_compat(
+    testlist,
+    component = "ITN",
+    coverage = "futITNcov",
+    byyear = FALSE,
+    y1 = 2021, y2 = 2021, every = 1, interval = "month",
+    m1 = 6, m2 = 6, d1 = 5, d2 = 5, SIMSTART = "1918-01-01",
+    cohort = "LLINusers"
   )
 
   expect_equal(actual, expected)
@@ -315,6 +423,41 @@ test_that("deploy_cont_compat works", {
 
   expect_equal(actual, expected)
 
+  ## cohort
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "IPTi",
+          component = list(
+            id = "IPTi"
+          ),
+          component = list(
+            id = "IPTiusers"
+          ),
+          continuous = list(
+            deploy = list(
+              coverage = 0.8,
+              targetAgeYrs = 0.8,
+              begin = "2019-01-01",
+              end = "2030-01-01"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_cont_compat(
+    testlist,
+    targetAgeYrs = 0.8,
+    coverage = 0.8,
+    cohort = "IPTiusers"
+  )
+
+  expect_equal(actual, expected)
+
   ## restrictToSubPop used
   expected <- list(
     interventions = list(
@@ -352,6 +495,45 @@ test_that("deploy_cont_compat works", {
     targetAgeYrs = c(0.8, 0.16),
     coverage = c(0.8, 0.7),
     restrictToSubPop = "foo1"
+  )
+
+  expect_equal(actual, expected)
+
+  ## restrictToSubPop and cohort used
+  expected <- list(
+    interventions = list(
+      name = "All interventions",
+      human = list(
+        deployment = list(
+          name = "IPTi",
+          component = list(
+            id = "IPTi"
+          ),
+          component = list(
+            id = "IPTiusers"
+          ),
+          continuous = list(
+            restrictToSubPop = list(
+              id = "foo1"
+            ),
+            deploy = list(
+              coverage = 0.8,
+              targetAgeYrs = 0.8,
+              begin = "2019-01-01",
+              end = "2030-01-01"
+            )
+          )
+        )
+      )
+    )
+  )
+
+  actual <- deploy_cont_compat(
+    testlist,
+    targetAgeYrs = 0.8,
+    coverage = 0.8,
+    restrictToSubPop = "foo1",
+    cohort = "IPTiusers"
   )
 
   expect_equal(actual, expected)
