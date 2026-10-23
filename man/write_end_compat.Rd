@@ -17,12 +17,14 @@ write_end_compat(
 )
 }
 \arguments{
-\item{baseList}{List with experiment data.}
+\item{baseList}{List with experiment data. Set \code{OMVersion = 49L} for v49
+input. If \code{OMVersion} is omitted, legacy behaviour is retained.}
 
-\item{seed}{Number of replicates per scenario.}
+\item{seed}{Random number generator seed, or a scenario placeholder such
+as \code{"@seed@"}. This does not set the number of replicates.}
 
-\item{modelname}{Select model (default= base 'R0000'). Other options
-currently not available.}
+\item{modelname}{Retained for compatibility and currently unused. The
+function writes its explicit legacy parameterization, not a named model.}
 
 \item{selectedOptions}{Model options to activate. Can be any combination of
 c("COMORB_HET", "VECTOR_SIMPLE_MPD_MODEL", "LOGNORMAL_MASS_ACTION",
@@ -40,4 +42,11 @@ c("COMORB_HET", "VECTOR_SIMPLE_MPD_MODEL", "LOGNORMAL_MASS_ACTION",
 }
 \description{
 Write the underlying transmission dynamics
+}
+\details{
+For v49, the seed is written in \code{model/computationParameters},
+obsolete \code{include} attributes are omitted, and the latent period is
+explicitly three timesteps (\code{"3t"}). \code{HEALTH_SYSTEM_MEMORY_FIX} is set to
+false to retain legacy clinical-memory behaviour. Numerical parameters,
+human availability and the other model options are preserved.
 }
