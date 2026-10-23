@@ -34,3 +34,26 @@ test_that("validateXML works", {
     validateXML(xmlfile = xmlFile, scenarios = scenarios)
   )
 })
+
+test_that("validateXML selects the schema for the cached OM version", {
+  for (version in c(44L, 49L)) {
+    clearCache()
+    resourceDir <- tempfile(paste0("validate-om-", version, "-"))
+    dir.create(resourceDir)
+    putCache("experimentDir", resourceDir)
+    putCache("OMVersion", version)
+    setupOM(version = version)
+
+    ## An incomplete scenario must be recognised by its own schema, then
+    ## rejected for missing children rather than an unknown root namespace.
+    root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+    xmlFile <- file.path(resourceDir, "scenario.xml")
+    xml2::write_xml(root, xmlFile)
+    expect_output(
+      expect_warning(actual <- validateXML(xmlfile = xmlFile)),
+      "Missing child element"
+    )
+    expect_false(actual)
+  }
+  clearCache()
+})
