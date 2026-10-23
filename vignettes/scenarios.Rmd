@@ -18,6 +18,10 @@ source("./om_example.R")
 
 **This document is still work in progress**
 
+This tutorial retains its OpenMalaria v44 inputs. For v49, start with
+[Using OpenMalaria v49 with OMU](openmalaria-v49.html), which explains the XML
+changes and supported alternatives to legacy compatibility helpers.
+
 User of OpenMalaria will often have to answer research questions which require
 multiple simulations with varying input parameters. Thus, for each input
 combination a separate input XML file needs to be created. openMalariaUtilities

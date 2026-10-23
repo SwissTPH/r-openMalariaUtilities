@@ -1,5 +1,21 @@
 # **NEWS**
 
+# Development version
+
+* Add the OpenMalaria v49 schema and setup support, retaining v44 as the default.
+* Make `defineEntomology()` and `defineDemography()` version-aware while
+  preserving v44 behaviour. V49 omits `propInfected` and `propInfectious` and
+  rejects non-NULL `growthRate` input.
+* Adapt `write_end_compat()` for v49 seed placement, explicit latent-period
+  units, and removal of obsolete parameter attributes. Preserve legacy model
+  parameters and clinical-memory behaviour. Other compatibility helpers are
+  unchanged.
+* Add version-aware output translation, including v49 infection-origin and
+  clinical measures. Preserve the existing v44 dictionary and labels. Unknown
+  measure IDs now warn and remain identifiable instead of becoming NA.
+* Add a v49 workflow and migration vignette. Full execution and CI validation
+  with both OpenMalaria versions remain the next stage.
+
 
 # openMalariaUtilities 23.02
 
