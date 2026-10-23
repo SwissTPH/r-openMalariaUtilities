@@ -180,7 +180,7 @@ test_that("defineEntomology works", {
       )
     )
   )
-  actual <- defineEntomology(
+  args <- list(
     baseList = testlist,
     seasonalityParameters = list(
       "gambiae_ss" = list(
@@ -217,5 +217,53 @@ test_that("defineEntomology works", {
   )
 
   ## Normal
+  actual <- do.call(defineEntomology, args)
   expect_equal(actual, expected)
+
+  ## Explicit v44 input retains the exact legacy entomology.
+  args$baseList$OMVersion <- 44L
+  v44 <- do.call(defineEntomology, args)
+  expect_identical(v44$entomology, actual$entomology)
+  expect_identical(v44$OMVersion, 44L)
+
+  ## v49 only removes the two obsolete initial-guess attributes.
+  args$baseList$OMVersion <- 49L
+  v49 <- do.call(defineEntomology, args)
+  expectedV49 <- expected$entomology
+  expectedV49$vector$anopheles$propInfected <- NULL
+  expectedV49$vector$anopheles$propInfectious <- NULL
+  expect_identical(v49$entomology, expectedV49)
+  expect_identical(v49$OMVersion, 49L)
+
+  ## Callers can omit the obsolete inputs entirely for v49.
+  args$seasonalityParameters$gambiae_ss$propInfected <- NULL
+  args$seasonalityParameters$gambiae_ss$propInfectious <- NULL
+  expect_identical(do.call(defineEntomology, args), v49)
+
+  ## The generated XML must contain no NULL attributes or removed inputs.
+  root <- .makeXmlRoot(49L, name = "test", analysisNo = NULL)
+  .xmlMakeDocRec(root, v49)
+  anopheles <- xml2::xml_find_all(root, ".//anopheles")
+  expect_length(anopheles, 1L)
+  expect_identical(xml2::xml_attr(anopheles, "mosquito"), "gambiae_ss")
+  expect_true(is.na(xml2::xml_attr(anopheles, "propInfected")))
+  expect_true(is.na(xml2::xml_attr(anopheles, "propInfectious")))
+
+  ## Validate both generated sections against the bundled entomology types.
+  ## Other scenario sections are omitted from this section-level check only.
+  for (data in list(v44, v49)) {
+    version <- data$OMVersion
+    root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+    .recXML(root, data["entomology"], checkmate::makeAssertCollection())
+    schema <- xml2::read_xml(system.file(
+      "extdata", paste0("scenario_", version, ".xsd"),
+      package = "openMalariaUtilities"
+    ))
+    xml2::xml_remove(xml2::xml_find_all(schema, paste0(
+      "/xs:schema/xs:element[@name='scenario']/xs:complexType/xs:all/",
+      "xs:element[@name!='entomology']"
+    )))
+    valid <- xml2::xml_validate(xml2::read_xml(as.character(root)), schema)
+    expect_true(valid, info = paste(attr(valid, "errors"), collapse = "\n"))
+  }
 })

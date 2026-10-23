@@ -1,6 +1,8 @@
 ##' Defines entomology setting
-##' @param baseList List with experiment data.
-##' @param seasonalityParameters Seasonality parameterization.
+##' @param baseList List with experiment data. Set `OMVersion = 49L` for v49
+##'   input. If `OMVersion` is omitted, legacy behaviour is retained.
+##' @param seasonalityParameters Seasonality parameterization. For v49,
+##'   `propInfected` and `propInfectious` are ignored and need not be supplied.
 ##' @param mosquitoParameters Mosquito bionomics parameterization list of
 ##'   different mosquito species as obtained from AnophelesModel package
 ##'   function get_OM_ento_snippet
@@ -51,6 +53,8 @@ defineEntomology <- function(baseList, seasonalityParameters,
   checkmate::assertLogical(append, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
+  isV49 <- isTRUE(baseList[["OMVersion"]] == 49L)
+
   ## Setup, add scaledAnnualEIR if specified
   setupList <- list(
     mode = mode,
@@ -89,11 +93,13 @@ defineEntomology <- function(baseList, seasonalityParameters,
     mosqData <- mosquitoParameters[[k]]
     seasData <- seasonalityParameters[[k]]
 
-    inputList <- list(
-      mosquito = k,
-      propInfected = seasData$propInfected,
-      propInfectious = seasData$propInfectious
-    )
+    inputList <- list(mosquito = k)
+    if (!isV49) {
+      inputList <- append(inputList, list(
+        propInfected = seasData$propInfected,
+        propInfectious = seasData$propInfectious
+      ))
+    }
 
     ## Add seasonality part
     if (length(seasData$seasonality) == 1) {

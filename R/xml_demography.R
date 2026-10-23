@@ -27,11 +27,13 @@ ageGroupsGen <- function(lowerbound, ageGroups) {
 ## See https://swisstph.github.io/openmalaria/schema-43.html#elt-demography
 
 ##' @title Define and write demography input to baseList
-##' @param baseList List with experiment data.
+##' @param baseList List with experiment data. Set `OMVersion = 49L` for v49
+##'   input. If `OMVersion` is omitted, legacy behaviour is retained.
 ##' @param name Name of demography data.
 ##' @param popSize Population size.
 ##' @param maximumAgeYrs Maximum age of simulated humans in years.
-##' @param growthRate Growth rate of human population.
+##' @param growthRate Growth rate of human population. Must be NULL for v49,
+##'   which no longer accepts this attribute.
 ##' @param lowerbound Lower bound of age group.
 ##' @param upperbound Upper bound of age group. Must be a numerical vector.
 ##' @param poppercent Percentage of human population in age group. Must be a
@@ -75,6 +77,10 @@ defineDemography <- function(baseList, name, popSize = 3000,
     add = assertCol
   )
   checkmate::reportAssertions(collection = assertCol)
+
+  if (isTRUE(baseList[["OMVersion"]] == 49L) && !is.null(growthRate)) {
+    stop("growthRate is not supported by OpenMalaria v49. Use growthRate = NULL.")
+  }
 
   ## Assign values to output list
   baseList <- .xmlAddList(

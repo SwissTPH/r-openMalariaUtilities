@@ -28,9 +28,11 @@ define_entomology(
 )
 }
 \arguments{
-\item{baseList}{List with experiment data.}
+\item{baseList}{List with experiment data. Set \code{OMVersion = 49L} for v49
+input. If \code{OMVersion} is omitted, legacy behaviour is retained.}
 
-\item{seasonalityParameters}{Seasonality parameterization.}
+\item{seasonalityParameters}{Seasonality parameterization. For v49,
+\code{propInfected} and \code{propInfectious} are ignored and need not be supplied.}
 
 \item{mosquitoParameters}{Mosquito bionomics parameterization list of
 different mosquito species as obtained from AnophelesModel package
