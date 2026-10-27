@@ -52,6 +52,97 @@ test_that("defineEntomology accepts numeric and placeholder seasonality vectors"
   }
 })
 
+test_that("defineEntomology preserves supplied animal hosts and matching declarations", {
+  mosquito <- list(
+    mosqRestDuration = list(value = 3),
+    extrinsicIncubationPeriod = list(value = 11),
+    mosqLaidEggsSameDayProportion = list(value = 0.313),
+    mosqSeekingDuration = list(value = 0.33),
+    mosqSurvivalFeedingCycleProbability = list(value = 0.623),
+    mosqProbBiting = list(mean = 0.95, variance = 0),
+    mosqProbFindRestSite = list(mean = 0.95, variance = 0),
+    mosqProbResting = list(mean = 0.99, variance = 0),
+    mosqProbOvipositing = list(mean = 0.88),
+    mosqHumanBloodIndex = list(mean = 0.939)
+  )
+  host <- list(
+    name = "unprotectedAnimals",
+    mosqRelativeEntoAvailability = list(value = "1"),
+    mosqProbBiting = list(value = "0.71"),
+    mosqProbFindRestSite = list(value = "0.8"),
+    mosqProbResting = list(value = "0.9")
+  )
+  seasonality <- list(annualEIR = 1, seasonality = rep(1, 12),
+                      propInfected = 0.078, propInfectious = 0.021)
+  for (version in c(44L, 49L)) {
+    build <- function(mosquito, base = list(OMVersion = version, entomology = list()),
+                      species = "gambiae") {
+      defineEntomology(base, setNames(list(seasonality), species),
+                       setNames(list(mosquito), species))
+    }
+    default <- build(mosquito)
+    mosquito$nonHumanHosts <- host
+    custom <- build(mosquito)
+    expect_identical(custom$entomology$vector$anopheles$nonHumanHosts, host)
+    expect_identical(custom$entomology$vector$nonHumanHosts,
+                     list(name = host$name, number = 1))
+    mosquito$nonHumanHosts$name <- "cattle"
+    renamed <- build(mosquito)
+    expect_identical(renamed$entomology$vector$nonHumanHosts$name, "cattle")
+
+    ## Shared hosts get one declaration; appending retains its population size.
+    renamed$entomology$vector$nonHumanHosts$number <- 17
+    shared <- build(mosquito, renamed, "funestus")
+    declarations <- shared$entomology$vector[
+      names(shared$entomology$vector) == "nonHumanHosts"]
+    expect_length(declarations, 1L)
+    expect_identical(declarations[[1]], list(name = "cattle", number = 17))
+    expect_equal(sum(names(shared$entomology$vector) == "anopheles"), 2)
+
+    ## Different population host names each get a matching declaration.
+    mixed <- build(mosquito, custom, "funestus")
+    declarations <- mixed$entomology$vector[
+      names(mixed$entomology$vector) == "nonHumanHosts"]
+    expect_identical(unname(vapply(declarations, function(x) x$name, character(1))),
+                     c("unprotectedAnimals", "cattle"))
+    together <- defineEntomology(
+      list(OMVersion = version, entomology = list()),
+      list(gambiae = seasonality, funestus = seasonality),
+      list(gambiae = mosquito, funestus = mosquito)
+    )
+    expect_identical(names(together$entomology$vector),
+                     c("anopheles", "anopheles", "nonHumanHosts"))
+    expect_identical(together$entomology$vector$nonHumanHosts$name, "cattle")
+    mosquito$nonHumanHosts <- NULL
+    expect_identical(build(mosquito), default)
+    invalid <- mosquito
+    invalid$nonHumanHosts <- list(host, host)
+    expect_error(build(invalid), "name", fixed = TRUE)
+
+    ## Check serialized values and declaration order against both real schemas.
+    for (data in list(default, custom, renamed, shared, mixed, together)) {
+      root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+      .recXML(root, data["entomology"], checkmate::makeAssertCollection())
+      if (identical(data, custom)) {
+        for (field in names(host)[-1]) {
+          node <- xml2::xml_find_first(root, paste0(".//anopheles/nonHumanHosts/", field))
+          expect_identical(xml2::xml_attr(node, "value"), host[[field]]$value)
+        }
+      }
+      schema <- xml2::read_xml(system.file(
+        "extdata", paste0("scenario_", version, ".xsd"),
+        package = "openMalariaUtilities"
+      ))
+      xml2::xml_remove(xml2::xml_find_all(schema, paste0(
+        "/xs:schema/xs:element[@name='scenario']/xs:complexType/xs:all/",
+        "xs:element[@name!='entomology']"
+      )))
+      valid <- xml2::xml_validate(xml2::read_xml(as.character(root)), schema)
+      expect_true(valid, info = paste(attr(valid, "errors"), collapse = "\n"))
+    }
+  }
+})
+
 test_that("make_ento_compat works", {
   testlist <- list(entomology = list())
 

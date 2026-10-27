@@ -2,6 +2,10 @@
 
 # Development version
 
+* Honour each mosquito population's supplied `nonHumanHosts` parameters in
+  `defineEntomology()` and create matching host-name declarations. Omitted
+  parameters retain the legacy defaults; existing declarations are preserved
+  when appending. One host per mosquito population is supported.
 * Correct the `defineEntomology()` help example to use a three-day resting
   period and a 0.33-day host-seeking period, with comments explaining the units.
   The builder's field mapping and existing scenarios are unchanged.

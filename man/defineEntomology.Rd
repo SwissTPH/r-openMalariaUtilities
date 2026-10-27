@@ -39,7 +39,15 @@ different mosquito species as obtained from AnophelesModel package
 function get_OM_ento_snippet. \code{mosqRestDuration$value} is the resting period
 from biting to the next host search, in whole days. \code{mosqSeekingDuration$value}
 is the duration of host seeking in days (typically 0.33). Supply each
-species' values separately; these durations are not interchangeable.}
+species' values separately; these durations are not interchangeable.
+Each species may also supply \code{nonHumanHosts}, a single host parameter list
+with \code{name}, \code{mosqRelativeEntoAvailability}, \code{mosqProbBiting},
+\code{mosqProbFindRestSite} and \code{mosqProbResting} (the four parameters use
+\code{list(value = ...)}). This list is written unchanged. If omitted or NULL,
+the legacy unprotectedAnimals defaults are used. Matching vector-level
+host declarations are added with \code{number = 1}; existing declarations
+are retained when appending. Several hosts within one species are not
+supported by this argument.}
 
 \item{mode}{Dynamic or static}
 

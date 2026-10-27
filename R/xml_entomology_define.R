@@ -9,6 +9,14 @@
 ##'   from biting to the next host search, in whole days. `mosqSeekingDuration$value`
 ##'   is the duration of host seeking in days (typically 0.33). Supply each
 ##'   species' values separately; these durations are not interchangeable.
+##'   Each species may also supply `nonHumanHosts`, a single host parameter list
+##'   with `name`, `mosqRelativeEntoAvailability`, `mosqProbBiting`,
+##'   `mosqProbFindRestSite` and `mosqProbResting` (the four parameters use
+##'   `list(value = ...)`). This list is written unchanged. If omitted or NULL,
+##'   the legacy unprotectedAnimals defaults are used. Matching vector-level
+##'   host declarations are added with `number = 1`; existing declarations
+##'   are retained when appending. Several hosts within one species are not
+##'   supported by this argument.
 ##' @param mode Dynamic or static
 ##' @param name Name of your setting
 ##' @param scaledAnnualEIR If not NULL, annualEIR will be rescaled by numeric
@@ -230,15 +238,21 @@ defineEntomology <- function(baseList, seasonalityParameters,
     )
 
     ## Add nonHumanHosts part
-    inputList <- .xmlAddList(
-      data = inputList, sublist = NULL, entry = "nonHumanHosts",
-      input = list(
+    nonHumanHosts <- mosqData[["nonHumanHosts"]]
+    if (is.null(nonHumanHosts)) {
+      nonHumanHosts <- list(
         name = "unprotectedAnimals",
         mosqRelativeEntoAvailability = list(value = 1.0),
         mosqProbBiting = list(value = 0.95),
         mosqProbFindRestSite = list(value = 0.95),
         mosqProbResting = list(value = 0.99)
       )
+    }
+    checkmate::assertList(nonHumanHosts)
+    checkmate::assertString(nonHumanHosts[["name"]], min.chars = 1)
+    inputList <- .xmlAddList(
+      data = inputList, sublist = NULL, entry = "nonHumanHosts",
+      input = nonHumanHosts
     )
 
     ## Add bionomics information for each mosquito species
@@ -250,11 +264,22 @@ defineEntomology <- function(baseList, seasonalityParameters,
     )
   }
 
-  ## Add non-human hosts
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("entomology", "vector"),
-    entry = "nonHumanHosts",
-    input = list(name = "unprotectedAnimals", number = 1.0)
+  ## Keep declarations after all anopheles entries, including when appending.
+  ## Reuse existing declarations (and their population sizes) by host name.
+  vector <- baseList$entomology$vector
+  declarations <- vector[names(vector) == "nonHumanHosts"]
+  declaredNames <- vapply(declarations, function(host) host$name, character(1))
+  populations <- vector[names(vector) == "anopheles"]
+  hostNames <- unique(vapply(populations, function(population) {
+    population$nonHumanHosts$name
+  }, character(1)))
+  for (hostName in setdiff(hostNames, declaredNames)) {
+    declarations <- append(declarations, list(
+      nonHumanHosts = list(name = hostName, number = 1.0)
+    ))
+  }
+  baseList$entomology$vector <- append(
+    vector[names(vector) != "nonHumanHosts"], declarations
   )
 
   return(baseList)
