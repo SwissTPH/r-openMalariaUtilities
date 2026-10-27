@@ -2,6 +2,9 @@
 
 # Development version
 
+* Correct the `defineEntomology()` help example to use a three-day resting
+  period and a 0.33-day host-seeking period, with comments explaining the units.
+  The builder's field mapping and existing scenarios are unchanged.
 * Fix vector conditions in `defineEntomology()` for R >= 4.3. Monthly and daily
   placeholder vectors are accepted only when every value matches the placeholder
   pattern; numeric daily seasonality is also handled correctly.

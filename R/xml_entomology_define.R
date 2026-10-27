@@ -5,17 +5,24 @@
 ##'   `propInfected` and `propInfectious` are ignored and need not be supplied.
 ##' @param mosquitoParameters Mosquito bionomics parameterization list of
 ##'   different mosquito species as obtained from AnophelesModel package
-##'   function get_OM_ento_snippet
+##'   function get_OM_ento_snippet. `mosqRestDuration$value` is the resting period
+##'   from biting to the next host search, in whole days. `mosqSeekingDuration$value`
+##'   is the duration of host seeking in days (typically 0.33). Supply each
+##'   species' values separately; these durations are not interchangeable.
 ##' @param mode Dynamic or static
 ##' @param name Name of your setting
 ##' @param scaledAnnualEIR If not NULL, annualEIR will be rescaled by numeric
 ##' @param verbose If TRUE, print detailed output.
 ##' @param append If TRUE, then append to existing baseList, otherwise overwrite
-##' @examples  mosquitoParameters=list("Anopheles gambiae"=list(
-##'   mosqRestDuration=list(value="2"),
+##' @examples
+##' # Illustrative values; use the resting and seeking durations for your species.
+##' mosquitoParameters=list("Anopheles gambiae"=list(
+##'   # Resting period: whole days from biting to the next host search.
+##'   mosqRestDuration=list(value="3"),
 ##'   extrinsicIncubationPeriod=list(value="10"),
 ##'   mosqLaidEggsSameDayProportion=list(value="0.589"),
-##'   mosqSeekingDuration=list(value="3"),
+##'   # Host-seeking period: 0.33 of a day, not the resting period above.
+##'   mosqSeekingDuration=list(value="0.33"),
 ##'   mosqSurvivalFeedingCycleProbability=list(value="0.75"),
 ##'   mosqProbBiting=list(mean="0.95",
 ##'                       variance="0"),

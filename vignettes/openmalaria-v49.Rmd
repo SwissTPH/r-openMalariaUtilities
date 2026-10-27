@@ -103,6 +103,11 @@ getCache("surveyTimes")
 
 ## Entomology and health system
 
+Keep the two mosquito durations distinct: `mosqRestDuration` is the whole-day
+resting period from biting to the next host search (3 days in this example).
+`mosqSeekingDuration` is the host-seeking period in days (0.33 here). Use the
+appropriate values for the species; OMU passes these inputs through by name.
+
 ```{r entomology-health-system}
 baseList <- defineEntomology(
   baseList,
