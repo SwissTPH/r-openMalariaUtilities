@@ -91,6 +91,71 @@ test_that("deployIT works", {
   expect_equal(actual, expected)
 })
 
+test_that("deployIT requires paired, valid age limits", {
+  for (version in c(44L, 49L)) {
+    build <- function(minAge = NULL, maxAge = NULL) {
+      deployIT(list(OMVersion = version, interventions = list()),
+               dates = c("2001-03-15", "2002-03-15"), coverage = 0.8,
+               minAge = minAge, maxAge = maxAge)
+    }
+    for (limit in list(5, "@age@")) {
+      expect_error(build(maxAge = limit),
+                   "minAge and maxAge must be given together (or neither)", fixed = TRUE)
+      expect_error(build(minAge = limit),
+                   "minAge and maxAge must be given together (or neither)", fixed = TRUE)
+    }
+    for (invalid in list(-1, NA_real_, NaN, Inf, -Inf, numeric(), c(0, 1),
+                         TRUE, "5", "@age@junk", "@@", NA_character_, character())) {
+      expect_error(build(invalid, 5), "minAge", fixed = TRUE)
+      expect_error(build(0, invalid), "maxAge", fixed = TRUE)
+    }
+    for (bounds in list(c(5, 5), c(6, 5), c(0, 0))) {
+      expect_error(build(bounds[1], bounds[2]), "minAge must be less than maxAge",
+                   fixed = TRUE)
+    }
+    expect_error(build(-1, "@max@"), "minAge", fixed = TRUE)
+    expect_error(build("@min@", -1), "maxAge", fixed = TRUE)
+    valid <- list(
+      list(0, 5), list(0.25, 5), list("@min@", "@max@"),
+      list(0, "@max@"), list("@min@", 5),
+      list(c("@min1@", "@min2@"), "@max@")
+    )
+    for (bounds in valid) {
+      output <- build(bounds[[1]], bounds[[2]])
+      deployments <- output$interventions$human$deployment$timed
+      for (i in seq_along(deployments)) {
+        expectedMin <- bounds[[1]][min(i, length(bounds[[1]]))]
+        expectedMax <- bounds[[2]][min(i, length(bounds[[2]]))]
+        expect_identical(deployments[[i]]$minAge, expectedMin)
+        expect_identical(deployments[[i]]$maxAge, expectedMax)
+      }
+      root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+      .recXML(root, output["interventions"], checkmate::makeAssertCollection())
+      nodes <- xml2::xml_find_all(root, ".//timed/deploy")
+      expect_identical(xml2::xml_attr(nodes, "minAge"),
+                       as.character(rep(bounds[[1]], length.out = 2)))
+      expect_identical(xml2::xml_attr(nodes, "maxAge"),
+                       as.character(rep(bounds[[2]], length.out = 2)))
+    }
+    unrestricted <- build()
+    expect_identical(build(NULL, NULL), unrestricted)
+    for (deployment in unrestricted$interventions$human$deployment$timed) {
+      expect_false("minAge" %in% names(deployment))
+      expect_false("maxAge" %in% names(deployment))
+    }
+  }
+  expect_error(
+    deploy_IT(list(interventions = list()), dates = "2001-03-15", maxAge = 5),
+    "minAge and maxAge must be given together (or neither)", fixed = TRUE
+  )
+  expect_error(
+    deploy_it_compat(list(interventions = list()), coverage = 0.8,
+                     y1 = 2021, y2 = 2021, m1 = 6, m2 = 7, d1 = 5, d2 = 5,
+                     minAge = 1),
+    "minAge and maxAge must be given together (or neither)", fixed = TRUE
+  )
+})
+
 ## DEPRECATED
 test_that("deploy_it_compat works", {
   testlist <- list(interventions = list())

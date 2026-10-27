@@ -2,6 +2,11 @@
 
 # Development version
 
+* Require `minAge` and `maxAge` together in `deployIT()` instead of silently
+  discarding a single age restriction. Numeric bounds must be finite,
+  non-negative single values with `minAge < maxAge`. Paired placeholders remain
+  supported; their substituted values must satisfy the same bounds. This rule
+  also applies to calls through `deploy_IT()` and `deploy_it_compat()`.
 * Honour each mosquito population's supplied `nonHumanHosts` parameters in
   `defineEntomology()` and create matching host-name declarations. Omitted
   parameters retain the legacy defaults; existing declarations are preserved
