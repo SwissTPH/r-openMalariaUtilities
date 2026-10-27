@@ -119,7 +119,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
       }
     } else if (
       (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 12) ||
-        (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 12)
+        (all(grepl("^@.*@", seasData$seasonality)) && length(seasData$seasonality) == 12)
     ) {
       tmp <- list()
       tmp <- .xmlAddList(
@@ -148,7 +148,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
       )
     } else if (
       (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 365) ||
-        (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 365)
+        (all(grepl("^@.*@", seasData$seasonality)) && length(seasData$seasonality) == 365)
     ) {
       tmp <- list()
       tmp <- .xmlAddList(

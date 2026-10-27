@@ -2,6 +2,9 @@
 
 # Development version
 
+* Fix vector conditions in `defineEntomology()` for R >= 4.3. Monthly and daily
+  placeholder vectors are accepted only when every value matches the placeholder
+  pattern; numeric daily seasonality is also handled correctly.
 * Add the OpenMalaria v49 schema and setup support, retaining v44 as the default.
 * Make `defineEntomology()` and `defineDemography()` version-aware while
   preserving v44 behaviour. V49 omits `propInfected` and `propInfectious` and

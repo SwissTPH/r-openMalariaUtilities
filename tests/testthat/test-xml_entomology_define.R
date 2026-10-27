@@ -1,3 +1,57 @@
+test_that("defineEntomology accepts numeric and placeholder seasonality vectors", {
+  mosquitoParameters <- list("Anopheles gambiae" = list(
+    mosqRestDuration = list(value = 3),
+    extrinsicIncubationPeriod = list(value = 11),
+    mosqLaidEggsSameDayProportion = list(value = 0.313),
+    mosqSeekingDuration = list(value = 0.33),
+    mosqSurvivalFeedingCycleProbability = list(value = 0.623),
+    mosqProbBiting = list(mean = 0.95, variance = 0),
+    mosqProbFindRestSite = list(mean = 0.95, variance = 0),
+    mosqProbResting = list(mean = 0.99, variance = 0),
+    mosqProbOvipositing = list(mean = 0.88),
+    mosqHumanBloodIndex = list(mean = 0.939)
+  ))
+  for (version in list(NULL, 44L, 49L)) {
+    for (n in c(12L, 365L)) {
+      placeholders <- paste0("@", if (n == 12L) "m" else "d", seq_len(n), "@")
+      for (values in list(seq_len(n), placeholders)) {
+        seasonalityParameters <- list("Anopheles gambiae" = list(
+          annualEIR = "@EIR@", seasonality = values,
+          propInfected = 0.078, propInfectious = 0.021
+        ))
+        output <- defineEntomology(
+          list(OMVersion = version, entomology = list()),
+          seasonalityParameters, mosquitoParameters
+        )
+        seasonality <- output$entomology$vector$anopheles$seasonality
+        entry <- if (n == 12L) "monthlyValues" else "dailyValues"
+        series <- seasonality[[entry]]
+        expect_identical(seasonality$annualEIR, "@EIR@")
+        expect_identical(unlist(series[names(series) == "value"], use.names = FALSE), values)
+
+        ## Requiring every value to be a placeholder prevents accepting
+        ## malformed entries just because the first value is valid.
+        invalid <- placeholders
+        invalid[n] <- "not a placeholder"
+        seasonalityParameters[[1]]$seasonality <- invalid
+        expect_error(
+          defineEntomology(list(OMVersion = version, entomology = list()),
+                           seasonalityParameters, mosquitoParameters),
+          "vector of placeholders", fixed = TRUE
+        )
+      }
+    }
+    for (n in c(11L, 366L)) {
+      seasonalityParameters[[1]]$seasonality <- paste0("@x", seq_len(n), "@")
+      expect_error(
+        defineEntomology(list(OMVersion = version, entomology = list()),
+                         seasonalityParameters, mosquitoParameters),
+        "vector of placeholders", fixed = TRUE
+      )
+    }
+  }
+})
+
 test_that("make_ento_compat works", {
   testlist <- list(entomology = list())
 
