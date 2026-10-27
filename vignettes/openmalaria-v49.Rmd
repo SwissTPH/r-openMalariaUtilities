@@ -245,5 +245,7 @@ workflow that uses them.
 
 See the [upstream changelog](https://github.com/OpenMalaria-Org/openmalaria/wiki/Changelog)
 and [v49 release](https://github.com/OpenMalaria-Org/openmalaria/releases/tag/schema-49.0)
-for the changes between executable versions. Paired end-to-end checks and CI
-coverage with both executables are the next validation stage.
+for the changes between executable versions. The integration workflow tests
+both pinned executable versions, including a frozen v44 reference comparison
+and serial/batch SQLite collection. The local paired runs pass; hosted CI must
+still be confirmed after the branch is pushed.

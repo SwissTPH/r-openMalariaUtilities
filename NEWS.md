@@ -13,8 +13,9 @@
 * Add version-aware output translation, including v49 infection-origin and
   clinical measures. Preserve the existing v44 dictionary and labels. Unknown
   measure IDs now warn and remain identifiable instead of becoming NA.
-* Add a v49 workflow and migration vignette. Full execution and CI validation
-  with both OpenMalaria versions remain the next stage.
+* Add a v49 workflow and migration vignette, plus v44/v49 integration CI using
+  pinned executables, a frozen v44 input reference, and serial/batch SQLite
+  checks. Local paired runs pass; hosted CI still needs confirmation after push.
 
 
 # openMalariaUtilities 23.02

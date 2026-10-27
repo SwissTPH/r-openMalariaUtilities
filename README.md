@@ -53,5 +53,9 @@ remain unchanged and are outside the supported v49 workflow.
 Output translation follows the experiment's cached `OMVersion`, with an explicit
 `version` override available in `readOutputFile()`. Existing v44 labels remain
 unchanged. V49 uses the corrected `nNewInfections` label, and unknown measure IDs
-now generate a warning and are retained as text. Paired execution and CI checks
-with both OpenMalaria versions remain a separate validation stage.
+now generate a warning and are retained as text.
+
+The [integration validation](.github/validation/README.md) runs pinned v44/v49
+executables, compares v44 against a frozen pre-migration input, and checks serial
+and batch SQLite collection. The local paired runs pass; GitHub-hosted execution
+still needs confirmation after the branch is pushed.
