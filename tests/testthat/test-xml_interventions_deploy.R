@@ -92,6 +92,8 @@ test_that("deployIT works", {
 })
 
 test_that("deployIT requires paired, valid age limits", {
+  ## Direct .recXML calls need the cache normally set up by .xmlMakeDocRec.
+  putCache("placeholders", NULL)
   for (version in c(44L, 49L)) {
     build <- function(minAge = NULL, maxAge = NULL) {
       deployIT(list(OMVersion = version, interventions = list()),

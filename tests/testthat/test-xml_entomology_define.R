@@ -239,6 +239,8 @@ test_that("make_ento_compat works", {
 
 
 test_that("defineEntomology works", {
+  ## Direct .recXML calls need the cache normally set up by .xmlMakeDocRec.
+  putCache("placeholders", NULL)
   testlist <- list(entomology = list())
 
   monthlyValues <- list(
