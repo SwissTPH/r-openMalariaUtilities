@@ -71,4 +71,87 @@ test_that("write_end_compat works", {
 
   ## Normal
   expect_equal(actual, expected)
+
+  v44 <- write_end_compat(list(OMVersion = 44L, model = list()))
+  expect_identical(v44$model, actual$model)
+  expect_identical(v44$OMVersion, 44L)
+})
+
+test_that("write_end_compat preserves legacy settings in v49 model XML", {
+  for (selectedOptions in list(NULL, c("COMORB_HET", "MAX_DENS_CORRECTION"))) {
+    for (seed in list(17L, "@seed@")) {
+      args <- list(
+        baseList = list(model = list()), seed = seed,
+        selectedOptions = selectedOptions, comorb = 0.2, critage = 0.3,
+        logodds = 0.4, healthSystemMemory = "8t"
+      )
+      legacy <- do.call(write_end_compat, args)
+      args$baseList$OMVersion <- 44L
+      v44 <- do.call(write_end_compat, args)
+      expect_identical(v44$model, legacy$model)
+
+      args$baseList$OMVersion <- 49L
+      v49 <- do.call(write_end_compat, args)
+      expect_identical(v49$OMVersion, 49L)
+      expect_identical(v49$model$computationParameters, list(iseed = seed))
+      expect_false("iseed" %in% names(v49$model$parameters))
+      expect_identical(v49$model$parameters$latentp, "3t")
+      expect_identical(v49$model$parameters$interval, "5")
+      expect_identical(v49$model$human, legacy$model$human)
+      expect_identical(v49$model$clinical, legacy$model$clinical)
+      expect_false("ModelName" %in% names(v49$model))
+
+      params44 <- legacy$model$parameters[
+        names(legacy$model$parameters) == "parameter"
+      ]
+      params49 <- v49$model$parameters[
+        names(v49$model$parameters) == "parameter"
+      ]
+      expect_length(params49, 30L)
+      expect_true(all(vapply(params49, function(x) {
+        !"include" %in% names(x)
+      }, logical(1))))
+      expect_identical(
+        lapply(params49, function(x) x[c("name", "number", "value")]),
+        lapply(params44, function(x) x[c("name", "number", "value")])
+      )
+      expect_identical(
+        v49$model$ModelOptions[seq_along(legacy$model$ModelOptions)],
+        legacy$model$ModelOptions
+      )
+      expect_identical(tail(v49$model$ModelOptions, 1)[[1]], list(
+        name = "HEALTH_SYSTEM_MEMORY_FIX", value = "false"
+      ))
+
+      ## Verify placeholder substitution at the new seed location, then
+      ## validate the model against the corresponding bundled schema.
+      for (data in list(v44, v49)) {
+        version <- data$OMVersion
+        root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+        .xmlMakeDocRec(root, data)
+        root <- xml2::read_xml(as.character(root))
+        xml2::xml_remove(xml2::xml_find_all(root, "./interventions"))
+        seedPath <- if (version == 49L) {
+          ".//model/computationParameters"
+        } else {
+          ".//model/parameters"
+        }
+        seedNode <- xml2::xml_find_first(root, seedPath)
+        expect_identical(xml2::xml_attr(seedNode, "iseed"), as.character(seed))
+        xml2::xml_set_attr(seedNode, "iseed", "17")
+
+        schema <- xml2::read_xml(system.file(
+          "extdata", paste0("scenario_", version, ".xsd"),
+          package = "openMalariaUtilities"
+        ))
+        ## Other scenario sections are omitted from this model-only check.
+        xml2::xml_remove(xml2::xml_find_all(schema, paste0(
+          "/xs:schema/xs:element[@name='scenario']/xs:complexType/xs:all/",
+          "xs:element[@name!='model']"
+        )))
+        valid <- xml2::xml_validate(root, schema)
+        expect_true(valid, info = paste(attr(valid, "errors"), collapse = "\n"))
+      }
+    }
+  }
 })

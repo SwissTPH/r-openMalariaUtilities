@@ -17,6 +17,10 @@ library(openMalariaUtilities)
 
 **This document is still work in progress**
 
+This tutorial targets OpenMalaria v44. For v49, see
+[Using OpenMalaria v49 with OMU](openmalaria-v49.html), including the required
+XML changes and the supported alternatives to legacy compatibility helpers.
+
 OpenMalaria is a powerful tool for simulating and studying the epidemiology of
 malaria. This R package allows the use of OpenMalaria from R.
 
@@ -79,7 +83,7 @@ MyProject/experiment_1
 ```
 
 You do not need to worry about the creation of the folders and files. OMU will
-create necessary folders and download required files for you.
+create necessary folders and copy the bundled schema and runtime resources for you.
 
 The `cache` folder contains R objects which are used by OMU to store reusable
 information. This will speed up certain operations. Log files are stored in the
@@ -122,8 +126,8 @@ has a very [similar structure](https://swisstph.github.io/openmalaria/schema-lat
 as the XML file required by OM but is easier to edit from R compared
 to XML. The above snippet corresponds to the minimal skeleton of this input
 list. `expName` is the name of your experiment and `OMVersion` the version of
-OpenMalaria. Currently, only version 44 is supported. Also note, that the OM
-version needs to be an integer.
+OpenMalaria. Versions 44 and 49 have version-aware setup and builders; this
+tutorial retains its v44 inputs. The OM version needs to be an integer.
 
 Each of the six nested lists `demography`, `monitoring`, `interventions`,
 `healthSystem`, `entomology` and `model` need to be filled for OM.

@@ -4,7 +4,13 @@
 \alias{readOutputFile}
 \title{Read Open Malaria output file}
 \usage{
-readOutputFile(f, filter = NULL, translate = TRUE, scenID = NULL)
+readOutputFile(
+  f,
+  filter = NULL,
+  translate = TRUE,
+  scenID = NULL,
+  version = NULL
+)
 }
 \arguments{
 \item{f}{File name to read from.}
@@ -15,8 +21,18 @@ readOutputFile(f, filter = NULL, translate = TRUE, scenID = NULL)
 simply TRUE (implies all) or FALSE (implies none).}
 
 \item{scenID}{Scenario ID to be added.}
+
+\item{version}{Major OpenMalaria version for measure translation, either
+44 or 49. If NULL, uses the experiment's cached \code{OMVersion}, or 44 when
+no version is cached. An explicit value overrides the cache.}
 }
 \description{
 Read a '*_out.txt' file, apply modifications and return a data
 frame which should be added to the DB.
+}
+\details{
+Unknown measure IDs generate a warning and are retained as
+character values rather than replaced by NA. The dictionary describes
+default output IDs; custom \code{outputNumber} mappings require a custom
+reader or untranslated output (\code{translate = FALSE}).
 }

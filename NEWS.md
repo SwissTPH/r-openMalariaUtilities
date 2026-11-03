@@ -1,5 +1,42 @@
 # **NEWS**
 
+# Development version
+
+* Expose `minInfectedThreshold` in `defineEntomology()` for v44 and v49,
+  retaining 0.001 as the default. A finite non-negative number or scenario
+  placeholder can be supplied; zero selects the v49 schema default. Record
+  developer confirmation of the retained clinical-memory and base-model settings
+  in the compatibility guide.
+* Require `minAge` and `maxAge` together in `deployIT()` instead of silently
+  discarding a single age restriction. Numeric bounds must be finite,
+  non-negative single values with `minAge < maxAge`. Paired placeholders remain
+  supported; their substituted values must satisfy the same bounds. This rule
+  also applies to calls through `deploy_IT()` and `deploy_it_compat()`.
+* Honour each mosquito population's supplied `nonHumanHosts` parameters in
+  `defineEntomology()` and create matching host-name declarations. Omitted
+  parameters retain the legacy defaults; existing declarations are preserved
+  when appending. One host per mosquito population is supported.
+* Correct the `defineEntomology()` help example to use a three-day resting
+  period and a 0.33-day host-seeking period, with comments explaining the units.
+  The builder's field mapping and existing scenarios are unchanged.
+* Fix vector conditions in `defineEntomology()` for R >= 4.3. Monthly and daily
+  placeholder vectors are accepted only when every value matches the placeholder
+  pattern; numeric daily seasonality is also handled correctly.
+* Add the OpenMalaria v49 schema and setup support, retaining v44 as the default.
+* Make `defineEntomology()` and `defineDemography()` version-aware while
+  preserving v44 behaviour. V49 omits `propInfected` and `propInfectious` and
+  rejects non-NULL `growthRate` input.
+* Adapt `write_end_compat()` for v49 seed placement, explicit latent-period
+  units, and removal of obsolete parameter attributes. Preserve legacy model
+  parameters and clinical-memory behaviour. Other compatibility helpers are
+  unchanged.
+* Add version-aware output translation, including v49 infection-origin and
+  clinical measures. Preserve the existing v44 dictionary and labels. Unknown
+  measure IDs now warn and remain identifiable instead of becoming NA.
+* Add a v49 workflow and migration vignette, plus v44/v49 integration CI using
+  pinned executables, a frozen v44 input reference, and serial/batch SQLite
+  checks. Local paired runs pass; hosted CI still needs confirmation after push.
+
 
 # openMalariaUtilities 23.02
 

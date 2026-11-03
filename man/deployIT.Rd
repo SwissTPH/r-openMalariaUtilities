@@ -56,11 +56,14 @@ NULL.}
 \item{dates}{If NULL, startDate, endDate and interval are used, else a
 vector of dates in YYYY-MM-DD format. Can be a placeholder.}
 
-\item{minAge}{Minimum age for deployment (used in SMC). Can be a
-placeholder.}
+\item{minAge}{Minimum age for deployment, in years. Supply both age limits
+or neither. Numeric limits must be single, finite, non-negative numbers
+with \code{minAge < maxAge}. Placeholders (including character placeholder
+sequences) are allowed; check their values and ordering after substitution.}
 
-\item{maxAge}{Maximum age for deployment (used in SMC). Can be a
-placeholder.}
+\item{maxAge}{Maximum age for deployment, in years. Must be supplied together
+with \code{minAge}; the same numeric and placeholder rules apply. To target
+children under five, use \verb{minAge = 0, maxAge = 5}.}
 
 \item{coverage}{Value or variable of coverage. Can be a placeholder.}
 

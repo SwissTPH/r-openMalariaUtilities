@@ -10,7 +10,7 @@ setupOM(version = 44, dir = NULL)
 setup_om(version = 44, dir = NULL)
 }
 \arguments{
-\item{version}{Major schema version. Supported: 44.}
+\item{version}{Major schema version. Supported: 44 and 49. Defaults to 44.}
 
 \item{dir}{Target directory. Defaults to experiment directory.}
 }

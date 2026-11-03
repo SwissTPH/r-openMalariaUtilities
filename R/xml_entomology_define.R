@@ -1,19 +1,40 @@
 ##' Defines entomology setting
-##' @param baseList List with experiment data.
-##' @param seasonalityParameters Seasonality parameterization.
+##' @param baseList List with experiment data. Set `OMVersion = 49L` for v49
+##'   input. If `OMVersion` is omitted, legacy behaviour is retained.
+##' @param seasonalityParameters Seasonality parameterization. For v49,
+##'   `propInfected` and `propInfectious` are ignored and need not be supplied.
 ##' @param mosquitoParameters Mosquito bionomics parameterization list of
 ##'   different mosquito species as obtained from AnophelesModel package
-##'   function get_OM_ento_snippet
+##'   function get_OM_ento_snippet. `mosqRestDuration$value` is the resting period
+##'   from biting to the next host search, in whole days. `mosqSeekingDuration$value`
+##'   is the duration of host seeking in days (typically 0.33). Supply each
+##'   species' values separately; these durations are not interchangeable.
+##'   Each species may also supply `nonHumanHosts`, a single host parameter list
+##'   with `name`, `mosqRelativeEntoAvailability`, `mosqProbBiting`,
+##'   `mosqProbFindRestSite` and `mosqProbResting` (the four parameters use
+##'   `list(value = ...)`). This list is written unchanged. If omitted or NULL,
+##'   the legacy unprotectedAnimals defaults are used. Matching vector-level
+##'   host declarations are added with `number = 1`; existing declarations
+##'   are retained when appending. Several hosts within one species are not
+##'   supported by this argument.
 ##' @param mode Dynamic or static
 ##' @param name Name of your setting
 ##' @param scaledAnnualEIR If not NULL, annualEIR will be rescaled by numeric
 ##' @param verbose If TRUE, print detailed output.
 ##' @param append If TRUE, then append to existing baseList, otherwise overwrite
-##' @examples  mosquitoParameters=list("Anopheles gambiae"=list(
-##'   mosqRestDuration=list(value="2"),
+##' @param minInfectedThreshold Minimum infected mosquito population below which
+##'   transmission is interrupted, applied to every mosquito population. A single
+##'   finite non-negative number or scenario placeholder. Defaults to 0.001 for
+##'   compatibility with previous OMU versions; use 0 for the v49 schema default.
+##' @examples
+##' # Illustrative values; use the resting and seeking durations for your species.
+##' mosquitoParameters=list("Anopheles gambiae"=list(
+##'   # Resting period: whole days from biting to the next host search.
+##'   mosqRestDuration=list(value="3"),
 ##'   extrinsicIncubationPeriod=list(value="10"),
 ##'   mosqLaidEggsSameDayProportion=list(value="0.589"),
-##'   mosqSeekingDuration=list(value="3"),
+##'   # Host-seeking period: 0.33 of a day, not the resting period above.
+##'   mosqSeekingDuration=list(value="0.33"),
 ##'   mosqSurvivalFeedingCycleProbability=list(value="0.75"),
 ##'   mosqProbBiting=list(mean="0.95",
 ##'                       variance="0"),
@@ -27,7 +48,8 @@
 defineEntomology <- function(baseList, seasonalityParameters,
                              mosquitoParameters, mode = "dynamic",
                              name = "Namawala", scaledAnnualEIR = NULL,
-                             verbose = FALSE, append = TRUE) {
+                             verbose = FALSE, append = TRUE,
+                             minInfectedThreshold = 0.001) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -49,7 +71,14 @@ defineEntomology <- function(baseList, seasonalityParameters,
   )
   checkmate::assertLogical(verbose, add = assertCol)
   checkmate::assertLogical(append, add = assertCol)
+  checkmate::assert(
+    checkmate::checkNumber(minInfectedThreshold, lower = 0, finite = TRUE),
+    checkmate::checkString(minInfectedThreshold, pattern = "^@[^@]+@$"),
+    add = assertCol
+  )
   checkmate::reportAssertions(assertCol)
+
+  isV49 <- isTRUE(baseList[["OMVersion"]] == 49L)
 
   ## Setup, add scaledAnnualEIR if specified
   setupList <- list(
@@ -89,11 +118,13 @@ defineEntomology <- function(baseList, seasonalityParameters,
     mosqData <- mosquitoParameters[[k]]
     seasData <- seasonalityParameters[[k]]
 
-    inputList <- list(
-      mosquito = k,
-      propInfected = seasData$propInfected,
-      propInfectious = seasData$propInfectious
-    )
+    inputList <- list(mosquito = k)
+    if (!isV49) {
+      inputList <- append(inputList, list(
+        propInfected = seasData$propInfected,
+        propInfectious = seasData$propInfectious
+      ))
+    }
 
     ## Add seasonality part
     if (length(seasData$seasonality) == 1) {
@@ -113,7 +144,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
       }
     } else if (
       (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 12) ||
-        (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 12)
+        (all(grepl("^@.*@", seasData$seasonality)) && length(seasData$seasonality) == 12)
     ) {
       tmp <- list()
       tmp <- .xmlAddList(
@@ -142,7 +173,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
       )
     } else if (
       (is.numeric(seasData$seasonality) && length(seasData$seasonality) == 365) ||
-        (grepl("^@.*@", seasData$seasonality) && length(seasData$seasonality) == 365)
+        (all(grepl("^@.*@", seasData$seasonality)) && length(seasData$seasonality) == 365)
     ) {
       tmp <- list()
       tmp <- .xmlAddList(
@@ -178,7 +209,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
     inputList <- .xmlAddList(
       data = inputList, sublist = NULL, entry = "mosq",
       input = list(
-        minInfectedThreshold = 0.001,
+        minInfectedThreshold = minInfectedThreshold,
         mosqRestDuration = list(
           value = mosqData[["mosqRestDuration"]][["value"]]
         ),
@@ -217,15 +248,21 @@ defineEntomology <- function(baseList, seasonalityParameters,
     )
 
     ## Add nonHumanHosts part
-    inputList <- .xmlAddList(
-      data = inputList, sublist = NULL, entry = "nonHumanHosts",
-      input = list(
+    nonHumanHosts <- mosqData[["nonHumanHosts"]]
+    if (is.null(nonHumanHosts)) {
+      nonHumanHosts <- list(
         name = "unprotectedAnimals",
         mosqRelativeEntoAvailability = list(value = 1.0),
         mosqProbBiting = list(value = 0.95),
         mosqProbFindRestSite = list(value = 0.95),
         mosqProbResting = list(value = 0.99)
       )
+    }
+    checkmate::assertList(nonHumanHosts)
+    checkmate::assertString(nonHumanHosts[["name"]], min.chars = 1)
+    inputList <- .xmlAddList(
+      data = inputList, sublist = NULL, entry = "nonHumanHosts",
+      input = nonHumanHosts
     )
 
     ## Add bionomics information for each mosquito species
@@ -237,11 +274,22 @@ defineEntomology <- function(baseList, seasonalityParameters,
     )
   }
 
-  ## Add non-human hosts
-  baseList <- .xmlAddList(
-    data = baseList, sublist = c("entomology", "vector"),
-    entry = "nonHumanHosts",
-    input = list(name = "unprotectedAnimals", number = 1.0)
+  ## Keep declarations after all anopheles entries, including when appending.
+  ## Reuse existing declarations (and their population sizes) by host name.
+  vector <- baseList$entomology$vector
+  declarations <- vector[names(vector) == "nonHumanHosts"]
+  declaredNames <- vapply(declarations, function(host) host$name, character(1))
+  populations <- vector[names(vector) == "anopheles"]
+  hostNames <- unique(vapply(populations, function(population) {
+    population$nonHumanHosts$name
+  }, character(1)))
+  for (hostName in setdiff(hostNames, declaredNames)) {
+    declarations <- append(declarations, list(
+      nonHumanHosts = list(name = hostName, number = 1.0)
+    ))
+  }
+  baseList$entomology$vector <- append(
+    vector[names(vector) != "nonHumanHosts"], declarations
   )
 
   return(baseList)

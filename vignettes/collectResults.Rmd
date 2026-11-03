@@ -17,6 +17,21 @@ knitr::opts_chunk$set(
 `collectResults()` is a powerful function and the aim of this vignette is to
 explain its options in more detail.
 
+## OpenMalaria versions
+
+The default reader, `readOutputFile()`, uses the experiment's cached `OMVersion`
+to translate measure IDs. Restore the intended experiment with `loadExperiment()`
+when collecting in a new R session. If no version is cached, measure translation
+defaults to v44. An explicit override can be supplied through
+`readFunArgs = list(version = 49L)`.
+
+Existing v44 labels are preserved. V49 uses `nNewInfections` for ID 43 and adds
+infection-origin and clinical measures. Unknown IDs now produce a warning and
+are retained as text. Custom `outputNumber` mappings require a custom reader or
+untranslated measures. The database structure is unchanged.
+
+See [Using OpenMalaria v49 with OMU](openmalaria-v49.html) for a complete example.
+
 ## Output database
 
 `collectResults()` creates the following database tables: 

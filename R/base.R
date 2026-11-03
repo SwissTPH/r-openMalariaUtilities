@@ -198,16 +198,14 @@ create_base_xml <- createBaseXml
 
 
 ##' @title Download required Open Malaria files
-##' @param version Major schema version. Supported: 44.
+##' @param version Major schema version. Supported: 44 and 49. Defaults to 44.
 ##' @param dir Target directory. Defaults to experiment directory.
 ##' @export
 setupOM <- function(version = 44, dir = NULL) {
-  ## Check for supported version and select correct subversion
-  suppVers <- c(44)
+  ## Check for supported major schema version
+  suppVers <- c(44, 49)
   if (version %in% suppVers) {
     major <- version
-    ## Assigning supported minor version. Should always be the latest.
-    version <- ifelse(version == 44, "44.0")
 
     ## Download files into experiment folder if not already present
     if (is.null(dir)) {
@@ -271,7 +269,7 @@ setupOM <- function(version = 44, dir = NULL) {
   } else {
     stop(paste0(
       "Only the following major versions of Open Malaria are supported: ",
-      suppVers
+      paste(suppVers, collapse = ", ")
     ))
   }
 }

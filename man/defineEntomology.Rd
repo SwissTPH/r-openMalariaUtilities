@@ -13,7 +13,8 @@ defineEntomology(
   name = "Namawala",
   scaledAnnualEIR = NULL,
   verbose = FALSE,
-  append = TRUE
+  append = TRUE,
+  minInfectedThreshold = 0.001
 )
 
 define_entomology(
@@ -24,17 +25,31 @@ define_entomology(
   name = "Namawala",
   scaledAnnualEIR = NULL,
   verbose = FALSE,
-  append = TRUE
+  append = TRUE,
+  minInfectedThreshold = 0.001
 )
 }
 \arguments{
-\item{baseList}{List with experiment data.}
+\item{baseList}{List with experiment data. Set \code{OMVersion = 49L} for v49
+input. If \code{OMVersion} is omitted, legacy behaviour is retained.}
 
-\item{seasonalityParameters}{Seasonality parameterization.}
+\item{seasonalityParameters}{Seasonality parameterization. For v49,
+\code{propInfected} and \code{propInfectious} are ignored and need not be supplied.}
 
 \item{mosquitoParameters}{Mosquito bionomics parameterization list of
 different mosquito species as obtained from AnophelesModel package
-function get_OM_ento_snippet}
+function get_OM_ento_snippet. \code{mosqRestDuration$value} is the resting period
+from biting to the next host search, in whole days. \code{mosqSeekingDuration$value}
+is the duration of host seeking in days (typically 0.33). Supply each
+species' values separately; these durations are not interchangeable.
+Each species may also supply \code{nonHumanHosts}, a single host parameter list
+with \code{name}, \code{mosqRelativeEntoAvailability}, \code{mosqProbBiting},
+\code{mosqProbFindRestSite} and \code{mosqProbResting} (the four parameters use
+\code{list(value = ...)}). This list is written unchanged. If omitted or NULL,
+the legacy unprotectedAnimals defaults are used. Matching vector-level
+host declarations are added with \code{number = 1}; existing declarations
+are retained when appending. Several hosts within one species are not
+supported by this argument.}
 
 \item{mode}{Dynamic or static}
 
@@ -45,16 +60,24 @@ function get_OM_ento_snippet}
 \item{verbose}{If TRUE, print detailed output.}
 
 \item{append}{If TRUE, then append to existing baseList, otherwise overwrite}
+
+\item{minInfectedThreshold}{Minimum infected mosquito population below which
+transmission is interrupted, applied to every mosquito population. A single
+finite non-negative number or scenario placeholder. Defaults to 0.001 for
+compatibility with previous OMU versions; use 0 for the v49 schema default.}
 }
 \description{
 Defines entomology setting
 }
 \examples{
- mosquitoParameters=list("Anopheles gambiae"=list(
-  mosqRestDuration=list(value="2"),
+# Illustrative values; use the resting and seeking durations for your species.
+mosquitoParameters=list("Anopheles gambiae"=list(
+  # Resting period: whole days from biting to the next host search.
+  mosqRestDuration=list(value="3"),
   extrinsicIncubationPeriod=list(value="10"),
   mosqLaidEggsSameDayProportion=list(value="0.589"),
-  mosqSeekingDuration=list(value="3"),
+  # Host-seeking period: 0.33 of a day, not the resting period above.
+  mosqSeekingDuration=list(value="0.33"),
   mosqSurvivalFeedingCycleProbability=list(value="0.75"),
   mosqProbBiting=list(mean="0.95",
                       variance="0"),

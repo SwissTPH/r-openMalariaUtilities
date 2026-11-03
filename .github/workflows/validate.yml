@@ -1,113 +1,86 @@
-# The validation pipeline. Currently, runs the example provided by OpenMalaria
-# itself and generates the same xml (in terms of input) via
-# openMalariaUtilities. Both files are used for a simulation and the two output
-# files compared, as they should be identical.
-
-# REVIEW Over time, this should be extended to a more involved example and also
-#        include steps like the data processing. As this workflow gets more
-#        involved, it is probably a good idea to limit it to the master branch
-#        or only to releases.
+name: OpenMalaria validation
 
 on:
   push:
-    branches:
-        - master
-        - develop
+    branches: [master, develop, codex/openmalaria-v49]
   pull_request:
-    branches:
-        - master
-        - develop
+    branches: [master, develop]
+  workflow_dispatch:
 
-name: OpenMalaria validation
+permissions:
+  contents: read
 
 jobs:
-  job_1:
-    name: OpenMalaria example
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Setup OpenMalaria
-        shell: bash
-        run : |
-          wget https://github.com/SwissTPH/openmalaria/releases/download/schema-44.0/openMalaria-ubuntu-20.04.tar.gz -O openMalaria-ubuntu-20.04.tar.gz
-          tar -xf openMalaria-ubuntu-20.04.tar.gz && rm openMalaria-ubuntu-20.04.tar.gz
-          sudo apt-get install -y libboost-dev libgsl-dev libxerces-c-dev xsdcxx
-          echo "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04" >> $GITHUB_PATH
-
-      - name: Run OpenMalaria example xml
-        shell: bash
-        run : |
-          cd openMalaria-ubuntu-20.04
-          openMalaria -s example_scenario.xml --verbose
-
-      - name: Store OpenMalaria output
-        uses: actions/upload-artifact@v3
-        with:
-          name: output-OM
-          path: openMalaria-ubuntu-20.04/output.txt
-
-  job_2:
-    name: openMalariaUtilities example
-    runs-on: ubuntu-20.04
+  integration:
+    name: OpenMalaria v${{ matrix.version }} integration
+    runs-on: windows-2022
+    timeout-minutes: 30
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - version: 44
+            sha256: 2E4A40A0ABDF78148AF63454AD09003EFE3177A89C5E212478EA299DA3DE55B8
+          - version: 49
+            sha256: 7E2E6F0DE2CA64622063700202099DF450FD28AAAB21C424E11F541D5CD3F5F7
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      OM_VERSION: ${{ matrix.version }}
+      OM_SHA256: ${{ matrix.sha256 }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          r-version: '4.5.1'
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: devtools
+          extra-packages: any::testthat
+          needs: check
 
-      - name: Setup OpenMalaria
-        shell: bash
-        run : |
-          wget https://github.com/SwissTPH/openmalaria/releases/download/schema-44.0/openMalaria-ubuntu-20.04.tar.gz -O openMalaria-ubuntu-20.04.tar.gz
-          tar -xf openMalaria-ubuntu-20.04.tar.gz && rm openMalaria-ubuntu-20.04.tar.gz
-          sudo apt-get install -y libboost-dev libgsl-dev libxerces-c-dev xsdcxx
-          echo "$GITHUB_WORKSPACE/openMalaria-ubuntu-20.04" >> $GITHUB_PATH
-
-      - name: Run OMU script in R
-        run: |
-            source(".github/workflows/example.R")
+      - name: Install this checkout for R and its workers
         shell: Rscript {0}
-      - name: Store package output
-        uses: actions/upload-artifact@v3
-        with:
-          name: output-package
-          path: exp_test/outputs/exp_test_1_out.txt
+        run: install.packages('.', repos = NULL, type = 'source')
 
-  job_3:
-    name: Compare results
-    needs: [job_1, job_2]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download result from job 1
-        uses: actions/download-artifact@v3
-        with:
-          name: output-OM
-
-      - name: Download result from job 2
-        uses: actions/download-artifact@v3
-        with:
-          name: output-package
-
-      - name: Compare results
-        shell: bash
+      - name: Run setup XML and output regression tests
+        shell: Rscript {0}
         run: |
-          if cmp --silent -- exp_test_1_out.txt output.txt; then
-            echo "### SUCCESS: Output files are identical! ###"
-            exit 0
-          else
-            echo "### Warning: Output files differ! ###"
-            exit 1
-          fi
+          testthat::test_local(
+            filter = '^(base|cache|db|output-translation|validation|xml.*)$',
+            reporter = 'summary'
+          )
+
+      - name: Download and verify the pinned OpenMalaria release
+        shell: pwsh
+        run: |
+          $artifactDir = Join-Path $env:GITHUB_WORKSPACE "validation/v$env:OM_VERSION"
+          New-Item -ItemType Directory -Path $artifactDir -Force | Out-Null
+          $archive = Join-Path $env:RUNNER_TEMP "openMalaria-$env:OM_VERSION.zip"
+          $url = "https://github.com/OpenMalaria-Org/openmalaria/releases/download/schema-$env:OM_VERSION.0/openMalaria-windows.zip"
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $actualHash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash
+          if ($actualHash -ne $env:OM_SHA256) { throw "OpenMalaria archive checksum mismatch" }
+          "$url`nSHA256 $actualHash" | Set-Content (Join-Path $artifactDir 'release.txt')
+          $destination = Join-Path $env:RUNNER_TEMP "openMalaria-$env:OM_VERSION"
+          Expand-Archive -LiteralPath $archive -DestinationPath $destination
+          $executables = @(Get-ChildItem -LiteralPath $destination -Recurse -Filter openMalaria.exe)
+          if ($executables.Count -ne 1) { throw "Expected exactly one OpenMalaria executable" }
+          "OM_EXECUTABLE=$($executables[0].FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Validate simulate and collect both seeds
+        shell: pwsh
+        run: |
+          Rscript .github/validation/run.R $env:OM_VERSION $env:OM_EXECUTABLE "validation/v$env:OM_VERSION"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Save validation inputs logs outputs and databases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openmalaria-v${{ matrix.version }}-validation
+          path: validation/v${{ matrix.version }}/
+          if-no-files-found: warn

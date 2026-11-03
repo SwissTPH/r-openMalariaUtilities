@@ -93,10 +93,13 @@
 ##'   NULL.
 ##' @param dates If NULL, startDate, endDate and interval are used, else a
 ##'   vector of dates in YYYY-MM-DD format. Can be a placeholder.
-##' @param minAge Minimum age for deployment (used in SMC). Can be a
-##'   placeholder.
-##' @param maxAge Maximum age for deployment (used in SMC). Can be a
-##'   placeholder.
+##' @param minAge Minimum age for deployment, in years. Supply both age limits
+##'   or neither. Numeric limits must be single, finite, non-negative numbers
+##'   with `minAge < maxAge`. Placeholders (including character placeholder
+##'   sequences) are allowed; check their values and ordering after substitution.
+##' @param maxAge Maximum age for deployment, in years. Must be supplied together
+##'   with `minAge`; the same numeric and placeholder rules apply. To target
+##'   children under five, use `minAge = 0, maxAge = 5`.
 ##' @param coverage Value or variable of coverage. Can be a placeholder.
 ##' @param subpop Either NULL or string. Concatenation component+"-"+subpop will
 ##'   be id in subpopulation intervention should be restricted to (see
@@ -107,6 +110,9 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
                      interval = NULL, dates = NULL, minAge = NULL, maxAge = NULL,
                      coverage = NULL, subpop = NULL) {
   ## Verify input
+  if (xor(is.null(minAge), is.null(maxAge))) {
+    stop("minAge and maxAge must be given together (or neither)")
+  }
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertList(baseList, add = assertCol)
   checkmate::assertCharacter(component, add = assertCol)
@@ -147,14 +153,18 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
     add = assertCol
   )
   checkmate::assert(
-    checkmate::checkNumeric(minAge),
-    checkmate::checkCharacter(minAge, pattern = "@(.*?)@"),
+    checkmate::checkNumeric(minAge, len = 1, lower = 0, finite = TRUE,
+                            any.missing = FALSE),
+    checkmate::checkCharacter(minAge, pattern = "^@[^@]+@$", min.len = 1,
+                              any.missing = FALSE),
     checkmate::checkNull(minAge),
     add = assertCol
   )
   checkmate::assert(
-    checkmate::checkNumeric(maxAge),
-    checkmate::checkCharacter(maxAge, pattern = "@(.*?)@"),
+    checkmate::checkNumeric(maxAge, len = 1, lower = 0, finite = TRUE,
+                            any.missing = FALSE),
+    checkmate::checkCharacter(maxAge, pattern = "^@[^@]+@$", min.len = 1,
+                              any.missing = FALSE),
     checkmate::checkNull(maxAge),
     add = assertCol
   )
@@ -168,6 +178,9 @@ deployIT <- function(baseList, component = "ITN", cumulative = FALSE,
   )
   checkmate::assertCharacter(subpop, null.ok = TRUE, add = assertCol)
   checkmate::reportAssertions(assertCol)
+  if (is.numeric(minAge) && is.numeric(maxAge) && minAge >= maxAge) {
+    stop("minAge must be less than maxAge")
+  }
 
   ## Generate a list containing the placeholder sequences from the function
   ## arguments.

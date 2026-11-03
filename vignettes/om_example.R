@@ -1,3 +1,5 @@
+## OpenMalaria v44 example. For the v49 workflow and migration requirements,
+## see vignettes/openmalaria-v49.Rmd.
 ## Basic skeleton
 baseList <- list(
   ## Mandatory

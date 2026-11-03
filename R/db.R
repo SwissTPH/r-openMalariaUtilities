@@ -133,9 +133,17 @@ FOREIGN KEY (experiment_id, scenario_id) REFERENCES scenarios (experiment_id, sc
 ##' @param translate Can be any of c("dates", "measures", "third_dimension") or
 ##'   simply TRUE (implies all) or FALSE (implies none).
 ##' @param scenID Scenario ID to be added.
+##' @param version Major OpenMalaria version for measure translation, either
+##'   44 or 49. If NULL, uses the experiment's cached `OMVersion`, or 44 when
+##'   no version is cached. An explicit value overrides the cache.
+##' @details Unknown measure IDs generate a warning and are retained as
+##'   character values rather than replaced by NA. The dictionary describes
+##'   default output IDs; custom `outputNumber` mappings require a custom
+##'   reader or untranslated output (`translate = FALSE`).
 ##' @importFrom data.table ':='
 ##' @export
-readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
+readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL,
+                           version = NULL) {
   ## Input verification
   assertCol <- checkmate::makeAssertCollection()
   checkmate::assertCharacter(f, add = assertCol)
@@ -149,7 +157,7 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   checkmate::reportAssertions(assertCol)
 
   ## Appease NSE notes in R CMD check
-  measure_index <- measure <- measure_name <- number <- rowNum <- NULL
+  measure <- number <- rowNum <- NULL
   survey_date <- third_dimension <- scenario_id <- id <- NULL
 
   ## Which columns should be translated?
@@ -172,14 +180,22 @@ readOutputFile <- function(f, filter = NULL, translate = TRUE, scenID = NULL) {
   ## Translate measure indices
   if ("measures" %in% translate) {
     ## Read dictionary
-    dict <- omOutputDict()
-    ## Add column to join on
-    output[, measure_index := measure]
-    ## Perform join and drop added column
-    output <- output[, measure := dict[output,
-      measure_name,
-      on = "measure_index"
-    ]][, c("measure_index") := NULL]
+    if (is.null(version)) {
+      version <- tryCatch(getCache("OMVersion"), error = function(e) NULL)
+      if (is.null(version)) version <- 44
+    }
+    dict <- omOutputDict(version = version)
+    translated <- dict$measure_name[match(output$measure, dict$measure_index)]
+    unknown <- is.na(translated)
+    if (any(unknown)) {
+      warning(paste0(
+        "Unknown OpenMalaria measure IDs: ",
+        paste(unique(output$measure[unknown]), collapse = ", "),
+        ". Keeping these IDs as character values."
+      ), call. = FALSE)
+      translated[unknown] <- as.character(output$measure[unknown])
+    }
+    output[, measure := translated]
   }
   ## Translate third_dimension numerical value to string
   if ("third_dimension" %in% translate) {

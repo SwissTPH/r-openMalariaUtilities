@@ -4,7 +4,12 @@
 \alias{omOutputDict}
 \title{Open Malaria output dictionary}
 \usage{
-omOutputDict()
+omOutputDict(version = 44)
+}
+\arguments{
+\item{version}{Major OpenMalaria version, either 44 or 49. Defaults to 44
+to preserve legacy labels, including \code{nNewefections} for measure 43.
+Version 49 uses \code{nNewInfections} and includes additional measures.}
 }
 \description{
 A dictionary which provides translations for the following

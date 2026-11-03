@@ -28,7 +28,8 @@ define_demography(
 )
 }
 \arguments{
-\item{baseList}{List with experiment data.}
+\item{baseList}{List with experiment data. Set \code{OMVersion = 49L} for v49
+input. If \code{OMVersion} is omitted, legacy behaviour is retained.}
 
 \item{name}{Name of demography data.}
 
@@ -36,7 +37,8 @@ define_demography(
 
 \item{maximumAgeYrs}{Maximum age of simulated humans in years.}
 
-\item{growthRate}{Growth rate of human population.}
+\item{growthRate}{Growth rate of human population. Must be NULL for v49,
+which no longer accepts this attribute.}
 
 \item{lowerbound}{Lower bound of age group.}
 

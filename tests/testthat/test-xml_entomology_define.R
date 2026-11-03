@@ -1,3 +1,148 @@
+test_that("defineEntomology accepts numeric and placeholder seasonality vectors", {
+  mosquitoParameters <- list("Anopheles gambiae" = list(
+    mosqRestDuration = list(value = 3),
+    extrinsicIncubationPeriod = list(value = 11),
+    mosqLaidEggsSameDayProportion = list(value = 0.313),
+    mosqSeekingDuration = list(value = 0.33),
+    mosqSurvivalFeedingCycleProbability = list(value = 0.623),
+    mosqProbBiting = list(mean = 0.95, variance = 0),
+    mosqProbFindRestSite = list(mean = 0.95, variance = 0),
+    mosqProbResting = list(mean = 0.99, variance = 0),
+    mosqProbOvipositing = list(mean = 0.88),
+    mosqHumanBloodIndex = list(mean = 0.939)
+  ))
+  for (version in list(NULL, 44L, 49L)) {
+    for (n in c(12L, 365L)) {
+      placeholders <- paste0("@", if (n == 12L) "m" else "d", seq_len(n), "@")
+      for (values in list(seq_len(n), placeholders)) {
+        seasonalityParameters <- list("Anopheles gambiae" = list(
+          annualEIR = "@EIR@", seasonality = values,
+          propInfected = 0.078, propInfectious = 0.021
+        ))
+        output <- defineEntomology(
+          list(OMVersion = version, entomology = list()),
+          seasonalityParameters, mosquitoParameters
+        )
+        seasonality <- output$entomology$vector$anopheles$seasonality
+        entry <- if (n == 12L) "monthlyValues" else "dailyValues"
+        series <- seasonality[[entry]]
+        expect_identical(seasonality$annualEIR, "@EIR@")
+        expect_identical(unlist(series[names(series) == "value"], use.names = FALSE), values)
+
+        ## Requiring every value to be a placeholder prevents accepting
+        ## malformed entries just because the first value is valid.
+        invalid <- placeholders
+        invalid[n] <- "not a placeholder"
+        seasonalityParameters[[1]]$seasonality <- invalid
+        expect_error(
+          defineEntomology(list(OMVersion = version, entomology = list()),
+                           seasonalityParameters, mosquitoParameters),
+          "vector of placeholders", fixed = TRUE
+        )
+      }
+    }
+    for (n in c(11L, 366L)) {
+      seasonalityParameters[[1]]$seasonality <- paste0("@x", seq_len(n), "@")
+      expect_error(
+        defineEntomology(list(OMVersion = version, entomology = list()),
+                         seasonalityParameters, mosquitoParameters),
+        "vector of placeholders", fixed = TRUE
+      )
+    }
+  }
+})
+
+test_that("defineEntomology preserves supplied animal hosts and matching declarations", {
+  mosquito <- list(
+    mosqRestDuration = list(value = 3),
+    extrinsicIncubationPeriod = list(value = 11),
+    mosqLaidEggsSameDayProportion = list(value = 0.313),
+    mosqSeekingDuration = list(value = 0.33),
+    mosqSurvivalFeedingCycleProbability = list(value = 0.623),
+    mosqProbBiting = list(mean = 0.95, variance = 0),
+    mosqProbFindRestSite = list(mean = 0.95, variance = 0),
+    mosqProbResting = list(mean = 0.99, variance = 0),
+    mosqProbOvipositing = list(mean = 0.88),
+    mosqHumanBloodIndex = list(mean = 0.939)
+  )
+  host <- list(
+    name = "unprotectedAnimals",
+    mosqRelativeEntoAvailability = list(value = "1"),
+    mosqProbBiting = list(value = "0.71"),
+    mosqProbFindRestSite = list(value = "0.8"),
+    mosqProbResting = list(value = "0.9")
+  )
+  seasonality <- list(annualEIR = 1, seasonality = rep(1, 12),
+                      propInfected = 0.078, propInfectious = 0.021)
+  for (version in c(44L, 49L)) {
+    build <- function(mosquito, base = list(OMVersion = version, entomology = list()),
+                      species = "gambiae") {
+      defineEntomology(base, setNames(list(seasonality), species),
+                       setNames(list(mosquito), species))
+    }
+    default <- build(mosquito)
+    mosquito$nonHumanHosts <- host
+    custom <- build(mosquito)
+    expect_identical(custom$entomology$vector$anopheles$nonHumanHosts, host)
+    expect_identical(custom$entomology$vector$nonHumanHosts,
+                     list(name = host$name, number = 1))
+    mosquito$nonHumanHosts$name <- "cattle"
+    renamed <- build(mosquito)
+    expect_identical(renamed$entomology$vector$nonHumanHosts$name, "cattle")
+
+    ## Shared hosts get one declaration; appending retains its population size.
+    renamed$entomology$vector$nonHumanHosts$number <- 17
+    shared <- build(mosquito, renamed, "funestus")
+    declarations <- shared$entomology$vector[
+      names(shared$entomology$vector) == "nonHumanHosts"]
+    expect_length(declarations, 1L)
+    expect_identical(declarations[[1]], list(name = "cattle", number = 17))
+    expect_equal(sum(names(shared$entomology$vector) == "anopheles"), 2)
+
+    ## Different population host names each get a matching declaration.
+    mixed <- build(mosquito, custom, "funestus")
+    declarations <- mixed$entomology$vector[
+      names(mixed$entomology$vector) == "nonHumanHosts"]
+    expect_identical(unname(vapply(declarations, function(x) x$name, character(1))),
+                     c("unprotectedAnimals", "cattle"))
+    together <- defineEntomology(
+      list(OMVersion = version, entomology = list()),
+      list(gambiae = seasonality, funestus = seasonality),
+      list(gambiae = mosquito, funestus = mosquito)
+    )
+    expect_identical(names(together$entomology$vector),
+                     c("anopheles", "anopheles", "nonHumanHosts"))
+    expect_identical(together$entomology$vector$nonHumanHosts$name, "cattle")
+    mosquito$nonHumanHosts <- NULL
+    expect_identical(build(mosquito), default)
+    invalid <- mosquito
+    invalid$nonHumanHosts <- list(host, host)
+    expect_error(build(invalid), "name", fixed = TRUE)
+
+    ## Check serialized values and declaration order against both real schemas.
+    for (data in list(default, custom, renamed, shared, mixed, together)) {
+      root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+      .recXML(root, data["entomology"], checkmate::makeAssertCollection())
+      if (identical(data, custom)) {
+        for (field in names(host)[-1]) {
+          node <- xml2::xml_find_first(root, paste0(".//anopheles/nonHumanHosts/", field))
+          expect_identical(xml2::xml_attr(node, "value"), host[[field]]$value)
+        }
+      }
+      schema <- xml2::read_xml(system.file(
+        "extdata", paste0("scenario_", version, ".xsd"),
+        package = "openMalariaUtilities"
+      ))
+      xml2::xml_remove(xml2::xml_find_all(schema, paste0(
+        "/xs:schema/xs:element[@name='scenario']/xs:complexType/xs:all/",
+        "xs:element[@name!='entomology']"
+      )))
+      valid <- xml2::xml_validate(xml2::read_xml(as.character(root)), schema)
+      expect_true(valid, info = paste(attr(valid, "errors"), collapse = "\n"))
+    }
+  }
+})
+
 test_that("make_ento_compat works", {
   testlist <- list(entomology = list())
 
@@ -94,6 +239,8 @@ test_that("make_ento_compat works", {
 
 
 test_that("defineEntomology works", {
+  ## Direct .recXML calls need the cache normally set up by .xmlMakeDocRec.
+  putCache("placeholders", NULL)
   testlist <- list(entomology = list())
 
   monthlyValues <- list(
@@ -180,7 +327,7 @@ test_that("defineEntomology works", {
       )
     )
   )
-  actual <- defineEntomology(
+  args <- list(
     baseList = testlist,
     seasonalityParameters = list(
       "gambiae_ss" = list(
@@ -217,5 +364,88 @@ test_that("defineEntomology works", {
   )
 
   ## Normal
+  actual <- do.call(defineEntomology, args)
   expect_equal(actual, expected)
+
+  ## Explicit v44 input retains the exact legacy entomology.
+  args$baseList$OMVersion <- 44L
+  v44 <- do.call(defineEntomology, args)
+  expect_identical(v44$entomology, actual$entomology)
+  expect_identical(v44$OMVersion, 44L)
+
+  ## v49 only removes the two obsolete initial-guess attributes.
+  args$baseList$OMVersion <- 49L
+  v49 <- do.call(defineEntomology, args)
+  expectedV49 <- expected$entomology
+  expectedV49$vector$anopheles$propInfected <- NULL
+  expectedV49$vector$anopheles$propInfectious <- NULL
+  expect_identical(v49$entomology, expectedV49)
+  expect_identical(v49$OMVersion, 49L)
+
+  ## Keep the historical default and expose explicit numeric or placeholder
+  ## thresholds without changing the interpretation of positional arguments.
+  thresholdCases <- list(v44, v49)
+  for (version in list(NULL, 44L, 49L)) {
+    thresholdArgs <- args
+    thresholdArgs$baseList$OMVersion <- version
+    thresholdArgs$mosquitoParameters$funestus <- thresholdArgs$mosquitoParameters$gambiae_ss
+    thresholdArgs$seasonalityParameters$funestus <- thresholdArgs$seasonalityParameters$gambiae_ss
+    for (threshold in list(0, 0.02, "@threshold@")) {
+      thresholdArgs$minInfectedThreshold <- threshold
+      output <- do.call(defineEntomology, thresholdArgs)
+      populations <- output$entomology$vector[
+        names(output$entomology$vector) == "anopheles"]
+      expect_length(populations, 2L)
+      for (population in populations) {
+        expect_identical(population$mosq$minInfectedThreshold, threshold)
+      }
+      root <- .makeXmlRoot(if (is.null(version)) 44L else version,
+                            name = "test", analysisNo = NULL)
+      .recXML(root, output["entomology"], checkmate::makeAssertCollection())
+      nodes <- xml2::xml_find_all(root, ".//anopheles/mosq")
+      expect_identical(xml2::xml_attr(nodes, "minInfectedThreshold"),
+                       rep(as.character(threshold), 2))
+      if (!is.null(version) && is.numeric(threshold)) {
+        thresholdCases <- append(thresholdCases, list(output))
+      }
+    }
+    for (invalid in list(NULL, -1, NA_real_, Inf, NaN, numeric(), c(0, 1),
+                         "0.001", "bad", "@@", NA_character_, c("@a@", "@b@"))) {
+      thresholdArgs["minInfectedThreshold"] <- list(invalid)
+      expect_error(do.call(defineEntomology, thresholdArgs), "minInfectedThreshold",
+                   fixed = TRUE)
+    }
+  }
+
+  ## Callers can omit the obsolete inputs entirely for v49.
+  args$seasonalityParameters$gambiae_ss$propInfected <- NULL
+  args$seasonalityParameters$gambiae_ss$propInfectious <- NULL
+  expect_identical(do.call(defineEntomology, args), v49)
+
+  ## The generated XML must contain no NULL attributes or removed inputs.
+  root <- .makeXmlRoot(49L, name = "test", analysisNo = NULL)
+  .xmlMakeDocRec(root, v49)
+  anopheles <- xml2::xml_find_all(root, ".//anopheles")
+  expect_length(anopheles, 1L)
+  expect_identical(xml2::xml_attr(anopheles, "mosquito"), "gambiae_ss")
+  expect_true(is.na(xml2::xml_attr(anopheles, "propInfected")))
+  expect_true(is.na(xml2::xml_attr(anopheles, "propInfectious")))
+
+  ## Validate both generated sections against the bundled entomology types.
+  ## Other scenario sections are omitted from this section-level check only.
+  for (data in thresholdCases) {
+    version <- data$OMVersion
+    root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
+    .recXML(root, data["entomology"], checkmate::makeAssertCollection())
+    schema <- xml2::read_xml(system.file(
+      "extdata", paste0("scenario_", version, ".xsd"),
+      package = "openMalariaUtilities"
+    ))
+    xml2::xml_remove(xml2::xml_find_all(schema, paste0(
+      "/xs:schema/xs:element[@name='scenario']/xs:complexType/xs:all/",
+      "xs:element[@name!='entomology']"
+    )))
+    valid <- xml2::xml_validate(xml2::read_xml(as.character(root)), schema)
+    expect_true(valid, info = paste(attr(valid, "errors"), collapse = "\n"))
+  }
 })

@@ -20,8 +20,12 @@ NULL
 ##'
 ##' See
 ##' https://github.com/SwissTPH/openmalaria/wiki/MonitoringOptions#survey-measures
+##' @param version Major OpenMalaria version, either 44 or 49. Defaults to 44
+##'   to preserve legacy labels, including `nNewefections` for measure 43.
+##'   Version 49 uses `nNewInfections` and includes additional measures.
 ##' @export
-omOutputDict <- function() {
+omOutputDict <- function(version = 44) {
+  checkmate::assertChoice(version, choices = c(44, 49))
   dict <- data.table::data.table(
     measure_index = as.integer(c(
       0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -178,5 +182,41 @@ omOutputDict <- function() {
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
     )
   )
+  if (version == 49) {
+    dict$measure_name[dict$measure_index == 43L] <- "nNewInfections"
+
+    ## Default output IDs from OpenMalaria schema-49.0,
+    ## model/mon/OutputMeasures.h. Existing v44 metadata is retained.
+    additions <- list(data.table::data.table(
+      measure_index = as.integer(c(41, 42, 44, 45, 46, 80, 81, 82)),
+      measure_name = c(
+        "Clinical_FirstDayDeaths", "Clinical_HospitalFirstDayDeaths",
+        "nMassITNs", "nEPI_ITNs", "nMassIRS", "nCMDTReport",
+        "nSevereWithoutComorbidities", "expectedSevereWithoutComorbidities"
+      ),
+      age_group = TRUE, cohort = TRUE, genotype = FALSE,
+      vector_species = FALSE, drug_ID = FALSE, aggregated = TRUE
+    ))
+
+    ## Infection-origin variants retain the dimensions of the base measure.
+    originMeasures <- dict[dict$measure_index %in% c(1L, 3L, 6L, 8L, 14L, 43L)]
+    origins <- c("Imported", "Introduced", "Indigenous")
+    for (i in seq_along(origins)) {
+      measures <- data.table::copy(originMeasures)
+      measures$measure_index <- measures$measure_index + 1000L * i
+      measures$measure_name <- paste0(measures$measure_name, "_", origins[i])
+      additions <- append(additions, list(measures))
+
+      ## There is no simulatedEIR_Imported output in v49.
+      if (i > 1L) {
+        eir <- data.table::copy(dict[dict$measure_index == 36L])
+        eir$measure_index <- 36L + 1000L * i
+        eir$measure_name <- paste0("simulatedEIR_", origins[i])
+        additions <- append(additions, list(eir))
+      }
+    }
+    dict <- data.table::rbindlist(c(list(dict), additions))
+    data.table::setorderv(dict, "measure_index")
+  }
   return(dict)
 }

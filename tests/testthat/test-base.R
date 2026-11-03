@@ -86,8 +86,42 @@ test_that("setupOM works", {
 
   found <- list.files(testDir, pattern = ".csv|.xsd")
 
-  actual <- all(grepl("autoRegressionParameters|densities|scenario", found))
-  expected <- TRUE
+  expect_setequal(
+    found,
+    c("autoRegressionParameters.csv", "densities.csv", "scenario_44.xsd")
+  )
+})
 
-  expect_equal(actual, expected)
+test_that("setupOM copies the resources for each supported schema", {
+  for (version in c(44L, 49L)) {
+    resourceDir <- tempfile(paste0("setup-om-", version, "-"))
+    dir.create(resourceDir)
+    setupOM(version = version, dir = resourceDir)
+
+    resources <- c(
+      "autoRegressionParameters.csv", "densities.csv",
+      paste0("scenario_", version, ".xsd")
+    )
+    expect_setequal(list.files(resourceDir), resources)
+    for (resource in resources) {
+      expect_identical(
+        unname(tools::md5sum(file.path(resourceDir, resource))),
+        unname(tools::md5sum(system.file(
+          "extdata", resource, package = "openMalariaUtilities"
+        )))
+      )
+    }
+
+    schema <- xml2::read_xml(file.path(resourceDir, resources[3]))
+    expect_identical(
+      xml2::xml_attr(schema, "targetNamespace"),
+      paste0("http://openmalaria.org/schema/scenario_", version)
+    )
+
+    ## Repeated setup preserves files already present in the experiment.
+    sentinel <- file.path(resourceDir, "densities.csv")
+    writeLines("existing experiment resource", sentinel)
+    expect_message(setupOM(version = version, dir = resourceDir), "skipping")
+    expect_identical(readLines(sentinel), "existing experiment resource")
+  }
 })
