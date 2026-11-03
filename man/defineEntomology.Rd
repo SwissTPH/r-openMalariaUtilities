@@ -13,7 +13,8 @@ defineEntomology(
   name = "Namawala",
   scaledAnnualEIR = NULL,
   verbose = FALSE,
-  append = TRUE
+  append = TRUE,
+  minInfectedThreshold = 0.001
 )
 
 define_entomology(
@@ -24,7 +25,8 @@ define_entomology(
   name = "Namawala",
   scaledAnnualEIR = NULL,
   verbose = FALSE,
-  append = TRUE
+  append = TRUE,
+  minInfectedThreshold = 0.001
 )
 }
 \arguments{
@@ -58,6 +60,11 @@ supported by this argument.}
 \item{verbose}{If TRUE, print detailed output.}
 
 \item{append}{If TRUE, then append to existing baseList, otherwise overwrite}
+
+\item{minInfectedThreshold}{Minimum infected mosquito population below which
+transmission is interrupted, applied to every mosquito population. A single
+finite non-negative number or scenario placeholder. Defaults to 0.001 for
+compatibility with previous OMU versions; use 0 for the v49 schema default.}
 }
 \description{
 Defines entomology setting

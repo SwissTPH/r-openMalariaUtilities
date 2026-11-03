@@ -22,6 +22,10 @@
 ##' @param scaledAnnualEIR If not NULL, annualEIR will be rescaled by numeric
 ##' @param verbose If TRUE, print detailed output.
 ##' @param append If TRUE, then append to existing baseList, otherwise overwrite
+##' @param minInfectedThreshold Minimum infected mosquito population below which
+##'   transmission is interrupted, applied to every mosquito population. A single
+##'   finite non-negative number or scenario placeholder. Defaults to 0.001 for
+##'   compatibility with previous OMU versions; use 0 for the v49 schema default.
 ##' @examples
 ##' # Illustrative values; use the resting and seeking durations for your species.
 ##' mosquitoParameters=list("Anopheles gambiae"=list(
@@ -44,7 +48,8 @@
 defineEntomology <- function(baseList, seasonalityParameters,
                              mosquitoParameters, mode = "dynamic",
                              name = "Namawala", scaledAnnualEIR = NULL,
-                             verbose = FALSE, append = TRUE) {
+                             verbose = FALSE, append = TRUE,
+                             minInfectedThreshold = 0.001) {
 
   ## Verify input
   assertCol <- checkmate::makeAssertCollection()
@@ -66,6 +71,11 @@ defineEntomology <- function(baseList, seasonalityParameters,
   )
   checkmate::assertLogical(verbose, add = assertCol)
   checkmate::assertLogical(append, add = assertCol)
+  checkmate::assert(
+    checkmate::checkNumber(minInfectedThreshold, lower = 0, finite = TRUE),
+    checkmate::checkString(minInfectedThreshold, pattern = "^@[^@]+@$"),
+    add = assertCol
+  )
   checkmate::reportAssertions(assertCol)
 
   isV49 <- isTRUE(baseList[["OMVersion"]] == 49L)
@@ -199,7 +209,7 @@ defineEntomology <- function(baseList, seasonalityParameters,
     inputList <- .xmlAddList(
       data = inputList, sublist = NULL, entry = "mosq",
       input = list(
-        minInfectedThreshold = 0.001,
+        minInfectedThreshold = minInfectedThreshold,
         mosqRestDuration = list(
           value = mosqData[["mosqRestDuration"]][["value"]]
         ),

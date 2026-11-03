@@ -235,13 +235,20 @@ workflow that uses them.
 ## Model assumptions and comparison with v44
 
 - OMU explicitly sets `HEALTH_SYSTEM_MEMORY_FIX = false` in the v49 legacy
-  model helper to retain the earlier clinical-memory behaviour. Other numerical
-  settings and model options are preserved.
+  model helper. The OpenMalaria developer confirmed that false is the correct
+  setting for v49 and that the true setting is not yet implemented. Other
+  numerical settings and model options are preserved.
 - The helper does not switch to `<ModelName name="base"/>`. That model's
   defaults differ from this legacy parameterization; for example, parameter 16
-  is 1.0 in the named base model and 0.05 in the helper.
-- `defineEntomology()` retains `minInfectedThreshold = 0.001`; v49's upstream
-  default is zero. This migration does not change the elimination assumption.
+  is 1.0 in the named base model and 0.05 in the helper. The OpenMalaria
+  developer confirmed that this parameter is unused by the base model, so
+  the difference does not require a change for that model.
+- `defineEntomology()` exposes `minInfectedThreshold`, retaining 0.001 as the
+  default for compatibility. Set `minInfectedThreshold = 0` explicitly to use
+  the v49 schema default. The setting applies to every mosquito population
+  in the call and may also be a scenario placeholder.
+- The existing age-dependent human availability and `availability distr="const"`
+  are retained; no additional individual heterogeneity is introduced.
 - V49's `nNewInfections` includes imported infections. Infection-origin
   tracking and changes to monthly-EIR smoothing since v44 can also affect
   results. Matching inputs and seeds do not guarantee identical trajectories

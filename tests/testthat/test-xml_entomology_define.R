@@ -380,6 +380,41 @@ test_that("defineEntomology works", {
   expect_identical(v49$entomology, expectedV49)
   expect_identical(v49$OMVersion, 49L)
 
+  ## Keep the historical default and expose explicit numeric or placeholder
+  ## thresholds without changing the interpretation of positional arguments.
+  thresholdCases <- list(v44, v49)
+  for (version in list(NULL, 44L, 49L)) {
+    thresholdArgs <- args
+    thresholdArgs$baseList$OMVersion <- version
+    thresholdArgs$mosquitoParameters$funestus <- thresholdArgs$mosquitoParameters$gambiae_ss
+    thresholdArgs$seasonalityParameters$funestus <- thresholdArgs$seasonalityParameters$gambiae_ss
+    for (threshold in list(0, 0.02, "@threshold@")) {
+      thresholdArgs$minInfectedThreshold <- threshold
+      output <- do.call(defineEntomology, thresholdArgs)
+      populations <- output$entomology$vector[
+        names(output$entomology$vector) == "anopheles"]
+      expect_length(populations, 2L)
+      for (population in populations) {
+        expect_identical(population$mosq$minInfectedThreshold, threshold)
+      }
+      root <- .makeXmlRoot(if (is.null(version)) 44L else version,
+                            name = "test", analysisNo = NULL)
+      .recXML(root, output["entomology"], checkmate::makeAssertCollection())
+      nodes <- xml2::xml_find_all(root, ".//anopheles/mosq")
+      expect_identical(xml2::xml_attr(nodes, "minInfectedThreshold"),
+                       rep(as.character(threshold), 2))
+      if (!is.null(version) && is.numeric(threshold)) {
+        thresholdCases <- append(thresholdCases, list(output))
+      }
+    }
+    for (invalid in list(NULL, -1, NA_real_, Inf, NaN, numeric(), c(0, 1),
+                         "0.001", "bad", "@@", NA_character_, c("@a@", "@b@"))) {
+      thresholdArgs["minInfectedThreshold"] <- list(invalid)
+      expect_error(do.call(defineEntomology, thresholdArgs), "minInfectedThreshold",
+                   fixed = TRUE)
+    }
+  }
+
   ## Callers can omit the obsolete inputs entirely for v49.
   args$seasonalityParameters$gambiae_ss$propInfected <- NULL
   args$seasonalityParameters$gambiae_ss$propInfectious <- NULL
@@ -396,7 +431,7 @@ test_that("defineEntomology works", {
 
   ## Validate both generated sections against the bundled entomology types.
   ## Other scenario sections are omitted from this section-level check only.
-  for (data in list(v44, v49)) {
+  for (data in thresholdCases) {
     version <- data$OMVersion
     root <- .makeXmlRoot(version, name = "test", analysisNo = NULL)
     .recXML(root, data["entomology"], checkmate::makeAssertCollection())

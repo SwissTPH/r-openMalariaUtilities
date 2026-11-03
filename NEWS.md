@@ -2,6 +2,11 @@
 
 # Development version
 
+* Expose `minInfectedThreshold` in `defineEntomology()` for v44 and v49,
+  retaining 0.001 as the default. A finite non-negative number or scenario
+  placeholder can be supplied; zero selects the v49 schema default. Record
+  developer confirmation of the retained clinical-memory and base-model settings
+  in the compatibility guide.
 * Require `minAge` and `maxAge` together in `deployIT()` instead of silently
   discarding a single age restriction. Numeric bounds must be finite,
   non-negative single values with `minAge < maxAge`. Paired placeholders remain
